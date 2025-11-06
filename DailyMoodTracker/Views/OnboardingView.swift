@@ -60,8 +60,7 @@ struct OnboardingView: View {
                     OnboardingSlide3()
                         .tag(2)
                 }
-                .tabViewStyle(.page(indexDisplayMode: .always))
-                .indexViewStyle(.page(backgroundDisplayMode: .always))
+                .tabViewStyle(PageTabViewStyle(indexDisplayMode: .always))
 
                 // Bottom buttons
                 HStack(spacing: 20) {
