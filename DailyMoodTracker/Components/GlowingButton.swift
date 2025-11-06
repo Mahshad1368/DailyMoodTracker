@@ -98,7 +98,7 @@ struct EnhancedMoodButton: View {
         }
         .buttonStyle(.plain)
         .animation(.spring(response: 0.3, dampingFraction: 0.6), value: isSelected)
-        .onChange(of: isSelected) { _, newValue in
+        .onChange(of: isSelected) { newValue in
             if newValue {
                 withAnimation(.easeInOut(duration: 1.5).repeatForever(autoreverses: true)) {
                     isPulsing = true
