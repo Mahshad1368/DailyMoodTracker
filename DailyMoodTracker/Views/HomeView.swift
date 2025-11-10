@@ -9,6 +9,7 @@ import SwiftUI
 
 struct HomeView: View {
     @EnvironmentObject var dataManager: DataManager
+    @AppStorage("userName") private var userName: String = "User"
     @State private var selectedMood: MoodType?
     @State private var note: String = ""
     @State private var showingSaveAlert = false
@@ -16,8 +17,6 @@ struct HomeView: View {
 
     // Current date for time-based gradient
     @State private var currentDate = Date()
-    @State private var userName = UserDefaults.standard.string(forKey: "userName") ?? "User"
-    @State private var showingSettings = false
 
     var body: some View {
         NavigationStack {
@@ -149,9 +148,8 @@ struct HomeView: View {
             }
             }
             .onAppear {
-                // Update current date and user name when view appears
+                // Update current date when view appears
                 currentDate = Date()
-                userName = UserDefaults.standard.string(forKey: "userName") ?? "User"
             }
         }
     }
