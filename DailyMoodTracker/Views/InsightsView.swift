@@ -42,14 +42,14 @@ struct InsightsView: View {
                             StatCard(
                                 title: "Total Entries",
                                 value: "\(dataManager.entries.count)",
-                                icon: "📝",
+                                icon: "calendar",
                                 subtitle: "all time"
                             )
 
                             StatCard(
                                 title: "Current Streak",
                                 value: "\(getCurrentStreak())",
-                                icon: "🔥",
+                                icon: "flame.fill",
                                 subtitle: getCurrentStreak() == 1 ? "day" : "days"
                             )
                         }
@@ -66,7 +66,7 @@ struct InsightsView: View {
                             StatCard(
                                 title: "This Week",
                                 value: "\(getThisWeekCount())",
-                                icon: "📊",
+                                icon: "chart.bar.fill",
                                 subtitle: getThisWeekCount() == 1 ? "entry" : "entries"
                             )
                         }
@@ -75,7 +75,7 @@ struct InsightsView: View {
                         StatCard(
                             title: "Most Common Mood",
                             value: getMostCommonMood().emoji,
-                            icon: "💭",
+                            icon: "star.fill",
                             subtitle: getMostCommonMood().name,
                             isWide: true
                         )
@@ -341,8 +341,17 @@ struct StatCard: View {
     var body: some View {
         DarkGlassCard(padding: 16) {
             VStack(spacing: 10) {
-                Text(icon)
-                    .font(.system(size: isWide ? 40 : 32))
+                // Check if icon is emoji or SF Symbol
+                if icon.count <= 2 {
+                    // Emoji (single character or emoji with modifier)
+                    Text(icon)
+                        .font(.system(size: isWide ? 40 : 32))
+                } else {
+                    // SF Symbol
+                    Image(systemName: icon)
+                        .font(.system(size: isWide ? 36 : 28))
+                        .foregroundColor(.white.opacity(0.9))
+                }
 
                 Text(value)
                     .font(.system(isWide ? .title : .title2, design: .rounded))
