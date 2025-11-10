@@ -14,7 +14,8 @@ struct HomeView: View {
     @AppStorage("userName") private var userName: String = "User"
     @State private var selectedMood: MoodType?
     @State private var note: String = ""
-    @State private var showingSaveAlert = false
+    @State private var showingToast = false
+    @State private var justSaved = false
     @FocusState private var isNoteFieldFocused: Bool
 
     // Photo picker
@@ -136,7 +137,7 @@ struct HomeView: View {
 
                                 // Save Mood Button
                                 GlowingButton(
-                                    title: "Save Mood",
+                                    title: justSaved ? "✓ Saved!" : "Save Mood",
                                     action: logMood,
                                     isEnabled: selectedMood != nil,
                                     colors: [Color(hex: "FFD93D"), Color(hex: "FFA500")]
@@ -157,11 +158,12 @@ struct HomeView: View {
                     }
                 }
             }
-            .alert("Mood Logged!", isPresented: $showingSaveAlert) {
-                Button("OK", role: .cancel) { }
-            } message: {
-                Text("Your mood has been recorded! ✨")
-            }
+            .toast(
+                isShowing: $showingToast,
+                message: "Mood saved!",
+                icon: "checkmark.circle.fill",
+                duration: 2.0
+            )
             .onChange(of: selectedPhotoItem) { newItem in
                 Task {
                     if let data = try? await newItem?.loadTransferable(type: Data.self) {
@@ -283,8 +285,17 @@ struct HomeView: View {
     private func logMood() {
         guard let mood = selectedMood else { return }
 
+        // Automatically stop recording if still recording
+        if isRecording {
+            stopRecording()
+        }
+
         // Dismiss keyboard
         isNoteFieldFocused = false
+
+        // Haptic feedback - success vibration
+        let generator = UINotificationFeedbackGenerator()
+        generator.notificationOccurred(.success)
 
         dataManager.addEntry(
             mood: mood,
@@ -294,15 +305,30 @@ struct HomeView: View {
             audioDuration: recordedAudioData != nil ? audioDuration : nil
         )
 
-        // Clear form
-        selectedMood = nil
-        note = ""
-        selectedPhotoData = nil
-        selectedPhotoItem = nil
-        recordedAudioData = nil
-        audioDuration = 0
+        // Show button animation
+        withAnimation(.spring(response: 0.3, dampingFraction: 0.6)) {
+            justSaved = true
+        }
 
-        showingSaveAlert = true
+        // Show toast
+        showingToast = true
+
+        // Reset button text after 1 second, then clear form
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+            withAnimation {
+                justSaved = false
+            }
+
+            // Clear form after button animation
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                selectedMood = nil
+                note = ""
+                selectedPhotoData = nil
+                selectedPhotoItem = nil
+                recordedAudioData = nil
+                audioDuration = 0
+            }
+        }
     }
 
     // MARK: - Photo Handling
@@ -387,6 +413,83 @@ struct HomeView: View {
         let minutes = Int(duration) / 60
         let seconds = Int(duration) % 60
         return String(format: "%d:%02d", minutes, seconds)
+    }
+}
+
+// MARK: - Toast View
+
+struct ToastView: View {
+    let message: String
+    let icon: String
+    @Binding var isShowing: Bool
+
+    var body: some View {
+        VStack {
+            if isShowing {
+                HStack(spacing: 12) {
+                    Image(systemName: icon)
+                        .font(.system(size: 20, weight: .semibold))
+                        .foregroundColor(.white)
+
+                    Text(message)
+                        .font(.system(.body, design: .rounded))
+                        .fontWeight(.semibold)
+                        .foregroundColor(.white)
+                }
+                .padding(.horizontal, 20)
+                .padding(.vertical, 14)
+                .background(
+                    Capsule()
+                        .fill(Color.green.gradient)
+                        .shadow(color: .black.opacity(0.15), radius: 10, x: 0, y: 5)
+                )
+                .transition(.move(edge: .top).combined(with: .opacity))
+                .padding(.top, 10)
+            }
+
+            Spacer()
+        }
+        .animation(.spring(response: 0.6, dampingFraction: 0.7), value: isShowing)
+    }
+}
+
+struct ToastModifier: ViewModifier {
+    @Binding var isShowing: Bool
+    let message: String
+    let icon: String
+    let duration: TimeInterval
+
+    func body(content: Content) -> some View {
+        ZStack {
+            content
+
+            ToastView(message: message, icon: icon, isShowing: $isShowing)
+        }
+        .onChange(of: isShowing) { showing in
+            if showing {
+                DispatchQueue.main.asyncAfter(deadline: .now() + duration) {
+                    withAnimation {
+                        isShowing = false
+                    }
+                }
+            }
+        }
+    }
+}
+
+extension View {
+    func toast(
+        isShowing: Binding<Bool>,
+        message: String,
+        icon: String = "checkmark.circle.fill",
+        duration: TimeInterval = 2.0
+    ) -> some View {
+        self.modifier(ToastModifier(
+            isShowing: isShowing,
+            message: message,
+            icon: icon,
+            duration: duration
+        ))
     }
 }
 
