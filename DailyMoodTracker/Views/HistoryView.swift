@@ -26,15 +26,15 @@ struct HistoryView: View {
 
     var body: some View {
         ZStack {
-            // Dark gradient background
-            DarkGradientBackground()
+            // Dark theme gradient background
+            DarkThemeBackground()
 
             VStack(spacing: 0) {
                 // Header
                 Text("History")
                     .font(.system(.largeTitle, design: .rounded))
                     .fontWeight(.bold)
-                    .foregroundColor(.white)
+                    .foregroundColor(Color.darkTheme.textPrimary)
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(.horizontal, 25)
                     .padding(.top, 20)
@@ -45,7 +45,7 @@ struct HistoryView: View {
                     Button(action: previousMonth) {
                         Image(systemName: "chevron.left")
                             .font(.title3)
-                            .foregroundColor(.white)
+                            .foregroundColor(Color.darkTheme.textPrimary)
                     }
 
                     Spacer()
@@ -53,21 +53,21 @@ struct HistoryView: View {
                     Text(monthYearString(from: currentDate))
                         .font(.system(.title3, design: .rounded))
                         .fontWeight(.semibold)
-                        .foregroundColor(.white)
+                        .foregroundColor(Color.darkTheme.textPrimary)
 
                     Spacer()
 
                     Button(action: nextMonth) {
                         Image(systemName: "chevron.right")
                             .font(.title3)
-                            .foregroundColor(.white)
+                            .foregroundColor(Color.darkTheme.textPrimary)
                     }
                 }
                 .padding(.horizontal, 30)
                 .padding(.bottom, 20)
 
                 // Calendar View
-                DarkGlassCard(padding: 20) {
+                DarkThemeCard(padding: 20) {
                     VStack(spacing: 15) {
                         // Days of Week Header
                         HStack(spacing: 0) {
@@ -75,7 +75,7 @@ struct HistoryView: View {
                                 Text(day)
                                     .font(.system(.caption, design: .rounded))
                                     .fontWeight(.semibold)
-                                    .foregroundColor(.white.opacity(0.7))
+                                    .foregroundColor(Color.darkTheme.textSecondary)
                                     .frame(maxWidth: .infinity)
                             }
                         }
@@ -188,11 +188,11 @@ struct EnhancedCalendarDayView: View {
             Text("\(calendar.component(.day, from: date))")
                 .font(.system(size: 16, design: .rounded))
                 .fontWeight(isToday ? .bold : .medium)
-                .foregroundColor(isCurrentMonth ? .white : .white.opacity(0.3))
+                .foregroundColor(isCurrentMonth ? Color.darkTheme.textPrimary : Color.darkTheme.textSecondary.opacity(0.3))
                 .frame(width: 40, height: 40)
                 .background(
                     Circle()
-                        .fill(isToday ? Color(hex: "667EEA") : Color.clear)
+                        .fill(isToday ? Color.darkTheme.accent : Color.clear)
                 )
 
             // Mood indicator dots (show multiple if multiple moods)
@@ -217,8 +217,8 @@ struct EnhancedDateDetailSheet: View {
 
     var body: some View {
         ZStack {
-            // Dark background
-            Color(hex: "1A1A2E")
+            // Dark theme background
+            Color.darkTheme.bgDarker
                 .ignoresSafeArea()
 
             VStack(alignment: .leading, spacing: 0) {
@@ -228,11 +228,11 @@ struct EnhancedDateDetailSheet: View {
                         Text(formattedDate)
                             .font(.system(.title2, design: .rounded))
                             .fontWeight(.bold)
-                            .foregroundColor(.white)
+                            .foregroundColor(Color.darkTheme.textPrimary)
 
                         Text("\(entries.count) \(entries.count == 1 ? "entry" : "entries")")
                             .font(.system(.subheadline, design: .rounded))
-                            .foregroundColor(.white.opacity(0.7))
+                            .foregroundColor(Color.darkTheme.textSecondary)
                     }
 
                     Spacer()
@@ -240,7 +240,7 @@ struct EnhancedDateDetailSheet: View {
                     Button(action: { dismiss() }) {
                         Image(systemName: "xmark.circle.fill")
                             .font(.title2)
-                            .foregroundColor(.white.opacity(0.7))
+                            .foregroundColor(Color.darkTheme.textSecondary)
                     }
                 }
                 .padding(.horizontal, 25)
@@ -251,11 +251,11 @@ struct EnhancedDateDetailSheet: View {
                     VStack(spacing: 15) {
                         Image(systemName: "calendar.badge.exclamationmark")
                             .font(.system(size: 50))
-                            .foregroundColor(.white.opacity(0.5))
+                            .foregroundColor(Color.darkTheme.textSecondary.opacity(0.5))
 
                         Text("No entries for this day")
                             .font(.headline)
-                            .foregroundColor(.white.opacity(0.7))
+                            .foregroundColor(Color.darkTheme.textSecondary)
                     }
                     .frame(maxWidth: .infinity)
                     .padding(.top, 60)
@@ -303,7 +303,7 @@ struct EnhancedEntryCard: View {
                 Text(entry.formattedTime)
                     .font(.system(.caption, design: .rounded))
                     .fontWeight(.medium)
-                    .foregroundColor(.white.opacity(0.7))
+                    .foregroundColor(Color.darkTheme.textSecondary)
             }
             .frame(width: 65)
 
@@ -316,7 +316,7 @@ struct EnhancedEntryCard: View {
 
                     Text(entry.mood.name)
                         .font(.system(.headline, design: .rounded))
-                        .foregroundColor(.white)
+                        .foregroundColor(Color.darkTheme.textPrimary)
 
                     Spacer()
 
@@ -331,7 +331,7 @@ struct EnhancedEntryCard: View {
                 if !entry.note.isEmpty {
                     Text(entry.note)
                         .font(.system(.subheadline, design: .rounded))
-                        .foregroundColor(.white.opacity(0.8))
+                        .foregroundColor(Color.darkTheme.textSecondary)
                         .lineSpacing(4)
                 }
 
@@ -356,19 +356,19 @@ struct EnhancedEntryCard: View {
                         Button(action: toggleAudioPlayback) {
                             Image(systemName: isPlayingAudio ? "pause.circle.fill" : "play.circle.fill")
                                 .font(.system(size: 32))
-                                .foregroundColor(Color(hex: "667EEA"))
+                                .foregroundColor(Color.darkTheme.accent)
                         }
 
                         VStack(alignment: .leading, spacing: 2) {
                             Text("Voice Note")
                                 .font(.system(.subheadline, design: .rounded))
                                 .fontWeight(.semibold)
-                                .foregroundColor(.white)
+                                .foregroundColor(Color.darkTheme.textPrimary)
 
                             if let duration = entry.audioDuration {
                                 Text(formatDuration(duration))
                                     .font(.system(.caption, design: .rounded))
-                                    .foregroundColor(.white.opacity(0.6))
+                                    .foregroundColor(Color.darkTheme.textSecondary)
                             }
                         }
 
@@ -376,12 +376,12 @@ struct EnhancedEntryCard: View {
 
                         Image(systemName: "waveform")
                             .font(.system(size: 20))
-                            .foregroundColor(Color(hex: "667EEA").opacity(0.5))
+                            .foregroundColor(Color.darkTheme.accent.opacity(0.5))
                     }
                     .padding(12)
                     .background(
                         RoundedRectangle(cornerRadius: 10)
-                            .fill(Color(hex: "667EEA").opacity(0.15))
+                            .fill(Color.darkTheme.accent.opacity(0.2))
                     )
                 }
             }

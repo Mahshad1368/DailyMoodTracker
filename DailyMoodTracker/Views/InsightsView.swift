@@ -21,8 +21,8 @@ struct InsightsView: View {
 
     var body: some View {
         ZStack {
-            // Dark background
-            DarkGradientBackground()
+            // Dark theme background
+            DarkThemeBackground()
 
             ScrollView(showsIndicators: false) {
                 VStack(spacing: 25) {
@@ -30,7 +30,7 @@ struct InsightsView: View {
                     Text("Insights")
                         .font(.system(.largeTitle, design: .rounded))
                         .fontWeight(.bold)
-                        .foregroundColor(.white)
+                        .foregroundColor(Color.darkTheme.textPrimary)
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .padding(.horizontal, 25)
                         .padding(.top, 20)
@@ -89,33 +89,29 @@ struct InsightsView: View {
                                 Text(period.rawValue)
                                     .font(.system(.caption, design: .rounded))
                                     .fontWeight(timePeriod == period ? .semibold : .regular)
-                                    .foregroundColor(timePeriod == period ? .white : .white.opacity(0.6))
+                                    .foregroundColor(timePeriod == period ? Color.darkTheme.textPrimary : Color.darkTheme.textSecondary)
                                     .frame(maxWidth: .infinity)
                                     .padding(.vertical, 10)
                                     .background(
                                         timePeriod == period ?
-                                        LinearGradient(
-                                            colors: [Color(hex: "667EEA"), Color(hex: "764BA2")],
-                                            startPoint: .leading,
-                                            endPoint: .trailing
-                                        ) : LinearGradient(colors: [Color.clear], startPoint: .leading, endPoint: .trailing)
+                                        Color.darkTheme.accent : Color.clear
                                     )
                                     .cornerRadius(10)
                             }
                         }
                     }
                     .padding(4)
-                    .background(Color.white.opacity(0.1))
+                    .background(Color.black.opacity(0.2))
                     .cornerRadius(12)
                     .padding(.horizontal, 25)
 
                     // Mood Distribution Section
-                    DarkGlassCard(padding: 20) {
+                    DarkThemeCard(padding: 20) {
                         VStack(alignment: .leading, spacing: 20) {
                             Text("Mood Distribution")
                                 .font(.system(.title3, design: .rounded))
                                 .fontWeight(.semibold)
-                                .foregroundColor(.white)
+                                .foregroundColor(Color.darkTheme.textPrimary)
 
                             VStack(spacing: 15) {
                                 ForEach(MoodType.allCases, id: \.self) { mood in
@@ -132,12 +128,12 @@ struct InsightsView: View {
 
                     // Mood Patterns Chart
                     if #available(iOS 16.0, *) {
-                        DarkGlassCard(padding: 20) {
+                        DarkThemeCard(padding: 20) {
                             VStack(alignment: .leading, spacing: 15) {
                                 Text("Mood Patterns")
                                     .font(.system(.title3, design: .rounded))
                                     .fontWeight(.semibold)
-                                    .foregroundColor(.white)
+                                    .foregroundColor(Color.darkTheme.textPrimary)
 
                                 MoodPatternsChart(entries: getFilteredEntries())
                                     .frame(height: 200)
@@ -149,7 +145,7 @@ struct InsightsView: View {
 
                                     Text("Peak happiness: \(getPeakHappinessTime())")
                                         .font(.system(.subheadline, design: .rounded))
-                                        .foregroundColor(.white.opacity(0.8))
+                                        .foregroundColor(Color.darkTheme.textSecondary)
                                 }
                             }
                         }
@@ -157,7 +153,7 @@ struct InsightsView: View {
                     }
 
                     // Insight Card
-                    DarkGlassCard(padding: 20) {
+                    DarkThemeCard(padding: 20) {
                         HStack(alignment: .top, spacing: 15) {
                             Text("💡")
                                 .font(.system(size: 40))
@@ -165,11 +161,11 @@ struct InsightsView: View {
                             VStack(alignment: .leading, spacing: 8) {
                                 Text("Insight of the \(timePeriod.rawValue)")
                                     .font(.system(.headline, design: .rounded))
-                                    .foregroundColor(.white)
+                                    .foregroundColor(Color.darkTheme.textPrimary)
 
                                 Text(generateInsight())
                                     .font(.system(.subheadline, design: .rounded))
-                                    .foregroundColor(.white.opacity(0.8))
+                                    .foregroundColor(Color.darkTheme.textSecondary)
                                     .lineSpacing(4)
                             }
                         }
@@ -339,7 +335,7 @@ struct StatCard: View {
     var isWide: Bool = false
 
     var body: some View {
-        DarkGlassCard(padding: 16) {
+        DarkThemeCard(padding: 16) {
             VStack(spacing: 10) {
                 // Check if icon is emoji or SF Symbol
                 if icon.count <= 2 {
@@ -350,23 +346,23 @@ struct StatCard: View {
                     // SF Symbol
                     Image(systemName: icon)
                         .font(.system(size: isWide ? 36 : 28))
-                        .foregroundColor(.white.opacity(0.9))
+                        .foregroundColor(Color.darkTheme.accent)
                 }
 
                 Text(value)
                     .font(.system(isWide ? .title : .title2, design: .rounded))
                     .fontWeight(.bold)
-                    .foregroundColor(.white)
+                    .foregroundColor(Color.darkTheme.textPrimary)
 
                 Text(title)
                     .font(.system(.caption, design: .rounded))
-                    .foregroundColor(.white.opacity(0.7))
+                    .foregroundColor(Color.darkTheme.textSecondary)
                     .multilineTextAlignment(.center)
 
                 if !subtitle.isEmpty {
                     Text(subtitle)
                         .font(.system(.caption2, design: .rounded))
-                        .foregroundColor(.white.opacity(0.5))
+                        .foregroundColor(Color.darkTheme.textSecondary.opacity(0.7))
                 }
             }
             .frame(maxWidth: .infinity)
@@ -392,19 +388,19 @@ struct MoodDistributionBar: View {
                 Text(mood.name)
                     .font(.system(.subheadline, design: .rounded))
                     .fontWeight(.medium)
-                    .foregroundColor(.white)
+                    .foregroundColor(Color.darkTheme.textPrimary)
                     .frame(width: 70, alignment: .leading)
 
                 Spacer()
 
                 Text("\(count)")
                     .font(.system(.caption, design: .rounded))
-                    .foregroundColor(.white.opacity(0.7))
+                    .foregroundColor(Color.darkTheme.textSecondary)
 
                 Text("\(Int(percentage * 100))%")
                     .font(.system(.subheadline, design: .rounded))
                     .fontWeight(.semibold)
-                    .foregroundColor(.white)
+                    .foregroundColor(Color.darkTheme.textPrimary)
                     .frame(width: 45, alignment: .trailing)
             }
 
