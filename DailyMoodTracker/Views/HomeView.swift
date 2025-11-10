@@ -131,59 +131,7 @@ struct HomeView: View {
                                         .focused($isNoteFieldFocused)
 
                                     // Photo and Voice Buttons
-                                    HStack(spacing: 15) {
-                                        // Photo Picker Button
-                                        PhotosPicker(selection: $selectedPhotoItem, matching: .images) {
-                                            HStack(spacing: 8) {
-                                                Image(systemName: selectedPhotoData != nil ? "photo.fill" : "photo")
-                                                    .font(.system(size: 20))
-                                                    .foregroundColor(selectedPhotoData != nil ? Color(hex: "667EEA") : .primary)
-
-                                                if selectedPhotoData != nil {
-                                                    Text("Photo Added")
-                                                        .font(.system(.caption, design: .rounded))
-                                                        .foregroundColor(Color(hex: "667EEA"))
-                                                } else {
-                                                    Text("Add Photo")
-                                                        .font(.system(.caption, design: .rounded))
-                                                }
-                                            }
-                                            .padding(.horizontal, 16)
-                                            .padding(.vertical, 10)
-                                            .background(
-                                                RoundedRectangle(cornerRadius: 10)
-                                                    .fill(selectedPhotoData != nil ? Color(hex: "667EEA").opacity(0.15) : Color.gray.opacity(0.1))
-                                            )
-                                        }
-
-                                        // Voice Recording Button
-                                        Button(action: toggleRecording) {
-                                            HStack(spacing: 8) {
-                                                Image(systemName: isRecording ? "mic.fill" : (recordedAudioData != nil ? "mic.fill" : "mic"))
-                                                    .font(.system(size: 20))
-                                                    .foregroundColor(isRecording ? .red : (recordedAudioData != nil ? Color(hex: "667EEA") : .primary))
-
-                                                if isRecording {
-                                                    Text(formatDuration(audioDuration))
-                                                        .font(.system(.caption, design: .rounded).monospacedDigit())
-                                                        .foregroundColor(.red)
-                                                } else if recordedAudioData != nil {
-                                                    Text("Audio Added")
-                                                        .font(.system(.caption, design: .rounded))
-                                                        .foregroundColor(Color(hex: "667EEA"))
-                                                } else {
-                                                    Text("Add Voice")
-                                                        .font(.system(.caption, design: .rounded))
-                                                }
-                                            }
-                                            .padding(.horizontal, 16)
-                                            .padding(.vertical, 10)
-                                            .background(
-                                                RoundedRectangle(cornerRadius: 10)
-                                                    .fill(isRecording ? Color.red.opacity(0.15) : (recordedAudioData != nil ? Color(hex: "667EEA").opacity(0.15) : Color.gray.opacity(0.1)))
-                                            )
-                                        }
-                                    }
+                                    attachmentButtonsView
                                 }
 
                                 // Save Mood Button
@@ -227,6 +175,106 @@ struct HomeView: View {
                 currentDate = Date()
                 setupAudioSession()
             }
+        }
+    }
+
+    // MARK: - Subviews
+
+    private var attachmentButtonsView: some View {
+        HStack(spacing: 15) {
+            photoPickerButton
+            voiceRecordingButton
+        }
+    }
+
+    private var photoPickerButton: some View {
+        PhotosPicker(selection: $selectedPhotoItem, matching: .images) {
+            HStack(spacing: 8) {
+                Image(systemName: selectedPhotoData != nil ? "photo.fill" : "photo")
+                    .font(.system(size: 20))
+                    .foregroundColor(selectedPhotoData != nil ? Color(hex: "667EEA") : .primary)
+
+                Text(selectedPhotoData != nil ? "Photo Added" : "Add Photo")
+                    .font(.system(.caption, design: .rounded))
+                    .foregroundColor(selectedPhotoData != nil ? Color(hex: "667EEA") : .primary)
+            }
+            .padding(.horizontal, 16)
+            .padding(.vertical, 10)
+            .background(
+                RoundedRectangle(cornerRadius: 10)
+                    .fill(selectedPhotoData != nil ? Color(hex: "667EEA").opacity(0.15) : Color.gray.opacity(0.1))
+            )
+        }
+    }
+
+    private var voiceRecordingButton: some View {
+        Button(action: toggleRecording) {
+            HStack(spacing: 8) {
+                Image(systemName: voiceMicIcon)
+                    .font(.system(size: 20))
+                    .foregroundColor(voiceMicColor)
+
+                Text(voiceButtonText)
+                    .font(.system(.caption, design: .rounded).monospacedDigit())
+                    .foregroundColor(voiceTextColor)
+            }
+            .padding(.horizontal, 16)
+            .padding(.vertical, 10)
+            .background(
+                RoundedRectangle(cornerRadius: 10)
+                    .fill(voiceButtonBackground)
+            )
+        }
+    }
+
+    // Voice button computed properties
+    private var voiceMicIcon: String {
+        if isRecording {
+            return "mic.fill"
+        } else if recordedAudioData != nil {
+            return "mic.fill"
+        } else {
+            return "mic"
+        }
+    }
+
+    private var voiceMicColor: Color {
+        if isRecording {
+            return .red
+        } else if recordedAudioData != nil {
+            return Color(hex: "667EEA")
+        } else {
+            return .primary
+        }
+    }
+
+    private var voiceButtonText: String {
+        if isRecording {
+            return formatDuration(audioDuration)
+        } else if recordedAudioData != nil {
+            return "Audio Added"
+        } else {
+            return "Add Voice"
+        }
+    }
+
+    private var voiceTextColor: Color {
+        if isRecording {
+            return .red
+        } else if recordedAudioData != nil {
+            return Color(hex: "667EEA")
+        } else {
+            return .primary
+        }
+    }
+
+    private var voiceButtonBackground: Color {
+        if isRecording {
+            return Color.red.opacity(0.15)
+        } else if recordedAudioData != nil {
+            return Color(hex: "667EEA").opacity(0.15)
+        } else {
+            return Color.gray.opacity(0.1)
         }
     }
 
