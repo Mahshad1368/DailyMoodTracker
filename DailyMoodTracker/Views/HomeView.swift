@@ -9,9 +9,11 @@ import SwiftUI
 
 struct HomeView: View {
     @EnvironmentObject var dataManager: DataManager
+    @AppStorage("userName") private var userName: String = "User"
     @State private var selectedMood: MoodType?
     @State private var note: String = ""
     @State private var showingSaveAlert = false
+    @State private var showingProfile = false
     @FocusState private var isNoteFieldFocused: Bool
 
     // Current date for time-based gradient
@@ -27,7 +29,7 @@ struct HomeView: View {
                 HStack {
                     // Profile Icon
                     Button(action: {
-                        // Profile action
+                        showingProfile = true
                     }) {
                         Image(systemName: "person.circle.fill")
                             .font(.system(size: 32))
@@ -53,7 +55,7 @@ struct HomeView: View {
                     VStack(spacing: 25) {
                         // Personalized Greeting
                         VStack(spacing: 6) {
-                            Text("\(currentDate.greeting), User!")
+                            Text("\(currentDate.greeting), \(userName)!")
                                 .font(.system(.title, design: .rounded))
                                 .fontWeight(.bold)
                                 .foregroundColor(.white)
@@ -155,6 +157,10 @@ struct HomeView: View {
             } message: {
                 Text("Your mood has been recorded! ✨")
             }
+        }
+        .sheet(isPresented: $showingProfile) {
+            ProfileView()
+                .environmentObject(dataManager)
         }
         .onAppear {
             // Update current date when view appears
