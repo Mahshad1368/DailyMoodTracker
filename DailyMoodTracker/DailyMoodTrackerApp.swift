@@ -26,6 +26,28 @@ struct DailyMoodTrackerApp: App {
 
 // MARK: - Main Tab View
 struct MainTabView: View {
+    init() {
+        // Configure tab bar appearance for dark theme
+        let appearance = UITabBarAppearance()
+        appearance.configureWithOpaqueBackground()
+        appearance.backgroundColor = UIColor(Color.darkTheme.bgDarker)
+
+        // Unselected tab color
+        appearance.stackedLayoutAppearance.normal.iconColor = UIColor(Color.darkTheme.textSecondary)
+        appearance.stackedLayoutAppearance.normal.titleTextAttributes = [
+            .foregroundColor: UIColor(Color.darkTheme.textSecondary)
+        ]
+
+        // Selected tab color
+        appearance.stackedLayoutAppearance.selected.iconColor = UIColor(Color.darkTheme.textPrimary)
+        appearance.stackedLayoutAppearance.selected.titleTextAttributes = [
+            .foregroundColor: UIColor(Color.darkTheme.textPrimary)
+        ]
+
+        UITabBar.appearance().standardAppearance = appearance
+        UITabBar.appearance().scrollEdgeAppearance = appearance
+    }
+
     var body: some View {
         TabView {
             HomeView()
@@ -43,7 +65,7 @@ struct MainTabView: View {
                     Label("Insights", systemImage: "chart.bar.fill")
                 }
         }
-        .tint(Color(hex: "667EEA")) // Accent color for selected tab
+        .tint(Color.darkTheme.textPrimary) // Cream/beige tint for selected tab
     }
 }
 

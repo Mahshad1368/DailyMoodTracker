@@ -34,6 +34,35 @@ extension Color {
             opacity: Double(a) / 255
         )
     }
+
+    // MARK: - Dark Theme Colors
+    static let darkTheme = DarkThemeColors()
+
+    struct DarkThemeColors {
+        // Background gradients
+        let bgDark = Color(hex: "3D2C2E")           // Dark brown
+        let bgDarker = Color(hex: "2A1F20")         // Darker brown
+
+        // Text colors
+        let textPrimary = Color(hex: "F5E6D3")      // Cream/beige
+        let textSecondary = Color(hex: "D4B5A0")    // Light brown
+
+        // Accent colors
+        let accent = Color(hex: "8B6E9F")           // Purple highlight
+        let accentLight = Color(hex: "A88BB8")      // Lighter purple
+
+        // Card backgrounds
+        let cardBg = Color.black.opacity(0.3)       // Semi-transparent dark
+
+        // Create gradient
+        var backgroundGradient: LinearGradient {
+            LinearGradient(
+                colors: [bgDark, bgDarker],
+                startPoint: .top,
+                endPoint: .bottom
+            )
+        }
+    }
 }
 
 // MARK: - View Extension for Glassmorphism Effect
