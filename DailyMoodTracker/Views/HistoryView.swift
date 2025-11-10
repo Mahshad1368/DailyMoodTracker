@@ -19,15 +19,9 @@ struct HistoryView: View {
     @EnvironmentObject var dataManager: DataManager
     @State private var currentDate = Date()
     @State private var selectedDate: Date?
-    @State private var viewMode: ViewMode = .calendar
 
     private let calendar = Calendar.current
     private let daysOfWeek = ["S", "M", "T", "W", "T", "F", "S"]
-
-    enum ViewMode {
-        case calendar
-        case heatmap
-    }
 
     var body: some View {
         ZStack {
@@ -35,50 +29,15 @@ struct HistoryView: View {
             DarkGradientBackground()
 
             VStack(spacing: 0) {
-                // View Mode Toggle
-                HStack(spacing: 0) {
-                    Button(action: { viewMode = .calendar }) {
-                        Text("Calendar")
-                            .font(.system(.subheadline, design: .rounded))
-                            .fontWeight(viewMode == .calendar ? .semibold : .regular)
-                            .foregroundColor(viewMode == .calendar ? .white : .white.opacity(0.6))
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, 12)
-                            .background(
-                                viewMode == .calendar ?
-                                LinearGradient(
-                                    colors: [Color(hex: "667EEA"), Color(hex: "764BA2")],
-                                    startPoint: .leading,
-                                    endPoint: .trailing
-                                ) : LinearGradient(colors: [Color.clear], startPoint: .leading, endPoint: .trailing)
-                            )
-                            .cornerRadius(10)
-                    }
-
-                    Button(action: { viewMode = .heatmap }) {
-                        Text("Heatmap")
-                            .font(.system(.subheadline, design: .rounded))
-                            .fontWeight(viewMode == .heatmap ? .semibold : .regular)
-                            .foregroundColor(viewMode == .heatmap ? .white : .white.opacity(0.6))
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, 12)
-                            .background(
-                                viewMode == .heatmap ?
-                                LinearGradient(
-                                    colors: [Color(hex: "667EEA"), Color(hex: "764BA2")],
-                                    startPoint: .leading,
-                                    endPoint: .trailing
-                                ) : LinearGradient(colors: [Color.clear], startPoint: .leading, endPoint: .trailing)
-                            )
-                            .cornerRadius(10)
-                    }
-                }
-                .padding(4)
-                .background(Color.white.opacity(0.1))
-                .cornerRadius(12)
-                .padding(.horizontal, 20)
-                .padding(.top, 20)
-                .padding(.bottom, 20)
+                // Header
+                Text("History")
+                    .font(.system(.largeTitle, design: .rounded))
+                    .fontWeight(.bold)
+                    .foregroundColor(.white)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.horizontal, 25)
+                    .padding(.top, 20)
+                    .padding(.bottom, 15)
 
                 // Month Navigation
                 HStack {
