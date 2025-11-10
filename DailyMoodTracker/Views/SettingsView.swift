@@ -77,7 +77,7 @@ struct SettingsView: View {
                                     .padding()
                                     .background(Color.white.opacity(0.1))
                                     .cornerRadius(12)
-                                    .onChange(of: userName) { _, newValue in
+                                    .onChange(of: userName) { newValue in
                                         UserDefaults.standard.set(newValue, forKey: "userName")
                                     }
                             }
@@ -109,7 +109,7 @@ struct SettingsView: View {
                                 Toggle("", isOn: $dailyReminderEnabled)
                                     .labelsHidden()
                                     .tint(Color(hex: "667EEA"))
-                                    .onChange(of: dailyReminderEnabled) { _, newValue in
+                                    .onChange(of: dailyReminderEnabled) { newValue in
                                         UserDefaults.standard.set(newValue, forKey: "dailyReminderEnabled")
                                         // TODO: Schedule/cancel notifications
                                     }
@@ -130,7 +130,7 @@ struct SettingsView: View {
                                     .datePickerStyle(.compact)
                                     .labelsHidden()
                                     .colorScheme(.dark)
-                                    .onChange(of: reminderTime) { _, newValue in
+                                    .onChange(of: reminderTime) { newValue in
                                         UserDefaults.standard.set(newValue, forKey: "reminderTime")
                                         // TODO: Reschedule notification
                                     }
@@ -216,7 +216,7 @@ struct SettingsView: View {
                                 Toggle("", isOn: $showNotesField)
                                     .labelsHidden()
                                     .tint(Color(hex: "667EEA"))
-                                    .onChange(of: showNotesField) { _, newValue in
+                                    .onChange(of: showNotesField) { newValue in
                                         UserDefaults.standard.set(newValue, forKey: "showNotesField")
                                     }
                             }
@@ -242,7 +242,7 @@ struct SettingsView: View {
                                     .labelsHidden()
                                     .tint(Color(hex: "667EEA"))
                                     .disabled(!showNotesField)
-                                    .onChange(of: requireNote) { _, newValue in
+                                    .onChange(of: requireNote) { newValue in
                                         UserDefaults.standard.set(newValue, forKey: "requireNote")
                                     }
                             }
