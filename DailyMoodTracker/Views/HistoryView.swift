@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import AVFoundation
 
 // Make Date identifiable for sheet(item:) modifier
 extension Date: Identifiable {
@@ -289,6 +290,8 @@ struct EnhancedEntryCard: View {
     let entry: MoodEntry
     let onDelete: () -> Void
     @State private var showingDeleteAlert = false
+    @State private var audioPlayer: AVAudioPlayer?
+    @State private var isPlayingAudio = false
 
     var body: some View {
         HStack(alignment: .top, spacing: 15) {
@@ -305,7 +308,8 @@ struct EnhancedEntryCard: View {
             .frame(width: 65)
 
             // Content with colored left border
-            VStack(alignment: .leading, spacing: 8) {
+            VStack(alignment: .leading, spacing: 12) {
+                // Mood header
                 HStack(spacing: 10) {
                     Text(entry.mood.emoji)
                         .font(.system(size: 32))
@@ -323,11 +327,62 @@ struct EnhancedEntryCard: View {
                     }
                 }
 
+                // Note text
                 if !entry.note.isEmpty {
                     Text(entry.note)
                         .font(.system(.subheadline, design: .rounded))
                         .foregroundColor(.white.opacity(0.8))
                         .lineSpacing(4)
+                }
+
+                // Photo attachment
+                if let photoData = entry.photoData,
+                   let uiImage = UIImage(data: photoData) {
+                    Image(uiImage: uiImage)
+                        .resizable()
+                        .scaledToFill()
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 200)
+                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 12)
+                                .stroke(Color.white.opacity(0.2), lineWidth: 1)
+                        )
+                }
+
+                // Audio attachment
+                if entry.audioData != nil {
+                    HStack(spacing: 12) {
+                        Button(action: toggleAudioPlayback) {
+                            Image(systemName: isPlayingAudio ? "pause.circle.fill" : "play.circle.fill")
+                                .font(.system(size: 32))
+                                .foregroundColor(Color(hex: "667EEA"))
+                        }
+
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text("Voice Note")
+                                .font(.system(.subheadline, design: .rounded))
+                                .fontWeight(.semibold)
+                                .foregroundColor(.white)
+
+                            if let duration = entry.audioDuration {
+                                Text(formatDuration(duration))
+                                    .font(.system(.caption, design: .rounded))
+                                    .foregroundColor(.white.opacity(0.6))
+                            }
+                        }
+
+                        Spacer()
+
+                        Image(systemName: "waveform")
+                            .font(.system(size: 20))
+                            .foregroundColor(Color(hex: "667EEA").opacity(0.5))
+                    }
+                    .padding(12)
+                    .background(
+                        RoundedRectangle(cornerRadius: 10)
+                            .fill(Color(hex: "667EEA").opacity(0.15))
+                    )
                 }
             }
             .padding()
@@ -347,11 +402,62 @@ struct EnhancedEntryCard: View {
         .alert("Delete Entry?", isPresented: $showingDeleteAlert) {
             Button("Cancel", role: .cancel) { }
             Button("Delete", role: .destructive) {
+                stopAudio()
                 onDelete()
             }
         } message: {
             Text("This entry will be permanently deleted.")
         }
+    }
+
+    // MARK: - Audio Playback
+
+    private func toggleAudioPlayback() {
+        if isPlayingAudio {
+            stopAudio()
+        } else {
+            playAudio()
+        }
+    }
+
+    private func playAudio() {
+        guard let audioData = entry.audioData else { return }
+
+        do {
+            audioPlayer = try AVAudioPlayer(data: audioData)
+            audioPlayer?.delegate = AudioPlayerDelegate(onFinish: {
+                isPlayingAudio = false
+            })
+            audioPlayer?.play()
+            isPlayingAudio = true
+        } catch {
+            print("Error playing audio: \(error)")
+        }
+    }
+
+    private func stopAudio() {
+        audioPlayer?.stop()
+        audioPlayer = nil
+        isPlayingAudio = false
+    }
+
+    private func formatDuration(_ duration: TimeInterval) -> String {
+        let minutes = Int(duration) / 60
+        let seconds = Int(duration) % 60
+        return String(format: "%d:%02d", minutes, seconds)
+    }
+}
+
+// MARK: - Audio Player Delegate
+class AudioPlayerDelegate: NSObject, AVAudioPlayerDelegate {
+    let onFinish: () -> Void
+
+    init(onFinish: @escaping () -> Void) {
+        self.onFinish = onFinish
+    }
+
+    func audioPlayerDidFinishPlaying(_ player: AVAudioPlayer, successfully flag: Bool) {
+        onFinish()
     }
 }
 
