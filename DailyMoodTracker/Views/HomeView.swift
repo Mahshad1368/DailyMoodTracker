@@ -6,6 +6,8 @@
 //
 
 import SwiftUI
+import PhotosUI
+import AVFoundation
 
 struct HomeView: View {
     @EnvironmentObject var dataManager: DataManager
@@ -14,6 +16,17 @@ struct HomeView: View {
     @State private var note: String = ""
     @State private var showingSaveAlert = false
     @FocusState private var isNoteFieldFocused: Bool
+
+    // Photo picker
+    @State private var selectedPhotoItem: PhotosPickerItem?
+    @State private var selectedPhotoData: Data?
+
+    // Voice recording
+    @State private var audioRecorder: AVAudioRecorder?
+    @State private var isRecording = false
+    @State private var recordedAudioData: Data?
+    @State private var audioDuration: TimeInterval = 0
+    @State private var recordingTimer: Timer?
 
     // Current date for time-based gradient
     @State private var currentDate = Date()
@@ -106,7 +119,7 @@ struct HomeView: View {
                                 .frame(maxWidth: .infinity)
 
                                 // Note Input Field
-                                HStack(spacing: 12) {
+                                VStack(spacing: 12) {
                                     TextField("Add a note...", text: $note, axis: .vertical)
                                         .textFieldStyle(.plain)
                                         .padding()
@@ -116,6 +129,61 @@ struct HomeView: View {
                                         )
                                         .lineLimit(3...5)
                                         .focused($isNoteFieldFocused)
+
+                                    // Photo and Voice Buttons
+                                    HStack(spacing: 15) {
+                                        // Photo Picker Button
+                                        PhotosPicker(selection: $selectedPhotoItem, matching: .images) {
+                                            HStack(spacing: 8) {
+                                                Image(systemName: selectedPhotoData != nil ? "photo.fill" : "photo")
+                                                    .font(.system(size: 20))
+                                                    .foregroundColor(selectedPhotoData != nil ? Color(hex: "667EEA") : .primary)
+
+                                                if selectedPhotoData != nil {
+                                                    Text("Photo Added")
+                                                        .font(.system(.caption, design: .rounded))
+                                                        .foregroundColor(Color(hex: "667EEA"))
+                                                } else {
+                                                    Text("Add Photo")
+                                                        .font(.system(.caption, design: .rounded))
+                                                }
+                                            }
+                                            .padding(.horizontal, 16)
+                                            .padding(.vertical, 10)
+                                            .background(
+                                                RoundedRectangle(cornerRadius: 10)
+                                                    .fill(selectedPhotoData != nil ? Color(hex: "667EEA").opacity(0.15) : Color.gray.opacity(0.1))
+                                            )
+                                        }
+
+                                        // Voice Recording Button
+                                        Button(action: toggleRecording) {
+                                            HStack(spacing: 8) {
+                                                Image(systemName: isRecording ? "mic.fill" : (recordedAudioData != nil ? "mic.fill" : "mic"))
+                                                    .font(.system(size: 20))
+                                                    .foregroundColor(isRecording ? .red : (recordedAudioData != nil ? Color(hex: "667EEA") : .primary))
+
+                                                if isRecording {
+                                                    Text(formatDuration(audioDuration))
+                                                        .font(.system(.caption, design: .rounded).monospacedDigit())
+                                                        .foregroundColor(.red)
+                                                } else if recordedAudioData != nil {
+                                                    Text("Audio Added")
+                                                        .font(.system(.caption, design: .rounded))
+                                                        .foregroundColor(Color(hex: "667EEA"))
+                                                } else {
+                                                    Text("Add Voice")
+                                                        .font(.system(.caption, design: .rounded))
+                                                }
+                                            }
+                                            .padding(.horizontal, 16)
+                                            .padding(.vertical, 10)
+                                            .background(
+                                                RoundedRectangle(cornerRadius: 10)
+                                                    .fill(isRecording ? Color.red.opacity(0.15) : (recordedAudioData != nil ? Color(hex: "667EEA").opacity(0.15) : Color.gray.opacity(0.1)))
+                                            )
+                                        }
+                                    }
                                 }
 
                                 // Save Mood Button
@@ -146,13 +214,23 @@ struct HomeView: View {
             } message: {
                 Text("Your mood has been recorded! ✨")
             }
+            .onChange(of: selectedPhotoItem) { _, newItem in
+                Task {
+                    if let data = try? await newItem?.loadTransferable(type: Data.self) {
+                        selectedPhotoData = data
+                    }
+                }
+            }
             }
             .onAppear {
                 // Update current date when view appears
                 currentDate = Date()
+                setupAudioSession()
             }
         }
     }
+
+    // MARK: - Functions
 
     private func logMood() {
         guard let mood = selectedMood else { return }
@@ -160,13 +238,107 @@ struct HomeView: View {
         // Dismiss keyboard
         isNoteFieldFocused = false
 
-        dataManager.addEntry(mood: mood, note: note)
+        dataManager.addEntry(
+            mood: mood,
+            note: note,
+            photoData: selectedPhotoData,
+            audioData: recordedAudioData,
+            audioDuration: recordedAudioData != nil ? audioDuration : nil
+        )
 
         // Clear form
         selectedMood = nil
         note = ""
+        selectedPhotoData = nil
+        selectedPhotoItem = nil
+        recordedAudioData = nil
+        audioDuration = 0
 
         showingSaveAlert = true
+    }
+
+    // MARK: - Photo Handling
+
+    // Photo selection is handled by onChange(of: selectedPhotoItem)
+
+    // MARK: - Voice Recording
+
+    private func setupAudioSession() {
+        let audioSession = AVAudioSession.sharedInstance()
+        do {
+            try audioSession.setCategory(.playAndRecord, mode: .default)
+            try audioSession.setActive(true)
+        } catch {
+            print("Failed to set up audio session: \(error)")
+        }
+    }
+
+    private func toggleRecording() {
+        if isRecording {
+            stopRecording()
+        } else {
+            startRecording()
+        }
+    }
+
+    private func startRecording() {
+        // Request microphone permission
+        AVAudioSession.sharedInstance().requestRecordPermission { allowed in
+            if allowed {
+                DispatchQueue.main.async {
+                    self.performStartRecording()
+                }
+            } else {
+                print("Microphone permission denied")
+            }
+        }
+    }
+
+    private func performStartRecording() {
+        let audioFilename = getDocumentsDirectory().appendingPathComponent("recording.m4a")
+
+        let settings = [
+            AVFormatIDKey: Int(kAudioFormatMPEG4AAC),
+            AVSampleRateKey: 12000,
+            AVNumberOfChannelsKey: 1,
+            AVEncoderAudioQualityKey: AVAudioQuality.high.rawValue
+        ]
+
+        do {
+            audioRecorder = try AVAudioRecorder(url: audioFilename, settings: settings)
+            audioRecorder?.record()
+
+            isRecording = true
+            audioDuration = 0
+
+            // Start timer to update duration
+            recordingTimer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { _ in
+                self.audioDuration += 0.1
+            }
+        } catch {
+            print("Could not start recording: \(error)")
+        }
+    }
+
+    private func stopRecording() {
+        audioRecorder?.stop()
+        isRecording = false
+        recordingTimer?.invalidate()
+        recordingTimer = nil
+
+        // Load recorded audio data
+        let audioFilename = getDocumentsDirectory().appendingPathComponent("recording.m4a")
+        recordedAudioData = try? Data(contentsOf: audioFilename)
+    }
+
+    private func getDocumentsDirectory() -> URL {
+        FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+    }
+
+    private func formatDuration(_ duration: TimeInterval) -> String {
+        let minutes = Int(duration) / 60
+        let seconds = Int(duration) % 60
+        return String(format: "%d:%02d", minutes, seconds)
     }
 }
 

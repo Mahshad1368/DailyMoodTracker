@@ -159,12 +159,18 @@ class DataManager: ObservableObject {
     }
 
     /// Add a new mood entry (allows multiple entries per day)
-    func addEntry(mood: MoodType, note: String) {
-        let newEntry = MoodEntry(mood: mood, note: note)
+    func addEntry(mood: MoodType, note: String, photoData: Data? = nil, audioData: Data? = nil, audioDuration: TimeInterval? = nil) {
+        let newEntry = MoodEntry(mood: mood, note: note, photoData: photoData, audioData: audioData, audioDuration: audioDuration)
         entries.insert(newEntry, at: 0) // Add to beginning (newest first)
         saveEntries()
 
         print("➕ Added new entry: \(mood.name)")
+        if photoData != nil {
+            print("📷 Entry includes photo (\(photoData!.count) bytes)")
+        }
+        if audioData != nil {
+            print("🎤 Entry includes audio (\(audioData!.count) bytes, \(audioDuration ?? 0)s)")
+        }
 
         // Update app icon based on dominant mood
         IconManager.shared.updateIconForDominantMood(entries: entries)
