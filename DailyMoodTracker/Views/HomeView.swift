@@ -34,8 +34,8 @@ struct HomeView: View {
     var body: some View {
         NavigationStack {
             ZStack {
-                // Time-based gradient background
-                GradientBackground(timeOfDay: currentDate.timeOfDay)
+                // Dark theme gradient background
+                DarkThemeBackground()
 
                 VStack(spacing: 0) {
                     // Top Navigation Bar - Settings only
@@ -46,7 +46,7 @@ struct HomeView: View {
                         NavigationLink(destination: SettingsView()) {
                             Image(systemName: "gearshape.fill")
                                 .font(.system(size: 28))
-                                .foregroundColor(.white.opacity(0.9))
+                                .foregroundColor(Color.darkTheme.textPrimary.opacity(0.9))
                         }
                     }
                     .padding(.horizontal, 25)
@@ -60,23 +60,23 @@ struct HomeView: View {
                             Text("\(currentDate.greeting), \(userName)!")
                                 .font(.system(.title, design: .rounded))
                                 .fontWeight(.bold)
-                                .foregroundColor(.white)
+                                .foregroundColor(Color.darkTheme.textPrimary)
 
                             Text(currentDate.friendlyDateString)
                                 .font(.system(.subheadline, design: .rounded))
-                                .foregroundColor(.white.opacity(0.85))
+                                .foregroundColor(Color.darkTheme.textSecondary)
                         }
                         .padding(.top, 10)
                         .padding(.bottom, 10)
 
                         // Main Glass Card
-                        GlassCard(padding: 25) {
+                        DarkThemeCard(padding: 25) {
                             VStack(spacing: 25) {
                                 // Question
                                 Text("How are you feeling right now?")
                                     .font(.system(.title3, design: .rounded))
                                     .fontWeight(.semibold)
-                                    .foregroundColor(.primary)
+                                    .foregroundColor(Color.darkTheme.textPrimary)
                                     .multilineTextAlignment(.center)
 
                                 // Mood Selection - 5 buttons in a row
@@ -122,10 +122,11 @@ struct HomeView: View {
                                 VStack(spacing: 12) {
                                     TextField("Add a note...", text: $note, axis: .vertical)
                                         .textFieldStyle(.plain)
+                                        .foregroundColor(Color.darkTheme.textPrimary)
                                         .padding()
                                         .background(
                                             RoundedRectangle(cornerRadius: 12)
-                                                .fill(Color.gray.opacity(0.1))
+                                                .fill(Color.black.opacity(0.2))
                                         )
                                         .lineLimit(3...5)
                                         .focused($isNoteFieldFocused)
@@ -192,17 +193,17 @@ struct HomeView: View {
             HStack(spacing: 8) {
                 Image(systemName: selectedPhotoData != nil ? "photo.fill" : "photo")
                     .font(.system(size: 20))
-                    .foregroundColor(selectedPhotoData != nil ? Color(hex: "667EEA") : .primary)
+                    .foregroundColor(selectedPhotoData != nil ? Color.darkTheme.accent : Color.darkTheme.textSecondary)
 
                 Text(selectedPhotoData != nil ? "Photo Added" : "Add Photo")
                     .font(.system(.caption, design: .rounded))
-                    .foregroundColor(selectedPhotoData != nil ? Color(hex: "667EEA") : .primary)
+                    .foregroundColor(selectedPhotoData != nil ? Color.darkTheme.accent : Color.darkTheme.textSecondary)
             }
             .padding(.horizontal, 16)
             .padding(.vertical, 10)
             .background(
                 RoundedRectangle(cornerRadius: 10)
-                    .fill(selectedPhotoData != nil ? Color(hex: "667EEA").opacity(0.15) : Color.gray.opacity(0.1))
+                    .fill(selectedPhotoData != nil ? Color.darkTheme.accent.opacity(0.2) : Color.black.opacity(0.2))
             )
         }
     }
@@ -242,9 +243,9 @@ struct HomeView: View {
         if isRecording {
             return .red
         } else if recordedAudioData != nil {
-            return Color(hex: "667EEA")
+            return Color.darkTheme.accent
         } else {
-            return .primary
+            return Color.darkTheme.textSecondary
         }
     }
 
@@ -262,19 +263,19 @@ struct HomeView: View {
         if isRecording {
             return .red
         } else if recordedAudioData != nil {
-            return Color(hex: "667EEA")
+            return Color.darkTheme.accent
         } else {
-            return .primary
+            return Color.darkTheme.textSecondary
         }
     }
 
     private var voiceButtonBackground: Color {
         if isRecording {
-            return Color.red.opacity(0.15)
+            return Color.red.opacity(0.2)
         } else if recordedAudioData != nil {
-            return Color(hex: "667EEA").opacity(0.15)
+            return Color.darkTheme.accent.opacity(0.2)
         } else {
-            return Color.gray.opacity(0.1)
+            return Color.black.opacity(0.2)
         }
     }
 
