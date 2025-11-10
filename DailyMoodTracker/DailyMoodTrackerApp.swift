@@ -39,9 +39,9 @@ struct MainTabView: View {
         ]
 
         // Selected tab color
-        appearance.stackedLayoutAppearance.selected.iconColor = UIColor(Color.darkTheme.textPrimary)
+        appearance.stackedLayoutAppearance.selected.iconColor = UIColor(Color.darkTheme.accent)
         appearance.stackedLayoutAppearance.selected.titleTextAttributes = [
-            .foregroundColor: UIColor(Color.darkTheme.textPrimary)
+            .foregroundColor: UIColor(Color.darkTheme.accent)
         ]
 
         UITabBar.appearance().standardAppearance = appearance
@@ -65,7 +65,7 @@ struct MainTabView: View {
                     Label("Insights", systemImage: "chart.bar.fill")
                 }
         }
-        .tint(Color.darkTheme.textPrimary) // Cream/beige tint for selected tab
+        .tint(Color.darkTheme.accent) // Purple accent for selected tab
     }
 }
 
