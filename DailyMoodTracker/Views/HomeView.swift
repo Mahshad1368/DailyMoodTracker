@@ -67,7 +67,7 @@ struct HomeView: View {
                                     .multilineTextAlignment(.center)
 
                                 // Mood Selection - 5 buttons in a row
-                                HStack(spacing: 15) {
+                                HStack(spacing: 10) {
                                     EnhancedMoodButton(
                                         mood: .happy,
                                         isSelected: selectedMood == .happy
