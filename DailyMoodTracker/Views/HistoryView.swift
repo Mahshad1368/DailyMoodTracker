@@ -8,11 +8,17 @@
 
 import SwiftUI
 
+// Make Date identifiable for sheet(item:) modifier
+extension Date: Identifiable {
+    public var id: TimeInterval {
+        self.timeIntervalSince1970
+    }
+}
+
 struct HistoryView: View {
     @EnvironmentObject var dataManager: DataManager
     @State private var currentDate = Date()
     @State private var selectedDate: Date?
-    @State private var showingDateDetail = false
     @State private var viewMode: ViewMode = .calendar
 
     private let calendar = Calendar.current
@@ -128,7 +134,6 @@ struct HistoryView: View {
                                         let entries = getEntries(for: date)
                                         if !entries.isEmpty {
                                             selectedDate = date
-                                            showingDateDetail = true
                                         }
                                     }
                                 } else {
@@ -143,18 +148,17 @@ struct HistoryView: View {
 
                 Spacer()
             }
-            .sheet(isPresented: $showingDateDetail) {
-                if let date = selectedDate {
-                    EnhancedDateDetailSheet(
-                        date: date,
-                        entries: getEntries(for: date),
-                        onDelete: { entry in
-                            dataManager.deleteEntry(entry)
-                        }
-                    )
-                    .presentationDetents([.medium, .large])
-                    .presentationDragIndicator(.visible)
-                }
+            .sheet(item: $selectedDate) { date in
+                EnhancedDateDetailSheet(
+                    date: date,
+                    entries: getEntries(for: date),
+                    onDelete: { entry in
+                        dataManager.deleteEntry(entry)
+                    }
+                )
+                .environmentObject(dataManager)
+                .presentationDetents([.medium, .large])
+                .presentationDragIndicator(.visible)
             }
         }
     }
