@@ -2,7 +2,7 @@
 //  InsightsView.swift
 //  DailyMoodTracker
 //
-//  Analytics and insights screen showing mood patterns and trends
+//  Complete analytics and insights dashboard with all statistics
 //
 
 import SwiftUI
@@ -16,6 +16,7 @@ struct InsightsView: View {
         case week = "Week"
         case month = "Month"
         case year = "Year"
+        case allTime = "All Time"
     }
 
     var body: some View {
@@ -34,16 +35,63 @@ struct InsightsView: View {
                         .padding(.horizontal, 25)
                         .padding(.top, 20)
 
+                    // Statistics Overview Cards
+                    VStack(spacing: 15) {
+                        // Top row: Total Entries, Current Streak
+                        HStack(spacing: 15) {
+                            StatCard(
+                                title: "Total Entries",
+                                value: "\(dataManager.entries.count)",
+                                icon: "📝",
+                                subtitle: "all time"
+                            )
+
+                            StatCard(
+                                title: "Current Streak",
+                                value: "\(getCurrentStreak())",
+                                icon: "🔥",
+                                subtitle: getCurrentStreak() == 1 ? "day" : "days"
+                            )
+                        }
+
+                        // Second row: Longest Streak, This Week
+                        HStack(spacing: 15) {
+                            StatCard(
+                                title: "Longest Streak",
+                                value: "\(getLongestStreak())",
+                                icon: "⭐",
+                                subtitle: getLongestStreak() == 1 ? "day" : "days"
+                            )
+
+                            StatCard(
+                                title: "This Week",
+                                value: "\(getThisWeekCount())",
+                                icon: "📊",
+                                subtitle: getThisWeekCount() == 1 ? "entry" : "entries"
+                            )
+                        }
+
+                        // Third row: Most Common Mood
+                        StatCard(
+                            title: "Most Common Mood",
+                            value: getMostCommonMood().emoji,
+                            icon: "💭",
+                            subtitle: getMostCommonMood().name,
+                            isWide: true
+                        )
+                    }
+                    .padding(.horizontal, 25)
+
                     // Time Period Toggle
                     HStack(spacing: 0) {
                         ForEach(TimePeriod.allCases, id: \.self) { period in
                             Button(action: { timePeriod = period }) {
                                 Text(period.rawValue)
-                                    .font(.system(.subheadline, design: .rounded))
+                                    .font(.system(.caption, design: .rounded))
                                     .fontWeight(timePeriod == period ? .semibold : .regular)
                                     .foregroundColor(timePeriod == period ? .white : .white.opacity(0.6))
                                     .frame(maxWidth: .infinity)
-                                    .padding(.vertical, 12)
+                                    .padding(.vertical, 10)
                                     .background(
                                         timePeriod == period ?
                                         LinearGradient(
@@ -127,26 +175,76 @@ struct InsightsView: View {
                         }
                     }
                     .padding(.horizontal, 25)
-
-                    // Statistics Cards
-                    HStack(spacing: 15) {
-                        StatCard(
-                            title: "Total Entries",
-                            value: "\(getFilteredEntries().count)",
-                            icon: "📝"
-                        )
-
-                        StatCard(
-                            title: "Most Common",
-                            value: getMostCommonMood().emoji,
-                            icon: "⭐"
-                        )
-                    }
-                    .padding(.horizontal, 25)
                 }
                 .padding(.bottom, 30)
             }
         }
+    }
+
+    // MARK: - Streak Calculations
+
+    private func getCurrentStreak() -> Int {
+        let calendar = Calendar.current
+        var streak = 0
+        var checkDate = calendar.startOfDay(for: Date())
+
+        while true {
+            let hasEntry = dataManager.entries.contains { entry in
+                calendar.isDate(entry.date, inSameDayAs: checkDate)
+            }
+
+            if hasEntry {
+                streak += 1
+                guard let previousDay = calendar.date(byAdding: .day, value: -1, to: checkDate) else { break }
+                checkDate = previousDay
+            } else {
+                break
+            }
+        }
+
+        return streak
+    }
+
+    private func getLongestStreak() -> Int {
+        guard !dataManager.entries.isEmpty else { return 0 }
+
+        let calendar = Calendar.current
+        let sortedEntries = dataManager.entries.sorted { $0.date < $1.date }
+
+        var longestStreak = 0
+        var currentStreak = 1
+        var previousDate = calendar.startOfDay(for: sortedEntries[0].date)
+
+        for i in 1..<sortedEntries.count {
+            let currentDate = calendar.startOfDay(for: sortedEntries[i].date)
+
+            if calendar.isDate(currentDate, equalTo: previousDate, toGranularity: .day) {
+                // Same day, don't increment
+                continue
+            } else if let nextDay = calendar.date(byAdding: .day, value: 1, to: previousDate),
+                      calendar.isDate(currentDate, equalTo: nextDay, toGranularity: .day) {
+                // Consecutive day
+                currentStreak += 1
+                longestStreak = max(longestStreak, currentStreak)
+            } else {
+                // Streak broken
+                currentStreak = 1
+            }
+
+            previousDate = currentDate
+        }
+
+        return max(longestStreak, 1)
+    }
+
+    private func getThisWeekCount() -> Int {
+        let calendar = Calendar.current
+        let now = Date()
+        guard let weekStart = calendar.date(from: calendar.dateComponents([.yearForWeekOfYear, .weekOfYear], from: now)) else {
+            return 0
+        }
+
+        return dataManager.entries.filter { $0.date >= weekStart }.count
     }
 
     // MARK: - Helper Functions
@@ -165,6 +263,8 @@ struct InsightsView: View {
         case .year:
             let yearAgo = calendar.date(byAdding: .year, value: -1, to: now) ?? now
             return dataManager.entries.filter { $0.date >= yearAgo }
+        case .allTime:
+            return dataManager.entries
         }
     }
 
@@ -180,7 +280,7 @@ struct InsightsView: View {
     }
 
     private func getMostCommonMood() -> MoodType {
-        let entries = getFilteredEntries()
+        let entries = dataManager.entries
         guard !entries.isEmpty else { return .neutral }
 
         let moodCounts = Dictionary(grouping: entries) { $0.mood }
@@ -216,15 +316,53 @@ struct InsightsView: View {
 
         let mostCommon = getMostCommonMood()
         let count = getMoodCount(for: mostCommon)
+        let currentStreak = getCurrentStreak()
 
         let insights = [
             "You've been feeling \(mostCommon.name.lowercased()) most often. Keep tracking to discover patterns! 🌟",
             "You logged \(entries.count) moods this \(timePeriod.rawValue.lowercased()). Great job staying mindful! 💪",
             "Your most common mood is \(mostCommon.name). Understanding this is the first step to emotional awareness! 🎯",
-            "You felt \(mostCommon.name.lowercased()) \(count) times. What triggers this mood for you? 🤔"
+            "You felt \(mostCommon.name.lowercased()) \(count) times. What triggers this mood for you? 🤔",
+            "Amazing! You're on a \(currentStreak)-day streak! Keep the momentum going! 🔥"
         ]
 
         return insights.randomElement() ?? insights[0]
+    }
+}
+
+// MARK: - Stat Card Component
+struct StatCard: View {
+    let title: String
+    let value: String
+    let icon: String
+    var subtitle: String = ""
+    var isWide: Bool = false
+
+    var body: some View {
+        DarkGlassCard(padding: 16) {
+            VStack(spacing: 10) {
+                Text(icon)
+                    .font(.system(size: isWide ? 40 : 32))
+
+                Text(value)
+                    .font(.system(isWide ? .title : .title2, design: .rounded))
+                    .fontWeight(.bold)
+                    .foregroundColor(.white)
+
+                Text(title)
+                    .font(.system(.caption, design: .rounded))
+                    .foregroundColor(.white.opacity(0.7))
+                    .multilineTextAlignment(.center)
+
+                if !subtitle.isEmpty {
+                    Text(subtitle)
+                        .font(.system(.caption2, design: .rounded))
+                        .foregroundColor(.white.opacity(0.5))
+                }
+            }
+            .frame(maxWidth: .infinity)
+        }
+        .frame(maxWidth: isWide ? .infinity : nil)
     }
 }
 
@@ -381,32 +519,6 @@ struct MoodPatternsChart: View {
 struct MoodDataPoint {
     let date: Date
     let averageScore: Double
-}
-
-// MARK: - Stat Card
-struct StatCard: View {
-    let title: String
-    let value: String
-    let icon: String
-
-    var body: some View {
-        DarkGlassCard(padding: 20) {
-            VStack(spacing: 12) {
-                Text(icon)
-                    .font(.system(size: 36))
-
-                Text(value)
-                    .font(.system(.title, design: .rounded))
-                    .fontWeight(.bold)
-                    .foregroundColor(.white)
-
-                Text(title)
-                    .font(.system(.caption, design: .rounded))
-                    .foregroundColor(.white.opacity(0.7))
-            }
-            .frame(maxWidth: .infinity)
-        }
-    }
 }
 
 #Preview {

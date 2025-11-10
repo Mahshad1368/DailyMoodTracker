@@ -16,44 +16,36 @@ struct HomeView: View {
 
     // Current date for time-based gradient
     @State private var currentDate = Date()
+    @State private var userName = UserDefaults.standard.string(forKey: "userName") ?? "User"
+    @State private var showingSettings = false
 
     var body: some View {
-        ZStack {
-            // Time-based gradient background
-            GradientBackground(timeOfDay: currentDate.timeOfDay)
+        NavigationStack {
+            ZStack {
+                // Time-based gradient background
+                GradientBackground(timeOfDay: currentDate.timeOfDay)
 
-            VStack(spacing: 0) {
-                // Top Navigation Bar
-                HStack {
-                    // Profile Icon
-                    Button(action: {
-                        // Profile action
-                    }) {
-                        Image(systemName: "person.circle.fill")
-                            .font(.system(size: 32))
-                            .foregroundColor(.white.opacity(0.9))
+                VStack(spacing: 0) {
+                    // Top Navigation Bar - Settings only
+                    HStack {
+                        Spacer()
+
+                        // Settings Icon
+                        NavigationLink(destination: SettingsView()) {
+                            Image(systemName: "gearshape.fill")
+                                .font(.system(size: 28))
+                                .foregroundColor(.white.opacity(0.9))
+                        }
                     }
-
-                    Spacer()
-
-                    // Settings Icon
-                    Button(action: {
-                        // Settings action
-                    }) {
-                        Image(systemName: "gearshape.fill")
-                            .font(.system(size: 28))
-                            .foregroundColor(.white.opacity(0.9))
-                    }
-                }
-                .padding(.horizontal, 25)
-                .padding(.top, 10)
-                .padding(.bottom, 20)
+                    .padding(.horizontal, 25)
+                    .padding(.top, 10)
+                    .padding(.bottom, 20)
 
                 ScrollView(showsIndicators: false) {
                     VStack(spacing: 25) {
                         // Personalized Greeting
                         VStack(spacing: 6) {
-                            Text("\(currentDate.greeting), User!")
+                            Text("\(currentDate.greeting), \(userName)!")
                                 .font(.system(.title, design: .rounded))
                                 .fontWeight(.bold)
                                 .foregroundColor(.white)
@@ -155,10 +147,12 @@ struct HomeView: View {
             } message: {
                 Text("Your mood has been recorded! ✨")
             }
-        }
-        .onAppear {
-            // Update current date when view appears
-            currentDate = Date()
+            }
+            .onAppear {
+                // Update current date and user name when view appears
+                currentDate = Date()
+                userName = UserDefaults.standard.string(forKey: "userName") ?? "User"
+            }
         }
     }
 
