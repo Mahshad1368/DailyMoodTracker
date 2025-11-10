@@ -162,7 +162,7 @@ struct HomeView: View {
             } message: {
                 Text("Your mood has been recorded! ✨")
             }
-            .onChange(of: selectedPhotoItem) { _, newItem in
+            .onChange(of: selectedPhotoItem) { newItem in
                 Task {
                     if let data = try? await newItem?.loadTransferable(type: Data.self) {
                         selectedPhotoData = data
