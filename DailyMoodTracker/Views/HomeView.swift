@@ -21,9 +21,6 @@ struct HomeView: View {
     // Photo picker
     @State private var selectedPhotoItem: PhotosPickerItem?
     @State private var selectedPhotoData: Data?
-    @State private var showingPhotoOptions = false
-    @State private var showingCamera = false
-    @State private var showingGallery = false
 
     // Voice recording
     @State private var audioRecorder: AVAudioRecorder?
@@ -258,19 +255,6 @@ struct HomeView: View {
                     }
                 }
             }
-            .confirmationDialog("Add Photo", isPresented: $showingPhotoOptions, titleVisibility: .visible) {
-                Button("Take Photo") {
-                    showingCamera = true
-                }
-                Button("Choose from Gallery") {
-                    showingGallery = true
-                }
-                Button("Cancel", role: .cancel) { }
-            }
-            .sheet(isPresented: $showingCamera) {
-                ImagePicker(sourceType: .camera, selectedImageData: $selectedPhotoData)
-            }
-            .photosPicker(isPresented: $showingGallery, selection: $selectedPhotoItem, matching: .images)
             }
             .onAppear {
                 // Update current date when view appears
@@ -290,7 +274,11 @@ struct HomeView: View {
     }
 
     private var photoPickerButton: some View {
-        Button(action: { showingPhotoOptions = true }) {
+        PhotosPicker(
+            selection: $selectedPhotoItem,
+            matching: .images,
+            photoLibrary: .shared()
+        ) {
             HStack(spacing: 8) {
                 Image(systemName: selectedPhotoData != nil ? "photo.fill" : "photo")
                     .font(.system(size: 20))
