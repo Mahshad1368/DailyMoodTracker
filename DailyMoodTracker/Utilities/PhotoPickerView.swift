@@ -1,15 +1,14 @@
 //
-//  TelegramStylePhotoPicker.swift
+//  PhotoPickerView.swift
 //  DailyMoodTracker
 //
-//  Modern PHPickerViewController wrapper for photo selection
-//  Shows gallery immediately with camera access built-in
+//  PHPickerViewController wrapper for photo gallery selection
 //
 
 import SwiftUI
 import PhotosUI
 
-struct TelegramStylePhotoPicker: UIViewControllerRepresentable {
+struct PhotoPickerView: UIViewControllerRepresentable {
     @Binding var selectedImageData: Data?
     @Environment(\.dismiss) var dismiss
 
@@ -34,9 +33,9 @@ struct TelegramStylePhotoPicker: UIViewControllerRepresentable {
     }
 
     class Coordinator: NSObject, PHPickerViewControllerDelegate {
-        let parent: TelegramStylePhotoPicker
+        let parent: PhotoPickerView
 
-        init(_ parent: TelegramStylePhotoPicker) {
+        init(_ parent: PhotoPickerView) {
             self.parent = parent
         }
 

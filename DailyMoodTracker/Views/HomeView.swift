@@ -17,8 +17,10 @@ struct HomeView: View {
     @State private var justSaved = false
     @FocusState private var isNoteFieldFocused: Bool
 
-    // Photo picker - Telegram style (gallery with camera inside)
-    @State private var showingPhotoPicker = false
+    // Photo picker - Action sheet with camera OR gallery
+    @State private var showingPhotoOptions = false
+    @State private var showingCamera = false
+    @State private var showingGallery = false
     @State private var selectedPhotoData: Data?
 
     // Voice recording
@@ -247,8 +249,20 @@ struct HomeView: View {
                 icon: "checkmark.circle.fill",
                 duration: 2.0
             )
-            .sheet(isPresented: $showingPhotoPicker) {
-                TelegramStylePhotoPicker(selectedImageData: $selectedPhotoData)
+            .confirmationDialog("Add Photo", isPresented: $showingPhotoOptions, titleVisibility: .visible) {
+                Button("📷 Take Photo") {
+                    showingCamera = true
+                }
+                Button("🖼️ Choose from Gallery") {
+                    showingGallery = true
+                }
+                Button("Cancel", role: .cancel) { }
+            }
+            .sheet(isPresented: $showingCamera) {
+                CameraView(selectedImageData: $selectedPhotoData)
+            }
+            .sheet(isPresented: $showingGallery) {
+                PhotoPickerView(selectedImageData: $selectedPhotoData)
             }
             }
             .onAppear {
@@ -270,7 +284,7 @@ struct HomeView: View {
 
     private var photoPickerButton: some View {
         Button(action: {
-            showingPhotoPicker = true
+            showingPhotoOptions = true
         }) {
             HStack(spacing: 8) {
                 Image(systemName: selectedPhotoData != nil ? "photo.fill" : "photo")
