@@ -2,56 +2,63 @@
 //  TelegramStylePhotoPicker.swift
 //  DailyMoodTracker
 //
-//  UIImagePickerController wrapper that opens photo library with camera access
-//  Mimics Telegram's photo picker behavior
+//  Modern PHPickerViewController wrapper for photo selection
+//  Shows gallery immediately with camera access built-in
 //
 
 import SwiftUI
-import UIKit
+import PhotosUI
 
 struct TelegramStylePhotoPicker: UIViewControllerRepresentable {
     @Binding var selectedImageData: Data?
     @Environment(\.dismiss) var dismiss
 
-    func makeUIViewController(context: Context) -> UIImagePickerController {
-        let picker = UIImagePickerController()
+    func makeUIViewController(context: Context) -> PHPickerViewController {
+        var configuration = PHPickerConfiguration(photoLibrary: .shared())
 
-        // Use photo library source - this shows gallery with camera option on iOS
-        picker.sourceType = .photoLibrary
+        // Configure picker to show photos
+        configuration.filter = .images
+        configuration.selectionLimit = 1
+        configuration.preferredAssetRepresentationMode = .current
+
+        let picker = PHPickerViewController(configuration: configuration)
         picker.delegate = context.coordinator
-        picker.allowsEditing = false
-
-        // Enable camera access if available
-        picker.cameraCaptureMode = .photo
 
         return picker
     }
 
-    func updateUIViewController(_ uiViewController: UIImagePickerController, context: Context) {}
+    func updateUIViewController(_ uiViewController: PHPickerViewController, context: Context) {}
 
     func makeCoordinator() -> Coordinator {
         Coordinator(self)
     }
 
-    class Coordinator: NSObject, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
+    class Coordinator: NSObject, PHPickerViewControllerDelegate {
         let parent: TelegramStylePhotoPicker
 
         init(_ parent: TelegramStylePhotoPicker) {
             self.parent = parent
         }
 
-        func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
-            if let image = info[.originalImage] as? UIImage {
-                // Compress image to max 2MB like Telegram
-                if let data = compressImage(image) {
-                    parent.selectedImageData = data
+        func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
+            parent.dismiss()
+
+            guard let result = results.first else { return }
+
+            // Load image data
+            result.itemProvider.loadObject(ofClass: UIImage.self) { [weak self] object, error in
+                guard let self = self, let image = object as? UIImage else { return }
+
+                // Compress image on background thread
+                DispatchQueue.global(qos: .userInitiated).async {
+                    let compressedData = self.compressImage(image)
+
+                    // Update on main thread
+                    DispatchQueue.main.async {
+                        self.parent.selectedImageData = compressedData
+                    }
                 }
             }
-            parent.dismiss()
-        }
-
-        func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
-            parent.dismiss()
         }
 
         private func compressImage(_ image: UIImage) -> Data? {
