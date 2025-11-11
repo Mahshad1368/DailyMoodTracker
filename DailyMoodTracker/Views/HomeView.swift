@@ -11,6 +11,8 @@ import AVFoundation
 struct HomeView: View {
     @EnvironmentObject var dataManager: DataManager
     @AppStorage("userName") private var userName: String = "User"
+    @AppStorage("showNotesField") private var showNotesField: Bool = true
+    @AppStorage("requireNote") private var requireNote: Bool = false
     @State private var selectedMood: MoodType?
     @State private var note: String = ""
     @State private var showingToast = false
@@ -43,6 +45,18 @@ struct HomeView: View {
     // Computed property for today's entries
     private var todayEntries: [MoodEntry] {
         dataManager.getEntriesToday()
+    }
+
+    // Computed property to check if save button should be enabled
+    private var canSaveMood: Bool {
+        guard selectedMood != nil else { return false }
+
+        // If notes are shown and required, check if note is not empty
+        if showNotesField && requireNote {
+            return !note.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+        }
+
+        return true
     }
 
     var body: some View {
@@ -132,23 +146,24 @@ struct HomeView: View {
                                 }
                                 .frame(maxWidth: .infinity)
 
-                                // Note Input Field
-                                VStack(spacing: 12) {
-                                    TextField("Add a note...", text: $note, axis: .vertical)
-                                        .textFieldStyle(.plain)
-                                        .foregroundColor(Color.darkTheme.textPrimary)
-                                        .padding()
-                                        .background(
-                                            RoundedRectangle(cornerRadius: 12)
-                                                .fill(Color.black.opacity(0.2))
-                                        )
-                                        .lineLimit(3...5)
-                                        .focused($isNoteFieldFocused)
+                                // Note Input Field (only show if enabled in settings)
+                                if showNotesField {
+                                    VStack(spacing: 12) {
+                                        TextField("Add a note...", text: $note, axis: .vertical)
+                                            .textFieldStyle(.plain)
+                                            .foregroundColor(Color.darkTheme.textPrimary)
+                                            .padding()
+                                            .background(
+                                                RoundedRectangle(cornerRadius: 12)
+                                                    .fill(Color.black.opacity(0.2))
+                                            )
+                                            .lineLimit(3...5)
+                                            .focused($isNoteFieldFocused)
 
-                                    // Photo and Voice Buttons
-                                    attachmentButtonsView
+                                        // Photo and Voice Buttons
+                                        attachmentButtonsView
 
-                                    // Photo Preview (if photo selected)
+                                        // Photo Preview (if photo selected)
                                     if let photoData = selectedPhotoData, let uiImage = UIImage(data: photoData) {
                                         HStack(spacing: 12) {
                                             Image(uiImage: uiImage)
@@ -183,12 +198,13 @@ struct HomeView: View {
                                         )
                                     }
                                 }
+                                }
 
                                 // Save Mood Button
                                 GlowingButton(
                                     title: justSaved ? "✓ Saved!" : "Save Mood",
                                     action: logMood,
-                                    isEnabled: selectedMood != nil,
+                                    isEnabled: canSaveMood,
                                     colors: [Color(hex: "FFD93D"), Color(hex: "FFA500")]
                                 )
                             }
@@ -379,6 +395,14 @@ struct HomeView: View {
 
     private func logMood() {
         guard let mood = selectedMood else { return }
+
+        // Validate required note if enabled
+        if showNotesField && requireNote && note.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            // Show error - note is required but empty
+            let generator = UINotificationFeedbackGenerator()
+            generator.notificationOccurred(.error)
+            return
+        }
 
         // Automatically stop recording if still recording
         if isRecording {

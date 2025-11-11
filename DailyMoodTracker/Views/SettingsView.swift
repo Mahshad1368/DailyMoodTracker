@@ -25,7 +25,13 @@ struct SettingsView: View {
         return Calendar.current.date(from: components) ?? Date()
     }()
     @State private var darkModeEnabled: Bool = UserDefaults.standard.bool(forKey: "darkModeEnabled")
-    @State private var showNotesField: Bool = UserDefaults.standard.bool(forKey: "showNotesField")
+    @State private var showNotesField: Bool = {
+        if UserDefaults.standard.object(forKey: "showNotesField") == nil {
+            UserDefaults.standard.set(true, forKey: "showNotesField")
+            return true
+        }
+        return UserDefaults.standard.bool(forKey: "showNotesField")
+    }()
     @State private var requireNote: Bool = UserDefaults.standard.bool(forKey: "requireNote")
 
     // Alerts
