@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-import PhotosUI
 import AVFoundation
 
 struct HomeView: View {
@@ -18,8 +17,8 @@ struct HomeView: View {
     @State private var justSaved = false
     @FocusState private var isNoteFieldFocused: Bool
 
-    // Photo picker
-    @State private var selectedPhotoItem: PhotosPickerItem?
+    // Photo picker - Telegram style (gallery with camera inside)
+    @State private var showingPhotoPicker = false
     @State private var selectedPhotoData: Data?
 
     // Voice recording
@@ -169,7 +168,7 @@ struct HomeView: View {
 
                                             Spacer()
 
-                                            Button(action: { selectedPhotoData = nil; selectedPhotoItem = nil }) {
+                                            Button(action: { selectedPhotoData = nil }) {
                                                 Image(systemName: "xmark.circle.fill")
                                                     .font(.system(size: 24))
                                                     .foregroundColor(Color.darkTheme.textSecondary)
@@ -248,12 +247,8 @@ struct HomeView: View {
                 icon: "checkmark.circle.fill",
                 duration: 2.0
             )
-            .onChange(of: selectedPhotoItem) { newItem in
-                Task {
-                    if let data = try? await newItem?.loadTransferable(type: Data.self) {
-                        selectedPhotoData = data
-                    }
-                }
+            .sheet(isPresented: $showingPhotoPicker) {
+                TelegramStylePhotoPicker(selectedImageData: $selectedPhotoData)
             }
             }
             .onAppear {
@@ -274,11 +269,9 @@ struct HomeView: View {
     }
 
     private var photoPickerButton: some View {
-        PhotosPicker(
-            selection: $selectedPhotoItem,
-            matching: .images,
-            photoLibrary: .shared()
-        ) {
+        Button(action: {
+            showingPhotoPicker = true
+        }) {
             HStack(spacing: 8) {
                 Image(systemName: selectedPhotoData != nil ? "photo.fill" : "photo")
                     .font(.system(size: 20))
@@ -462,7 +455,6 @@ struct HomeView: View {
                 selectedMood = nil
                 note = ""
                 selectedPhotoData = nil
-                selectedPhotoItem = nil
                 recordedAudioData = nil
                 audioDuration = 0
             }

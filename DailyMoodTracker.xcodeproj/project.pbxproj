@@ -25,6 +25,7 @@
 		A1000018000000000000001 /* AppIcon-Sleepy@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = A2000018000000000000001 /* AppIcon-Sleepy@2x.png */; };
 		A1000019000000000000001 /* AppIcon-Sleepy@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = A2000019000000000000001 /* AppIcon-Sleepy@3x.png */; };
 		A1000020000000000000001 /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000020000000000000001 /* Extensions.swift */; };
+		A1TELEGRAMPICKER00001 /* TelegramStylePhotoPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2TELEGRAMPICKER00001 /* TelegramStylePhotoPicker.swift */; };
 		A1000021000000000000001 /* GradientBackground.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000021000000000000001 /* GradientBackground.swift */; };
 		A1000022000000000000001 /* GlassCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000022000000000000001 /* GlassCard.swift */; };
 		A1000023000000000000001 /* GlowingButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000023000000000000001 /* GlowingButton.swift */; };
@@ -89,6 +90,7 @@
 		A2000018000000000000001 /* AppIcon-Sleepy@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "AppIcon-Sleepy@2x.png"; sourceTree = "<group>"; };
 		A2000019000000000000001 /* AppIcon-Sleepy@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "AppIcon-Sleepy@3x.png"; sourceTree = "<group>"; };
 		A2000020000000000000001 /* Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
+		A2TELEGRAMPICKER00001 /* TelegramStylePhotoPicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TelegramStylePhotoPicker.swift; sourceTree = "<group>"; };
 		A2000021000000000000001 /* GradientBackground.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GradientBackground.swift; sourceTree = "<group>"; };
 		A2000022000000000000001 /* GlassCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlassCard.swift; sourceTree = "<group>"; };
 		A2000023000000000000001 /* GlowingButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlowingButton.swift; sourceTree = "<group>"; };
@@ -219,6 +221,7 @@
 			isa = PBXGroup;
 			children = (
 				A2000020000000000000001 /* Extensions.swift */,
+				A2TELEGRAMPICKER00001 /* TelegramStylePhotoPicker.swift */,
 			);
 			path = Utilities;
 			sourceTree = "<group>";
@@ -369,6 +372,7 @@
 				A1000006000000000000001 /* HistoryView.swift in Sources */,
 				A1000008000000000000001 /* IconManager.swift in Sources */,
 				A1000020000000000000001 /* Extensions.swift in Sources */,
+				A1TELEGRAMPICKER00001 /* TelegramStylePhotoPicker.swift in Sources */,
 				A1000021000000000000001 /* GradientBackground.swift in Sources */,
 				A1000022000000000000001 /* GlassCard.swift in Sources */,
 				A1000023000000000000001 /* GlowingButton.swift in Sources */,
