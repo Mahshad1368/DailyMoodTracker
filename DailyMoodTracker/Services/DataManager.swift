@@ -165,11 +165,11 @@ class DataManager: ObservableObject {
         saveEntries()
 
         print("➕ Added new entry: \(mood.name)")
-        if photoData != nil {
-            print("📷 Entry includes photo (\(photoData!.count) bytes)")
+        if let photoData = photoData {
+            print("📷 Entry includes photo (\(photoData.count) bytes)")
         }
-        if audioData != nil {
-            print("🎤 Entry includes audio (\(audioData!.count) bytes, \(audioDuration ?? 0)s)")
+        if let audioData = audioData {
+            print("🎤 Entry includes audio (\(audioData.count) bytes, \(audioDuration ?? 0)s)")
         }
 
         // Update app icon based on dominant mood

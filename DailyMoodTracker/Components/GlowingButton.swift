@@ -39,7 +39,7 @@ struct GlowingButton: View {
                 )
                 .cornerRadius(16)
                 .shadow(
-                    color: isEnabled ? colors.first!.opacity(0.4) : Color.clear,
+                    color: isEnabled ? (colors.first?.opacity(0.4) ?? Color.clear) : Color.clear,
                     radius: 15,
                     x: 0,
                     y: 8
