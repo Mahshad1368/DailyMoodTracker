@@ -33,6 +33,7 @@
 		A1000024000000000000001 /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000024000000000000001 /* OnboardingView.swift */; };
 		A1000025000000000000001 /* InsightsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000025000000000000001 /* InsightsView.swift */; };
 		A1SETTINGSVIEW000001 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2SETTINGSVIEW000001 /* SettingsView.swift */; };
+		A1TOASTVIEW000000001 /* ToastView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2TOASTVIEW000000001 /* ToastView.swift */; };
 		A1MAINSHARED000001 /* SharedModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2WIDGET00000000000002 /* SharedModels.swift */; };
 		A1WIDGET00000000000001 /* MoodTrackerWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2WIDGET00000000000001 /* MoodTrackerWidget.swift */; };
 		A1WIDGET00000000000002 /* SharedModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2WIDGET00000000000002 /* SharedModels.swift */; };
@@ -97,6 +98,7 @@
 		A2000024000000000000001 /* OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingView.swift; sourceTree = "<group>"; };
 		A2000025000000000000001 /* InsightsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InsightsView.swift; sourceTree = "<group>"; };
 		A2SETTINGSVIEW000001 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		A2TOASTVIEW000000001 /* ToastView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToastView.swift; sourceTree = "<group>"; };
 		A2000026000000000000001 /* DailyMoodTracker.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = DailyMoodTracker.entitlements; sourceTree = "<group>"; };
 		A3WIDGET00000000000001 /* MoodTrackerWidget.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = MoodTrackerWidget.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		A2WIDGET00000000000001 /* MoodTrackerWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoodTrackerWidget.swift; sourceTree = "<group>"; };
@@ -190,6 +192,7 @@
 				A2000024000000000000001 /* OnboardingView.swift */,
 				A2000025000000000000001 /* InsightsView.swift */,
 				A2SETTINGSVIEW000001 /* SettingsView.swift */,
+				A2TOASTVIEW000000001 /* ToastView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -377,6 +380,7 @@
 				A1000024000000000000001 /* OnboardingView.swift in Sources */,
 				A1000025000000000000001 /* InsightsView.swift in Sources */,
 				A1SETTINGSVIEW000001 /* SettingsView.swift in Sources */,
+				A1TOASTVIEW000000001 /* ToastView.swift in Sources */,
 				A1MAINSHARED000001 /* SharedModels.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

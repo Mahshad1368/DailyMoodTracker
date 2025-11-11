@@ -151,7 +151,7 @@ struct HomeView: View {
                                     attachmentButtonsView
 
                                     // Photo Preview (if photo selected)
-                                    if selectedPhotoData != nil, let uiImage = UIImage(data: selectedPhotoData!) {
+                                    if let photoData = selectedPhotoData, let uiImage = UIImage(data: photoData) {
                                         HStack(spacing: 12) {
                                             Image(uiImage: uiImage)
                                                 .resizable()
@@ -165,7 +165,7 @@ struct HomeView: View {
                                                     .fontWeight(.medium)
                                                     .foregroundColor(Color.darkTheme.textPrimary)
 
-                                                Text("\(selectedPhotoData!.count / 1024) KB")
+                                                Text("\(photoData.count / 1024) KB")
                                                     .font(.system(.caption, design: .rounded))
                                                     .foregroundColor(Color.darkTheme.textSecondary)
                                             }
@@ -553,83 +553,6 @@ struct HomeView: View {
         let minutes = Int(duration) / 60
         let seconds = Int(duration) % 60
         return String(format: "%d:%02d", minutes, seconds)
-    }
-}
-
-// MARK: - Toast View
-
-struct ToastView: View {
-    let message: String
-    let icon: String
-    @Binding var isShowing: Bool
-
-    var body: some View {
-        VStack {
-            if isShowing {
-                HStack(spacing: 12) {
-                    Image(systemName: icon)
-                        .font(.system(size: 20, weight: .semibold))
-                        .foregroundColor(.white)
-
-                    Text(message)
-                        .font(.system(.body, design: .rounded))
-                        .fontWeight(.semibold)
-                        .foregroundColor(.white)
-                }
-                .padding(.horizontal, 20)
-                .padding(.vertical, 14)
-                .background(
-                    Capsule()
-                        .fill(Color.green.gradient)
-                        .shadow(color: .black.opacity(0.15), radius: 10, x: 0, y: 5)
-                )
-                .transition(.move(edge: .top).combined(with: .opacity))
-                .padding(.top, 10)
-            }
-
-            Spacer()
-        }
-        .animation(.spring(response: 0.6, dampingFraction: 0.7), value: isShowing)
-    }
-}
-
-struct ToastModifier: ViewModifier {
-    @Binding var isShowing: Bool
-    let message: String
-    let icon: String
-    let duration: TimeInterval
-
-    func body(content: Content) -> some View {
-        ZStack {
-            content
-
-            ToastView(message: message, icon: icon, isShowing: $isShowing)
-        }
-        .onChange(of: isShowing) { showing in
-            if showing {
-                DispatchQueue.main.asyncAfter(deadline: .now() + duration) {
-                    withAnimation {
-                        isShowing = false
-                    }
-                }
-            }
-        }
-    }
-}
-
-extension View {
-    func toast(
-        isShowing: Binding<Bool>,
-        message: String,
-        icon: String = "checkmark.circle.fill",
-        duration: TimeInterval = 2.0
-    ) -> some View {
-        self.modifier(ToastModifier(
-            isShowing: isShowing,
-            message: message,
-            icon: icon,
-            duration: duration
-        ))
     }
 }
 
