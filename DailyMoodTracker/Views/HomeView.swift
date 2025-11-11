@@ -14,7 +14,8 @@ struct HomeView: View {
     @AppStorage("userName") private var userName: String = "User"
     @State private var selectedMood: MoodType?
     @State private var note: String = ""
-    @State private var showingSaveAlert = false
+    @State private var showingToast = false
+    @State private var justSaved = false
     @FocusState private var isNoteFieldFocused: Bool
 
     // Photo picker
@@ -33,6 +34,18 @@ struct HomeView: View {
 
     // Current date for time-based gradient
     @State private var currentDate = Date()
+
+    // Flying emoji animation states
+    @State private var isAnimatingMood = false
+    @State private var flyingEmoji: String = ""
+    @State private var emojiYOffset: CGFloat = 0
+    @State private var emojiOpacity: Double = 0
+    @State private var newEntryID: UUID?
+
+    // Computed property for today's entries
+    private var todayEntries: [MoodEntry] {
+        dataManager.getEntriesToday()
+    }
 
     var body: some View {
         NavigationStack {
@@ -175,7 +188,7 @@ struct HomeView: View {
 
                                 // Save Mood Button
                                 GlowingButton(
-                                    title: "Save Mood",
+                                    title: justSaved ? "✓ Saved!" : "Save Mood",
                                     action: logMood,
                                     isEnabled: selectedMood != nil,
                                     colors: [Color(hex: "FFD93D"), Color(hex: "FFA500")]
@@ -183,10 +196,46 @@ struct HomeView: View {
                             }
                         }
                         .padding(.horizontal, 20)
+
+                        // Today's Timeline Section
+                        if !todayEntries.isEmpty {
+                            VStack(alignment: .leading, spacing: 15) {
+                                Text("Today's Timeline")
+                                    .font(.system(.title2, design: .rounded))
+                                    .fontWeight(.bold)
+                                    .foregroundColor(Color.darkTheme.textPrimary)
+                                    .padding(.horizontal, 25)
+
+                                VStack(spacing: 12) {
+                                    ForEach(todayEntries) { entry in
+                                        TimelineEntryCard(
+                                            entry: entry,
+                                            isHighlighted: newEntryID == entry.id
+                                        )
+                                        .padding(.horizontal, 20)
+                                    }
+                                }
+                            }
+                            .padding(.top, 10)
+                        }
                     }
                     .padding(.bottom, 30)
                 }
                 .scrollDismissesKeyboard(.interactively)
+
+                // Flying emoji overlay
+                if isAnimatingMood {
+                    VStack {
+                        Text(flyingEmoji)
+                            .font(.system(size: 60))
+                            .offset(y: emojiYOffset)
+                            .opacity(emojiOpacity)
+                            .shadow(color: Color.black.opacity(0.3), radius: 10, x: 0, y: 5)
+
+                        Spacer()
+                    }
+                    .allowsHitTesting(false)
+                }
             }
             .toolbar {
                 ToolbarItemGroup(placement: .keyboard) {
@@ -196,12 +245,13 @@ struct HomeView: View {
                     }
                 }
             }
-            .alert("Mood Logged!", isPresented: $showingSaveAlert) {
-                Button("OK", role: .cancel) { }
-            } message: {
-                Text("Your mood has been recorded! ✨")
-            }
-            .onChange(of: selectedPhotoItem) { _, newItem in
+            .toast(
+                isShowing: $showingToast,
+                message: "Mood saved!",
+                icon: "checkmark.circle.fill",
+                duration: 2.0
+            )
+            .onChange(of: selectedPhotoItem) { newItem in
                 Task {
                     if let data = try? await newItem?.loadTransferable(type: Data.self) {
                         selectedPhotoData = data
@@ -335,26 +385,90 @@ struct HomeView: View {
     private func logMood() {
         guard let mood = selectedMood else { return }
 
+        // Automatically stop recording if still recording
+        if isRecording {
+            stopRecording()
+        }
+
         // Dismiss keyboard
         isNoteFieldFocused = false
 
-        dataManager.addEntry(
-            mood: mood,
-            note: note,
-            photoData: selectedPhotoData,
-            audioData: recordedAudioData,
-            audioDuration: recordedAudioData != nil ? audioDuration : nil
-        )
+        // Haptic feedback - success vibration
+        let generator = UINotificationFeedbackGenerator()
+        generator.notificationOccurred(.success)
 
-        // Clear form
-        selectedMood = nil
-        note = ""
-        selectedPhotoData = nil
-        selectedPhotoItem = nil
-        recordedAudioData = nil
-        audioDuration = 0
+        // Show button animation
+        withAnimation(.spring(response: 0.3, dampingFraction: 0.6)) {
+            justSaved = true
+        }
 
-        showingSaveAlert = true
+        // Show toast
+        showingToast = true
+
+        // START FLYING EMOJI ANIMATION
+        flyingEmoji = mood.emoji
+        emojiOpacity = 1.0
+        emojiYOffset = 0 // Start at button position
+        isAnimatingMood = true
+
+        // Animate emoji dropping down with easeIn (gravity effect)
+        withAnimation(.easeIn(duration: 0.7)) {
+            emojiYOffset = 400 // Drop distance (adjust based on screen)
+        }
+
+        // Fade out emoji as it reaches destination
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            withAnimation(.easeOut(duration: 0.2)) {
+                emojiOpacity = 0
+            }
+        }
+
+        // Add entry to data AFTER animation starts (so it appears when emoji arrives)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
+            dataManager.addEntry(
+                mood: mood,
+                note: note,
+                photoData: selectedPhotoData,
+                audioData: recordedAudioData,
+                audioDuration: recordedAudioData != nil ? audioDuration : nil
+            )
+
+            // Get the new entry ID for highlight
+            if let newEntry = dataManager.getEntriesToday().first {
+                newEntryID = newEntry.id
+
+                // Clear highlight after brief moment
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
+                    withAnimation(.easeOut(duration: 0.3)) {
+                        newEntryID = nil
+                    }
+                }
+            }
+
+            // Clean up animation
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                isAnimatingMood = false
+                flyingEmoji = ""
+                emojiYOffset = 0
+            }
+        }
+
+        // Reset button text after 1 second, then clear form
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+            withAnimation {
+                justSaved = false
+            }
+
+            // Clear form after button animation
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                selectedMood = nil
+                note = ""
+                selectedPhotoData = nil
+                selectedPhotoItem = nil
+                recordedAudioData = nil
+                audioDuration = 0
+            }
+        }
     }
 
     // MARK: - Photo Handling
@@ -439,6 +553,194 @@ struct HomeView: View {
         let minutes = Int(duration) / 60
         let seconds = Int(duration) % 60
         return String(format: "%d:%02d", minutes, seconds)
+    }
+}
+
+// MARK: - Toast View
+
+struct ToastView: View {
+    let message: String
+    let icon: String
+    @Binding var isShowing: Bool
+
+    var body: some View {
+        VStack {
+            if isShowing {
+                HStack(spacing: 12) {
+                    Image(systemName: icon)
+                        .font(.system(size: 20, weight: .semibold))
+                        .foregroundColor(.white)
+
+                    Text(message)
+                        .font(.system(.body, design: .rounded))
+                        .fontWeight(.semibold)
+                        .foregroundColor(.white)
+                }
+                .padding(.horizontal, 20)
+                .padding(.vertical, 14)
+                .background(
+                    Capsule()
+                        .fill(Color.green.gradient)
+                        .shadow(color: .black.opacity(0.15), radius: 10, x: 0, y: 5)
+                )
+                .transition(.move(edge: .top).combined(with: .opacity))
+                .padding(.top, 10)
+            }
+
+            Spacer()
+        }
+        .animation(.spring(response: 0.6, dampingFraction: 0.7), value: isShowing)
+    }
+}
+
+struct ToastModifier: ViewModifier {
+    @Binding var isShowing: Bool
+    let message: String
+    let icon: String
+    let duration: TimeInterval
+
+    func body(content: Content) -> some View {
+        ZStack {
+            content
+
+            ToastView(message: message, icon: icon, isShowing: $isShowing)
+        }
+        .onChange(of: isShowing) { showing in
+            if showing {
+                DispatchQueue.main.asyncAfter(deadline: .now() + duration) {
+                    withAnimation {
+                        isShowing = false
+                    }
+                }
+            }
+        }
+    }
+}
+
+extension View {
+    func toast(
+        isShowing: Binding<Bool>,
+        message: String,
+        icon: String = "checkmark.circle.fill",
+        duration: TimeInterval = 2.0
+    ) -> some View {
+        self.modifier(ToastModifier(
+            isShowing: isShowing,
+            message: message,
+            icon: icon,
+            duration: duration
+        ))
+    }
+}
+
+// MARK: - Timeline Entry Card
+
+struct TimelineEntryCard: View {
+    let entry: MoodEntry
+    let isHighlighted: Bool
+
+    @State private var scale: CGFloat = 1.0
+
+    var body: some View {
+        HStack(alignment: .top, spacing: 15) {
+            // Time indicator with emoji
+            VStack(spacing: 4) {
+                Text(entry.date.timeOfDay.emoji)
+                    .font(.system(size: 20))
+
+                Text(entry.formattedTime)
+                    .font(.system(.caption2, design: .rounded))
+                    .fontWeight(.medium)
+                    .foregroundColor(Color.darkTheme.textSecondary)
+            }
+            .frame(width: 50)
+
+            // Mood content card
+            VStack(alignment: .leading, spacing: 10) {
+                // Mood header
+                HStack(spacing: 10) {
+                    Text(entry.mood.emoji)
+                        .font(.system(size: 28))
+
+                    Text(entry.mood.name)
+                        .font(.system(.body, design: .rounded))
+                        .fontWeight(.semibold)
+                        .foregroundColor(Color.darkTheme.textPrimary)
+
+                    Spacer()
+                }
+
+                // Note
+                if !entry.note.isEmpty {
+                    Text(entry.note)
+                        .font(.system(.subheadline, design: .rounded))
+                        .foregroundColor(Color.darkTheme.textSecondary)
+                        .lineSpacing(3)
+                }
+
+                // Attachments indicator
+                HStack(spacing: 12) {
+                    if entry.photoData != nil {
+                        HStack(spacing: 4) {
+                            Image(systemName: "photo.fill")
+                                .font(.system(size: 12))
+                            Text("Photo")
+                                .font(.system(.caption2, design: .rounded))
+                        }
+                        .foregroundColor(Color.darkTheme.accent)
+                    }
+
+                    if entry.audioData != nil {
+                        HStack(spacing: 4) {
+                            Image(systemName: "mic.fill")
+                                .font(.system(size: 12))
+                            Text("Voice")
+                                .font(.system(.caption2, design: .rounded))
+                        }
+                        .foregroundColor(Color.darkTheme.accent)
+                    }
+                }
+            }
+            .padding(16)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(
+                HStack(spacing: 0) {
+                    // Colored left accent
+                    Rectangle()
+                        .fill(entry.mood.color)
+                        .frame(width: 3)
+
+                    Color.white.opacity(isHighlighted ? 0.15 : 0.08)
+                }
+            )
+            .cornerRadius(12)
+            .shadow(
+                color: isHighlighted ? entry.mood.color.opacity(0.4) : Color.black.opacity(0.2),
+                radius: isHighlighted ? 12 : 8,
+                x: 0,
+                y: isHighlighted ? 6 : 4
+            )
+        }
+        .scaleEffect(scale)
+        .animation(.spring(response: 0.4, dampingFraction: 0.6), value: scale)
+        .onAppear {
+            // Pop-in animation for new entries
+            if isHighlighted {
+                scale = 0.3
+                withAnimation(.spring(response: 0.5, dampingFraction: 0.6)) {
+                    scale = 1.0
+                }
+            }
+        }
+        .onChange(of: isHighlighted) { highlighted in
+            if highlighted {
+                // Elastic bounce effect: scale up, overshoot, settle
+                scale = 0.3
+                withAnimation(.spring(response: 0.5, dampingFraction: 0.6)) {
+                    scale = 1.0
+                }
+            }
+        }
     }
 }
 
