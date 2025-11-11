@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import UserNotifications
 
 struct SettingsView: View {
     @EnvironmentObject var dataManager: DataManager
@@ -111,7 +112,12 @@ struct SettingsView: View {
                                     .tint(Color(hex: "667EEA"))
                                     .onChange(of: dailyReminderEnabled) { newValue in
                                         UserDefaults.standard.set(newValue, forKey: "dailyReminderEnabled")
-                                        // TODO: Schedule/cancel notifications
+                                        if newValue {
+                                            requestNotificationPermission()
+                                            scheduleDailyNotification(at: reminderTime)
+                                        } else {
+                                            cancelDailyNotification()
+                                        }
                                     }
                             }
 
@@ -132,7 +138,9 @@ struct SettingsView: View {
                                     .colorScheme(.dark)
                                     .onChange(of: reminderTime) { newValue in
                                         UserDefaults.standard.set(newValue, forKey: "reminderTime")
-                                        // TODO: Reschedule notification
+                                        if dailyReminderEnabled {
+                                            scheduleDailyNotification(at: newValue)
+                                        }
                                     }
                                 }
                                 .padding(.top, 8)
@@ -385,6 +393,62 @@ struct SettingsView: View {
         .sheet(isPresented: $showingIconPicker) {
             AppIconPickerView()
         }
+    }
+
+    // MARK: - Notification Functions
+
+    private func requestNotificationPermission() {
+        UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { granted, error in
+            if granted {
+                print("✅ Notification permission granted")
+            } else if let error = error {
+                print("❌ Notification permission error: \(error.localizedDescription)")
+            } else {
+                print("⚠️ Notification permission denied")
+            }
+        }
+    }
+
+    private func scheduleDailyNotification(at time: Date) {
+        // Cancel existing notification first
+        cancelDailyNotification()
+
+        let center = UNUserNotificationCenter.current()
+
+        // Create notification content
+        let content = UNMutableNotificationContent()
+        content.title = "Time to Log Your Mood 😊"
+        content.body = "How are you feeling today? Take a moment to reflect."
+        content.sound = .default
+        content.badge = 1
+
+        // Extract hour and minute from selected time
+        let calendar = Calendar.current
+        let components = calendar.dateComponents([.hour, .minute], from: time)
+
+        // Create trigger that repeats daily at specified time
+        let trigger = UNCalendarNotificationTrigger(dateMatching: components, repeats: true)
+
+        // Create request with unique identifier
+        let request = UNNotificationRequest(
+            identifier: "dailyMoodReminder",
+            content: content,
+            trigger: trigger
+        )
+
+        // Schedule notification
+        center.add(request) { error in
+            if let error = error {
+                print("❌ Error scheduling notification: \(error.localizedDescription)")
+            } else {
+                print("✅ Daily notification scheduled for \(components.hour ?? 0):\(String(format: "%02d", components.minute ?? 0))")
+            }
+        }
+    }
+
+    private func cancelDailyNotification() {
+        UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: ["dailyMoodReminder"])
+        print("🔕 Daily notification cancelled")
     }
 }
 

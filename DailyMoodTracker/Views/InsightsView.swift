@@ -16,7 +16,6 @@ struct InsightsView: View {
         case week = "Week"
         case month = "Month"
         case year = "Year"
-        case allTime = "All Time"
     }
 
     var body: some View {
@@ -275,8 +274,6 @@ struct InsightsView: View {
         case .year:
             let yearAgo = calendar.date(byAdding: .year, value: -1, to: now) ?? now
             return dataManager.entries.filter { $0.date >= yearAgo }
-        case .allTime:
-            return dataManager.entries
         }
     }
 
