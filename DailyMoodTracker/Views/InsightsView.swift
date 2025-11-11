@@ -71,12 +71,12 @@ struct InsightsView: View {
                             )
                         }
 
-                        // Third row: Most Common Mood
+                        // Third row: Most Common Mood (All Time)
                         StatCard(
                             title: "Most Common Mood",
-                            value: getMostCommonMood().emoji,
+                            value: getMostCommonMoodAllTime().emoji,
                             icon: "star.fill",
-                            subtitle: getMostCommonMood().name,
+                            subtitle: getMostCommonMoodAllTime().name,
                             isWide: true
                         )
                     }
@@ -113,13 +113,28 @@ struct InsightsView: View {
                                 .fontWeight(.semibold)
                                 .foregroundColor(Color.darkTheme.textPrimary)
 
-                            VStack(spacing: 15) {
-                                ForEach(MoodType.allCases, id: \.self) { mood in
-                                    MoodDistributionBar(
-                                        mood: mood,
-                                        percentage: calculatePercentage(for: mood),
-                                        count: getMoodCount(for: mood)
-                                    )
+                            if getFilteredEntries().isEmpty {
+                                VStack(spacing: 10) {
+                                    Image(systemName: "chart.pie")
+                                        .font(.system(size: 40))
+                                        .foregroundColor(Color.darkTheme.textSecondary.opacity(0.5))
+
+                                    Text("No data for this period")
+                                        .font(.system(.subheadline, design: .rounded))
+                                        .foregroundColor(Color.darkTheme.textSecondary)
+                                }
+                                .frame(maxWidth: .infinity)
+                                .padding(.vertical, 30)
+                            } else {
+                                VStack(spacing: 15) {
+                                    ForEach(MoodType.allCases, id: \.self) { mood in
+                                        MoodDistributionBar(
+                                            mood: mood,
+                                            percentage: calculatePercentage(for: mood),
+                                            count: getMoodCount(for: mood)
+                                        )
+                                        .id("\(mood.rawValue)-\(timePeriod.rawValue)")
+                                    }
                                 }
                             }
                         }
@@ -137,6 +152,7 @@ struct InsightsView: View {
 
                                 MoodPatternsChart(entries: getFilteredEntries())
                                     .frame(height: 200)
+                                    .id("chart-\(timePeriod.rawValue)")
 
                                 // Peak happiness insight
                                 HStack(spacing: 8) {
@@ -275,8 +291,18 @@ struct InsightsView: View {
         return Double(count) / Double(entries.count)
     }
 
-    private func getMostCommonMood() -> MoodType {
+    private func getMostCommonMoodAllTime() -> MoodType {
         let entries = dataManager.entries
+        guard !entries.isEmpty else { return .neutral }
+
+        let moodCounts = Dictionary(grouping: entries) { $0.mood }
+            .mapValues { $0.count }
+
+        return moodCounts.max(by: { $0.value < $1.value })?.key ?? .neutral
+    }
+
+    private func getMostCommonMood() -> MoodType {
+        let entries = getFilteredEntries()
         guard !entries.isEmpty else { return .neutral }
 
         let moodCounts = Dictionary(grouping: entries) { $0.mood }
@@ -428,6 +454,11 @@ struct MoodDistributionBar: View {
         .onAppear {
             withAnimation(.easeInOut(duration: 1.0)) {
                 animatedPercentage = percentage
+            }
+        }
+        .onChange(of: percentage) { newPercentage in
+            withAnimation(.easeInOut(duration: 0.6)) {
+                animatedPercentage = newPercentage
             }
         }
     }
