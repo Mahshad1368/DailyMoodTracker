@@ -393,6 +393,13 @@ struct HomeView: View {
         // Dismiss keyboard
         isNoteFieldFocused = false
 
+        // CAPTURE VALUES IMMEDIATELY to avoid race conditions
+        let capturedMood = mood
+        let capturedNote = note
+        let capturedPhotoData = selectedPhotoData
+        let capturedAudioData = recordedAudioData
+        let capturedAudioDuration = audioDuration
+
         // Haptic feedback - success vibration
         let generator = UINotificationFeedbackGenerator()
         generator.notificationOccurred(.success)
@@ -406,7 +413,7 @@ struct HomeView: View {
         showingToast = true
 
         // START FLYING EMOJI ANIMATION
-        flyingEmoji = mood.emoji
+        flyingEmoji = capturedMood.emoji
         emojiOpacity = 1.0
         emojiYOffset = 0 // Start at button position
         isAnimatingMood = true
@@ -425,22 +432,25 @@ struct HomeView: View {
 
         // Add entry to data AFTER animation starts (so it appears when emoji arrives)
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
+            // Add the entry with captured values
             dataManager.addEntry(
-                mood: mood,
-                note: note,
-                photoData: selectedPhotoData,
-                audioData: recordedAudioData,
-                audioDuration: recordedAudioData != nil ? audioDuration : nil
+                mood: capturedMood,
+                note: capturedNote,
+                photoData: capturedPhotoData,
+                audioData: capturedAudioData,
+                audioDuration: capturedAudioData != nil ? capturedAudioDuration : nil
             )
 
-            // Get the new entry ID for highlight
-            if let newEntry = dataManager.getEntriesToday().first {
-                newEntryID = newEntry.id
+            // Get the new entry ID for highlight - with safety check
+            DispatchQueue.main.async {
+                if let newEntry = dataManager.getEntriesToday().first {
+                    newEntryID = newEntry.id
 
-                // Clear highlight after brief moment
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
-                    withAnimation(.easeOut(duration: 0.3)) {
-                        newEntryID = nil
+                    // Clear highlight after brief moment
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
+                        withAnimation(.easeOut(duration: 0.3)) {
+                            newEntryID = nil
+                        }
                     }
                 }
             }
