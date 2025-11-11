@@ -20,6 +20,9 @@ struct HomeView: View {
     // Photo picker
     @State private var selectedPhotoItem: PhotosPickerItem?
     @State private var selectedPhotoData: Data?
+    @State private var showingPhotoOptions = false
+    @State private var showingCamera = false
+    @State private var showingGallery = false
 
     // Voice recording
     @State private var audioRecorder: AVAudioRecorder?
@@ -133,6 +136,41 @@ struct HomeView: View {
 
                                     // Photo and Voice Buttons
                                     attachmentButtonsView
+
+                                    // Photo Preview (if photo selected)
+                                    if selectedPhotoData != nil, let uiImage = UIImage(data: selectedPhotoData!) {
+                                        HStack(spacing: 12) {
+                                            Image(uiImage: uiImage)
+                                                .resizable()
+                                                .scaledToFill()
+                                                .frame(width: 80, height: 80)
+                                                .clipShape(RoundedRectangle(cornerRadius: 12))
+
+                                            VStack(alignment: .leading, spacing: 4) {
+                                                Text("Photo attached")
+                                                    .font(.system(.subheadline, design: .rounded))
+                                                    .fontWeight(.medium)
+                                                    .foregroundColor(Color.darkTheme.textPrimary)
+
+                                                Text("\(selectedPhotoData!.count / 1024) KB")
+                                                    .font(.system(.caption, design: .rounded))
+                                                    .foregroundColor(Color.darkTheme.textSecondary)
+                                            }
+
+                                            Spacer()
+
+                                            Button(action: { selectedPhotoData = nil; selectedPhotoItem = nil }) {
+                                                Image(systemName: "xmark.circle.fill")
+                                                    .font(.system(size: 24))
+                                                    .foregroundColor(Color.darkTheme.textSecondary)
+                                            }
+                                        }
+                                        .padding(12)
+                                        .background(
+                                            RoundedRectangle(cornerRadius: 12)
+                                                .fill(Color.black.opacity(0.2))
+                                        )
+                                    }
                                 }
 
                                 // Save Mood Button
@@ -170,6 +208,19 @@ struct HomeView: View {
                     }
                 }
             }
+            .confirmationDialog("Add Photo", isPresented: $showingPhotoOptions, titleVisibility: .visible) {
+                Button("Take Photo") {
+                    showingCamera = true
+                }
+                Button("Choose from Gallery") {
+                    showingGallery = true
+                }
+                Button("Cancel", role: .cancel) { }
+            }
+            .sheet(isPresented: $showingCamera) {
+                ImagePicker(sourceType: .camera, selectedImageData: $selectedPhotoData)
+            }
+            .photosPicker(isPresented: $showingGallery, selection: $selectedPhotoItem, matching: .images)
             }
             .onAppear {
                 // Update current date when view appears
@@ -189,7 +240,7 @@ struct HomeView: View {
     }
 
     private var photoPickerButton: some View {
-        PhotosPicker(selection: $selectedPhotoItem, matching: .images) {
+        Button(action: { showingPhotoOptions = true }) {
             HStack(spacing: 8) {
                 Image(systemName: selectedPhotoData != nil ? "photo.fill" : "photo")
                     .font(.system(size: 20))
