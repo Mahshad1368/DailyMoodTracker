@@ -32,9 +32,12 @@ struct HomeView: View {
     // Current date for time-based gradient
     @State private var currentDate = Date()
 
-    // Scroll animation states
-    @State private var scrollToTimeline = false
-    @State private var highlightedEntryID: UUID?
+    // Flying emoji animation states
+    @State private var isAnimatingMood = false
+    @State private var flyingEmoji: String = ""
+    @State private var emojiYOffset: CGFloat = 0
+    @State private var emojiOpacity: Double = 0
+    @State private var newEntryID: UUID?
 
     // Computed property for today's entries
     private var todayEntries: [MoodEntry] {
@@ -63,25 +66,24 @@ struct HomeView: View {
                     .padding(.top, 10)
                     .padding(.bottom, 20)
 
-                ScrollViewReader { proxy in
-                    ScrollView(showsIndicators: false) {
-                        VStack(spacing: 25) {
-                            // Personalized Greeting
-                            VStack(spacing: 6) {
-                                Text("\(currentDate.greeting), \(userName)!")
-                                    .font(.system(.title, design: .rounded))
-                                    .fontWeight(.bold)
-                                    .foregroundColor(Color.darkTheme.textPrimary)
+                ScrollView(showsIndicators: false) {
+                    VStack(spacing: 25) {
+                        // Personalized Greeting
+                        VStack(spacing: 6) {
+                            Text("\(currentDate.greeting), \(userName)!")
+                                .font(.system(.title, design: .rounded))
+                                .fontWeight(.bold)
+                                .foregroundColor(Color.darkTheme.textPrimary)
 
-                                Text(currentDate.friendlyDateString)
-                                    .font(.system(.subheadline, design: .rounded))
-                                    .foregroundColor(Color.darkTheme.textSecondary)
-                            }
-                            .padding(.top, 10)
-                            .padding(.bottom, 10)
+                            Text(currentDate.friendlyDateString)
+                                .font(.system(.subheadline, design: .rounded))
+                                .foregroundColor(Color.darkTheme.textSecondary)
+                        }
+                        .padding(.top, 10)
+                        .padding(.bottom, 10)
 
-                            // Main Glass Card
-                            DarkThemeCard(padding: 25) {
+                        // Main Glass Card
+                        DarkThemeCard(padding: 25) {
                             VStack(spacing: 25) {
                                 // Question
                                 Text("How are you feeling right now?")
@@ -165,13 +167,12 @@ struct HomeView: View {
                                     .fontWeight(.bold)
                                     .foregroundColor(Color.darkTheme.textPrimary)
                                     .padding(.horizontal, 25)
-                                    .id("timelineHeader") // ID for scrolling
 
                                 VStack(spacing: 12) {
                                     ForEach(todayEntries) { entry in
                                         TimelineEntryCard(
                                             entry: entry,
-                                            isHighlighted: highlightedEntryID == entry.id
+                                            isHighlighted: newEntryID == entry.id
                                         )
                                         .padding(.horizontal, 20)
                                     }
@@ -181,21 +182,21 @@ struct HomeView: View {
                         }
                     }
                     .padding(.bottom, 30)
-                    }
-                    .scrollDismissesKeyboard(.interactively)
-                    .onChange(of: scrollToTimeline) { shouldScroll in
-                        if shouldScroll {
-                            // Dismiss keyboard first
-                            isNoteFieldFocused = false
+                }
+                .scrollDismissesKeyboard(.interactively)
 
-                            // Small delay to ensure layout is complete
-                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                                withAnimation(.easeInOut(duration: 0.6)) {
-                                    proxy.scrollTo("timelineHeader", anchor: .top)
-                                }
-                            }
-                        }
+                // Flying emoji overlay
+                if isAnimatingMood {
+                    VStack {
+                        Text(flyingEmoji)
+                            .font(.system(size: 60))
+                            .offset(y: emojiYOffset)
+                            .opacity(emojiOpacity)
+                            .shadow(color: Color.black.opacity(0.3), radius: 10, x: 0, y: 5)
+
+                        Spacer()
                     }
+                    .allowsHitTesting(false)
                 }
             }
             .toolbar {
@@ -345,14 +346,6 @@ struct HomeView: View {
         let generator = UINotificationFeedbackGenerator()
         generator.notificationOccurred(.success)
 
-        dataManager.addEntry(
-            mood: mood,
-            note: note,
-            photoData: selectedPhotoData,
-            audioData: recordedAudioData,
-            audioDuration: recordedAudioData != nil ? audioDuration : nil
-        )
-
         // Show button animation
         withAnimation(.spring(response: 0.3, dampingFraction: 0.6)) {
             justSaved = true
@@ -361,22 +354,51 @@ struct HomeView: View {
         // Show toast
         showingToast = true
 
-        // Get the newly added entry and trigger scroll + highlight animation
-        if let newEntry = dataManager.getEntriesToday().first {
-            // Highlight the new entry
-            highlightedEntryID = newEntry.id
+        // START FLYING EMOJI ANIMATION
+        flyingEmoji = mood.emoji
+        emojiOpacity = 1.0
+        emojiYOffset = 0 // Start at button position
+        isAnimatingMood = true
 
-            // Trigger scroll animation after a brief delay (to show button animation first)
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                scrollToTimeline = true
+        // Animate emoji dropping down with easeIn (gravity effect)
+        withAnimation(.easeIn(duration: 0.7)) {
+            emojiYOffset = 400 // Drop distance (adjust based on screen)
+        }
 
-                // Clear highlight after animation completes
-                DispatchQueue.main.asyncAfter(deadline: .now() + 1.2) {
+        // Fade out emoji as it reaches destination
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            withAnimation(.easeOut(duration: 0.2)) {
+                emojiOpacity = 0
+            }
+        }
+
+        // Add entry to data AFTER animation starts (so it appears when emoji arrives)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
+            dataManager.addEntry(
+                mood: mood,
+                note: note,
+                photoData: selectedPhotoData,
+                audioData: recordedAudioData,
+                audioDuration: recordedAudioData != nil ? audioDuration : nil
+            )
+
+            // Get the new entry ID for highlight
+            if let newEntry = dataManager.getEntriesToday().first {
+                newEntryID = newEntry.id
+
+                // Clear highlight after brief moment
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
                     withAnimation(.easeOut(duration: 0.3)) {
-                        highlightedEntryID = nil
+                        newEntryID = nil
                     }
-                    scrollToTimeline = false
                 }
+            }
+
+            // Clean up animation
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                isAnimatingMood = false
+                flyingEmoji = ""
+                emojiYOffset = 0
             }
         }
 
@@ -649,17 +671,22 @@ struct TimelineEntryCard: View {
             )
         }
         .scaleEffect(scale)
-        .animation(.spring(response: 0.4, dampingFraction: 0.7), value: scale)
+        .animation(.spring(response: 0.4, dampingFraction: 0.6), value: scale)
+        .onAppear {
+            // Pop-in animation for new entries
+            if isHighlighted {
+                scale = 0.3
+                withAnimation(.spring(response: 0.5, dampingFraction: 0.6)) {
+                    scale = 1.0
+                }
+            }
+        }
         .onChange(of: isHighlighted) { highlighted in
             if highlighted {
-                // Pulse animation
-                withAnimation(.easeInOut(duration: 0.2)) {
-                    scale = 1.05
-                }
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-                    withAnimation(.easeOut(duration: 0.3)) {
-                        scale = 1.0
-                    }
+                // Elastic bounce effect: scale up, overshoot, settle
+                scale = 0.3
+                withAnimation(.spring(response: 0.5, dampingFraction: 0.6)) {
+                    scale = 1.0
                 }
             }
         }
