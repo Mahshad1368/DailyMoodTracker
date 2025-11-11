@@ -20,6 +20,12 @@ struct HistoryView: View {
     @EnvironmentObject var dataManager: DataManager
     @State private var currentDate = Date()
     @State private var selectedDate: Date?
+    @State private var viewMode: ViewMode = .calendar
+
+    enum ViewMode {
+        case calendar
+        case heatmap
+    }
 
     private let calendar = Calendar.current
     private let daysOfWeek = ["S", "M", "T", "W", "T", "F", "S"]
@@ -31,7 +37,7 @@ struct HistoryView: View {
 
             VStack(spacing: 0) {
                 // Header
-                Text("History")
+                Text("Your Mood Journey")
                     .font(.system(.largeTitle, design: .rounded))
                     .fontWeight(.bold)
                     .foregroundColor(Color.darkTheme.textPrimary)
@@ -66,41 +72,94 @@ struct HistoryView: View {
                 .padding(.horizontal, 30)
                 .padding(.bottom, 20)
 
-                // Calendar View
+                // Main Card with Toggle and Content
                 DarkThemeCard(padding: 20) {
-                    VStack(spacing: 15) {
-                        // Days of Week Header
+                    VStack(spacing: 20) {
+                        // Calendar/Heatmap Toggle
                         HStack(spacing: 0) {
-                            ForEach(daysOfWeek, id: \.self) { day in
-                                Text(day)
-                                    .font(.system(.caption, design: .rounded))
-                                    .fontWeight(.semibold)
-                                    .foregroundColor(Color.darkTheme.textSecondary)
+                            // Calendar Button
+                            Button(action: { viewMode = .calendar }) {
+                                Text("Calendar")
+                                    .font(.system(.body, design: .rounded))
+                                    .fontWeight(.medium)
+                                    .foregroundColor(viewMode == .calendar ? Color.darkTheme.bgDarker : Color.darkTheme.textSecondary)
                                     .frame(maxWidth: .infinity)
+                                    .padding(.vertical, 12)
+                                    .background(
+                                        RoundedRectangle(cornerRadius: 12)
+                                            .fill(viewMode == .calendar ? Color.darkTheme.textPrimary : Color.clear)
+                                    )
+                            }
+
+                            // Heatmap Button
+                            Button(action: { viewMode = .heatmap }) {
+                                Text("Heatmap")
+                                    .font(.system(.body, design: .rounded))
+                                    .fontWeight(.medium)
+                                    .foregroundColor(viewMode == .heatmap ? Color.darkTheme.bgDarker : Color.darkTheme.textSecondary)
+                                    .frame(maxWidth: .infinity)
+                                    .padding(.vertical, 12)
+                                    .background(
+                                        RoundedRectangle(cornerRadius: 12)
+                                            .fill(viewMode == .heatmap ? Color.darkTheme.textPrimary : Color.clear)
+                                    )
                             }
                         }
+                        .padding(4)
+                        .background(
+                            RoundedRectangle(cornerRadius: 14)
+                                .fill(Color.black.opacity(0.3))
+                        )
 
-                        // Calendar Grid
-                        LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 8), count: 7), spacing: 12) {
-                            ForEach(generateCalendarDays(), id: \.self) { date in
-                                if let date = date {
-                                    EnhancedCalendarDayView(
-                                        date: date,
-                                        isCurrentMonth: calendar.isDate(date, equalTo: currentDate, toGranularity: .month),
-                                        entries: getEntries(for: date),
-                                        isToday: calendar.isDateInToday(date)
-                                    )
-                                    .onTapGesture {
-                                        let entries = getEntries(for: date)
-                                        if !entries.isEmpty {
-                                            selectedDate = date
+                        // Content based on view mode
+                        if viewMode == .calendar {
+                            VStack(spacing: 15) {
+                                // Days of Week Header
+                                HStack(spacing: 0) {
+                                    ForEach(daysOfWeek, id: \.self) { day in
+                                        Text(day)
+                                            .font(.system(.caption, design: .rounded))
+                                            .fontWeight(.semibold)
+                                            .foregroundColor(Color.darkTheme.textSecondary)
+                                            .frame(maxWidth: .infinity)
+                                    }
+                                }
+
+                                // Calendar Grid
+                                LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 8), count: 7), spacing: 12) {
+                                    ForEach(generateCalendarDays(), id: \.self) { date in
+                                        if let date = date {
+                                            EnhancedCalendarDayView(
+                                                date: date,
+                                                isCurrentMonth: calendar.isDate(date, equalTo: currentDate, toGranularity: .month),
+                                                entries: getEntries(for: date),
+                                                isToday: calendar.isDateInToday(date)
+                                            )
+                                            .onTapGesture {
+                                                let entries = getEntries(for: date)
+                                                if !entries.isEmpty {
+                                                    selectedDate = date
+                                                }
+                                            }
+                                        } else {
+                                            Color.clear
+                                                .frame(height: 50)
                                         }
                                     }
-                                } else {
-                                    Color.clear
-                                        .frame(height: 50)
                                 }
                             }
+                        } else {
+                            // Heatmap View
+                            MoodHeatmapView(
+                                currentDate: currentDate,
+                                entries: dataManager.entries,
+                                onDateTap: { date in
+                                    let entries = getEntries(for: date)
+                                    if !entries.isEmpty {
+                                        selectedDate = date
+                                    }
+                                }
+                            )
                         }
                     }
                 }
@@ -458,6 +517,141 @@ class AudioPlayerDelegate: NSObject, AVAudioPlayerDelegate {
 
     func audioPlayerDidFinishPlaying(_ player: AVAudioPlayer, successfully flag: Bool) {
         onFinish()
+    }
+}
+
+// MARK: - Mood Heatmap View
+struct MoodHeatmapView: View {
+    let currentDate: Date
+    let entries: [MoodEntry]
+    let onDateTap: (Date) -> Void
+
+    private let calendar = Calendar.current
+    private let columns = Array(repeating: GridItem(.flexible(), spacing: 6), count: 7)
+
+    var body: some View {
+        VStack(spacing: 15) {
+            // Info text
+            HStack {
+                Text("Activity over the last 12 weeks")
+                    .font(.system(.caption, design: .rounded))
+                    .foregroundColor(Color.darkTheme.textSecondary)
+
+                Spacer()
+
+                // Legend
+                HStack(spacing: 6) {
+                    Text("Less")
+                        .font(.system(.caption2, design: .rounded))
+                        .foregroundColor(Color.darkTheme.textSecondary)
+
+                    ForEach(0..<5) { intensity in
+                        RoundedRectangle(cornerRadius: 3)
+                            .fill(heatmapColor(for: intensity))
+                            .frame(width: 12, height: 12)
+                    }
+
+                    Text("More")
+                        .font(.system(.caption2, design: .rounded))
+                        .foregroundColor(Color.darkTheme.textSecondary)
+                }
+            }
+
+            // Heatmap Grid
+            LazyVGrid(columns: columns, spacing: 6) {
+                ForEach(Array(generateHeatmapDays().enumerated()), id: \.offset) { index, date in
+                    HeatmapDayCell(
+                        date: date,
+                        entries: getEntries(for: date)
+                    )
+                    .onTapGesture {
+                        onDateTap(date)
+                    }
+                }
+            }
+        }
+        .padding(.vertical, 10)
+    }
+
+    private func generateHeatmapDays() -> [Date] {
+        var days: [Date] = []
+        let weeksToShow = 12
+        let totalDays = weeksToShow * 7
+
+        // Start from 12 weeks ago
+        guard let startDate = calendar.date(byAdding: .day, value: -totalDays, to: currentDate) else {
+            return days
+        }
+
+        // Generate dates for each day
+        for dayOffset in 0..<totalDays {
+            if let date = calendar.date(byAdding: .day, value: dayOffset, to: startDate) {
+                days.append(date)
+            }
+        }
+
+        return days
+    }
+
+    private func getEntries(for date: Date) -> [MoodEntry] {
+        return entries.filter { calendar.isDate($0.date, inSameDayAs: date) }
+    }
+
+    private func heatmapColor(for intensity: Int) -> Color {
+        switch intensity {
+        case 0: return Color.white.opacity(0.1)
+        case 1: return Color.darkTheme.accent.opacity(0.3)
+        case 2: return Color.darkTheme.accent.opacity(0.5)
+        case 3: return Color.darkTheme.accent.opacity(0.7)
+        default: return Color.darkTheme.accent
+        }
+    }
+}
+
+// MARK: - Heatmap Day Cell
+struct HeatmapDayCell: View {
+    let date: Date
+    let entries: [MoodEntry]
+
+    var body: some View {
+        RoundedRectangle(cornerRadius: 4)
+            .fill(cellColor)
+            .frame(height: 35)
+            .overlay(
+                RoundedRectangle(cornerRadius: 4)
+                    .stroke(Color.white.opacity(0.1), lineWidth: 0.5)
+            )
+    }
+
+    private var cellColor: Color {
+        let count = entries.count
+
+        guard count > 0 else {
+            return Color.white.opacity(0.05)
+        }
+
+        // Get the most recent mood for this date
+        guard let recentMood = entries.first?.mood else {
+            return Color.darkTheme.accent.opacity(0.3)
+        }
+
+        // Color intensity based on number of entries
+        switch count {
+        case 1:
+            return recentMood.color.opacity(0.4)
+        case 2:
+            return recentMood.color.opacity(0.6)
+        case 3:
+            return recentMood.color.opacity(0.8)
+        default:
+            // Multiple entries - show dominant mood color
+            let moodCounts = Dictionary(grouping: entries, by: { $0.mood })
+            if let dominantMood = moodCounts.max(by: { $0.value.count < $1.value.count })?.key {
+                return dominantMood.color
+            } else {
+                return recentMood.color
+            }
+        }
     }
 }
 

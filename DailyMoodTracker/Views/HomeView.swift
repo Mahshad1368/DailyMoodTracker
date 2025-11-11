@@ -32,6 +32,15 @@ struct HomeView: View {
     // Current date for time-based gradient
     @State private var currentDate = Date()
 
+    // Scroll animation states
+    @State private var scrollToTimeline = false
+    @State private var highlightedEntryID: UUID?
+
+    // Computed property for today's entries
+    private var todayEntries: [MoodEntry] {
+        dataManager.getEntriesToday()
+    }
+
     var body: some View {
         NavigationStack {
             ZStack {
@@ -54,24 +63,25 @@ struct HomeView: View {
                     .padding(.top, 10)
                     .padding(.bottom, 20)
 
-                ScrollView(showsIndicators: false) {
-                    VStack(spacing: 25) {
-                        // Personalized Greeting
-                        VStack(spacing: 6) {
-                            Text("\(currentDate.greeting), \(userName)!")
-                                .font(.system(.title, design: .rounded))
-                                .fontWeight(.bold)
-                                .foregroundColor(Color.darkTheme.textPrimary)
+                ScrollViewReader { proxy in
+                    ScrollView(showsIndicators: false) {
+                        VStack(spacing: 25) {
+                            // Personalized Greeting
+                            VStack(spacing: 6) {
+                                Text("\(currentDate.greeting), \(userName)!")
+                                    .font(.system(.title, design: .rounded))
+                                    .fontWeight(.bold)
+                                    .foregroundColor(Color.darkTheme.textPrimary)
 
-                            Text(currentDate.friendlyDateString)
-                                .font(.system(.subheadline, design: .rounded))
-                                .foregroundColor(Color.darkTheme.textSecondary)
-                        }
-                        .padding(.top, 10)
-                        .padding(.bottom, 10)
+                                Text(currentDate.friendlyDateString)
+                                    .font(.system(.subheadline, design: .rounded))
+                                    .foregroundColor(Color.darkTheme.textSecondary)
+                            }
+                            .padding(.top, 10)
+                            .padding(.bottom, 10)
 
-                        // Main Glass Card
-                        DarkThemeCard(padding: 25) {
+                            // Main Glass Card
+                            DarkThemeCard(padding: 25) {
                             VStack(spacing: 25) {
                                 // Question
                                 Text("How are you feeling right now?")
@@ -146,10 +156,47 @@ struct HomeView: View {
                             }
                         }
                         .padding(.horizontal, 20)
+
+                        // Today's Timeline Section
+                        if !todayEntries.isEmpty {
+                            VStack(alignment: .leading, spacing: 15) {
+                                Text("Today's Timeline")
+                                    .font(.system(.title2, design: .rounded))
+                                    .fontWeight(.bold)
+                                    .foregroundColor(Color.darkTheme.textPrimary)
+                                    .padding(.horizontal, 25)
+                                    .id("timelineHeader") // ID for scrolling
+
+                                VStack(spacing: 12) {
+                                    ForEach(todayEntries) { entry in
+                                        TimelineEntryCard(
+                                            entry: entry,
+                                            isHighlighted: highlightedEntryID == entry.id
+                                        )
+                                        .padding(.horizontal, 20)
+                                    }
+                                }
+                            }
+                            .padding(.top, 10)
+                        }
                     }
                     .padding(.bottom, 30)
+                    }
+                    .scrollDismissesKeyboard(.interactively)
+                    .onChange(of: scrollToTimeline) { shouldScroll in
+                        if shouldScroll {
+                            // Dismiss keyboard first
+                            isNoteFieldFocused = false
+
+                            // Small delay to ensure layout is complete
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                                withAnimation(.easeInOut(duration: 0.6)) {
+                                    proxy.scrollTo("timelineHeader", anchor: .top)
+                                }
+                            }
+                        }
+                    }
                 }
-                .scrollDismissesKeyboard(.interactively)
             }
             .toolbar {
                 ToolbarItemGroup(placement: .keyboard) {
@@ -313,6 +360,25 @@ struct HomeView: View {
 
         // Show toast
         showingToast = true
+
+        // Get the newly added entry and trigger scroll + highlight animation
+        if let newEntry = dataManager.getEntriesToday().first {
+            // Highlight the new entry
+            highlightedEntryID = newEntry.id
+
+            // Trigger scroll animation after a brief delay (to show button animation first)
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                scrollToTimeline = true
+
+                // Clear highlight after animation completes
+                DispatchQueue.main.asyncAfter(deadline: .now() + 1.2) {
+                    withAnimation(.easeOut(duration: 0.3)) {
+                        highlightedEntryID = nil
+                    }
+                    scrollToTimeline = false
+                }
+            }
+        }
 
         // Reset button text after 1 second, then clear form
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
@@ -491,6 +557,112 @@ extension View {
             icon: icon,
             duration: duration
         ))
+    }
+}
+
+// MARK: - Timeline Entry Card
+
+struct TimelineEntryCard: View {
+    let entry: MoodEntry
+    let isHighlighted: Bool
+
+    @State private var scale: CGFloat = 1.0
+
+    var body: some View {
+        HStack(alignment: .top, spacing: 15) {
+            // Time indicator with emoji
+            VStack(spacing: 4) {
+                Text(entry.date.timeOfDay.emoji)
+                    .font(.system(size: 20))
+
+                Text(entry.formattedTime)
+                    .font(.system(.caption2, design: .rounded))
+                    .fontWeight(.medium)
+                    .foregroundColor(Color.darkTheme.textSecondary)
+            }
+            .frame(width: 50)
+
+            // Mood content card
+            VStack(alignment: .leading, spacing: 10) {
+                // Mood header
+                HStack(spacing: 10) {
+                    Text(entry.mood.emoji)
+                        .font(.system(size: 28))
+
+                    Text(entry.mood.name)
+                        .font(.system(.body, design: .rounded))
+                        .fontWeight(.semibold)
+                        .foregroundColor(Color.darkTheme.textPrimary)
+
+                    Spacer()
+                }
+
+                // Note
+                if !entry.note.isEmpty {
+                    Text(entry.note)
+                        .font(.system(.subheadline, design: .rounded))
+                        .foregroundColor(Color.darkTheme.textSecondary)
+                        .lineSpacing(3)
+                }
+
+                // Attachments indicator
+                HStack(spacing: 12) {
+                    if entry.photoData != nil {
+                        HStack(spacing: 4) {
+                            Image(systemName: "photo.fill")
+                                .font(.system(size: 12))
+                            Text("Photo")
+                                .font(.system(.caption2, design: .rounded))
+                        }
+                        .foregroundColor(Color.darkTheme.accent)
+                    }
+
+                    if entry.audioData != nil {
+                        HStack(spacing: 4) {
+                            Image(systemName: "mic.fill")
+                                .font(.system(size: 12))
+                            Text("Voice")
+                                .font(.system(.caption2, design: .rounded))
+                        }
+                        .foregroundColor(Color.darkTheme.accent)
+                    }
+                }
+            }
+            .padding(16)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(
+                HStack(spacing: 0) {
+                    // Colored left accent
+                    Rectangle()
+                        .fill(entry.mood.color)
+                        .frame(width: 3)
+
+                    Color.white.opacity(isHighlighted ? 0.15 : 0.08)
+                }
+            )
+            .cornerRadius(12)
+            .shadow(
+                color: isHighlighted ? entry.mood.color.opacity(0.4) : Color.black.opacity(0.2),
+                radius: isHighlighted ? 12 : 8,
+                x: 0,
+                y: isHighlighted ? 6 : 4
+            )
+        }
+        .scaleEffect(scale)
+        .animation(.spring(response: 0.4, dampingFraction: 0.7), value: scale)
+        .onChange(of: isHighlighted) { highlighted in
+            if highlighted {
+                // Pulse animation
+                withAnimation(.easeInOut(duration: 0.2)) {
+                    scale = 1.05
+                }
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                    withAnimation(.easeOut(duration: 0.3)) {
+                        scale = 1.0
+                    }
+                }
+            }
+        }
     }
 }
 
