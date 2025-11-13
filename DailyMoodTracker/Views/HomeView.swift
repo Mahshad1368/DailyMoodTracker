@@ -11,6 +11,7 @@ import AVFoundation
 struct HomeView: View {
     @EnvironmentObject var dataManager: DataManager
     @AppStorage("userName") private var userName: String = "User"
+    @AppStorage("darkModeEnabled") private var isDarkMode: Bool = true
     @State private var selectedMood: MoodType?
     @State private var note: String = ""
     @State private var showingToast = false
@@ -45,11 +46,16 @@ struct HomeView: View {
         dataManager.getEntriesToday()
     }
 
+    // Dynamic theme colors
+    private var theme: ThemeColors {
+        isDarkMode ? Color.darkTheme : Color.lightTheme
+    }
+
     var body: some View {
         NavigationStack {
             ZStack {
-                // Dark theme gradient background
-                DarkThemeBackground()
+                // Dynamic theme gradient background
+                DarkThemeBackground(isDark: isDarkMode)
 
                 VStack(spacing: 0) {
                     // Top Navigation Bar - Settings only
@@ -60,7 +66,7 @@ struct HomeView: View {
                         NavigationLink(destination: SettingsView()) {
                             Image(systemName: "gearshape.fill")
                                 .font(.system(size: 28))
-                                .foregroundColor(Color.darkTheme.textPrimary.opacity(0.9))
+                                .foregroundColor(theme.textPrimary.opacity(0.9))
                         }
                     }
                     .padding(.horizontal, 25)
@@ -74,23 +80,23 @@ struct HomeView: View {
                             Text("\(currentDate.greeting), \(userName)!")
                                 .font(.system(.title, design: .rounded))
                                 .fontWeight(.bold)
-                                .foregroundColor(Color.darkTheme.textPrimary)
+                                .foregroundColor(theme.textPrimary)
 
                             Text(currentDate.friendlyDateString)
                                 .font(.system(.subheadline, design: .rounded))
-                                .foregroundColor(Color.darkTheme.textSecondary)
+                                .foregroundColor(theme.textSecondary)
                         }
                         .padding(.top, 10)
                         .padding(.bottom, 10)
 
                         // Main Glass Card
-                        DarkThemeCard(padding: 25) {
+                        DarkThemeCard(padding: 25, isDark: isDarkMode) {
                             VStack(spacing: 25) {
                                 // Question
                                 Text("How are you feeling right now?")
                                     .font(.system(.title3, design: .rounded))
                                     .fontWeight(.semibold)
-                                    .foregroundColor(Color.darkTheme.textPrimary)
+                                    .foregroundColor(theme.textPrimary)
                                     .multilineTextAlignment(.center)
 
                                 // Mood Selection - 5 buttons in a row
@@ -136,11 +142,11 @@ struct HomeView: View {
                                 VStack(spacing: 12) {
                                     TextField("Add a note...", text: $note, axis: .vertical)
                                         .textFieldStyle(.plain)
-                                        .foregroundColor(Color.darkTheme.textPrimary)
+                                        .foregroundColor(theme.textPrimary)
                                         .padding()
                                         .background(
                                             RoundedRectangle(cornerRadius: 12)
-                                                .fill(Color.black.opacity(0.2))
+                                                .fill((isDarkMode ? Color.black : Color.white).opacity(0.2))
                                         )
                                         .lineLimit(3...5)
                                         .focused($isNoteFieldFocused)
@@ -161,11 +167,11 @@ struct HomeView: View {
                                                 Text("Photo attached")
                                                     .font(.system(.subheadline, design: .rounded))
                                                     .fontWeight(.medium)
-                                                    .foregroundColor(Color.darkTheme.textPrimary)
+                                                    .foregroundColor(theme.textPrimary)
 
                                                 Text("\(photoData.count / 1024) KB")
                                                     .font(.system(.caption, design: .rounded))
-                                                    .foregroundColor(Color.darkTheme.textSecondary)
+                                                    .foregroundColor(theme.textSecondary)
                                             }
 
                                             Spacer()
@@ -173,13 +179,13 @@ struct HomeView: View {
                                             Button(action: { selectedPhotoData = nil }) {
                                                 Image(systemName: "xmark.circle.fill")
                                                     .font(.system(size: 24))
-                                                    .foregroundColor(Color.darkTheme.textSecondary)
+                                                    .foregroundColor(theme.textSecondary)
                                             }
                                         }
                                         .padding(12)
                                         .background(
                                             RoundedRectangle(cornerRadius: 12)
-                                                .fill(Color.black.opacity(0.2))
+                                                .fill((isDarkMode ? Color.black : Color.white).opacity(0.2))
                                         )
                                     }
                                 }
@@ -201,14 +207,15 @@ struct HomeView: View {
                                 Text("Today's Timeline")
                                     .font(.system(.title2, design: .rounded))
                                     .fontWeight(.bold)
-                                    .foregroundColor(Color.darkTheme.textPrimary)
+                                    .foregroundColor(theme.textPrimary)
                                     .padding(.horizontal, 25)
 
                                 VStack(spacing: 12) {
                                     ForEach(todayEntries) { entry in
                                         TimelineEntryCard(
                                             entry: entry,
-                                            isHighlighted: newEntryID == entry.id
+                                            isHighlighted: newEntryID == entry.id,
+                                            isDark: isDarkMode
                                         )
                                         .padding(.horizontal, 20)
                                     }
@@ -289,17 +296,17 @@ struct HomeView: View {
             HStack(spacing: 8) {
                 Image(systemName: selectedPhotoData != nil ? "photo.fill" : "photo")
                     .font(.system(size: 20))
-                    .foregroundColor(selectedPhotoData != nil ? Color.darkTheme.accent : Color.darkTheme.textSecondary)
+                    .foregroundColor(selectedPhotoData != nil ? theme.accent : theme.textSecondary)
 
                 Text(selectedPhotoData != nil ? "Photo Added" : "Add Photo")
                     .font(.system(.caption, design: .rounded))
-                    .foregroundColor(selectedPhotoData != nil ? Color.darkTheme.accent : Color.darkTheme.textSecondary)
+                    .foregroundColor(selectedPhotoData != nil ? theme.accent : theme.textSecondary)
             }
             .padding(.horizontal, 16)
             .padding(.vertical, 10)
             .background(
                 RoundedRectangle(cornerRadius: 10)
-                    .fill(selectedPhotoData != nil ? Color.darkTheme.accent.opacity(0.2) : Color.black.opacity(0.2))
+                    .fill(selectedPhotoData != nil ? theme.accent.opacity(0.2) : (isDarkMode ? Color.black : Color.white).opacity(0.2))
             )
         }
     }
@@ -339,9 +346,9 @@ struct HomeView: View {
         if isRecording {
             return .red
         } else if recordedAudioData != nil {
-            return Color.darkTheme.accent
+            return theme.accent
         } else {
-            return Color.darkTheme.textSecondary
+            return theme.textSecondary
         }
     }
 
@@ -359,9 +366,9 @@ struct HomeView: View {
         if isRecording {
             return .red
         } else if recordedAudioData != nil {
-            return Color.darkTheme.accent
+            return theme.accent
         } else {
-            return Color.darkTheme.textSecondary
+            return theme.textSecondary
         }
     }
 
@@ -369,9 +376,9 @@ struct HomeView: View {
         if isRecording {
             return Color.red.opacity(0.2)
         } else if recordedAudioData != nil {
-            return Color.darkTheme.accent.opacity(0.2)
+            return theme.accent.opacity(0.2)
         } else {
-            return Color.black.opacity(0.2)
+            return (isDarkMode ? Color.black : Color.white).opacity(0.2)
         }
     }
 
@@ -565,8 +572,13 @@ struct HomeView: View {
 struct TimelineEntryCard: View {
     let entry: MoodEntry
     let isHighlighted: Bool
+    let isDark: Bool
 
     @State private var scale: CGFloat = 1.0
+
+    private var theme: ThemeColors {
+        isDark ? Color.darkTheme : Color.lightTheme
+    }
 
     var body: some View {
         HStack(alignment: .top, spacing: 15) {
@@ -578,7 +590,7 @@ struct TimelineEntryCard: View {
                 Text(entry.formattedTime)
                     .font(.system(.caption2, design: .rounded))
                     .fontWeight(.medium)
-                    .foregroundColor(Color.darkTheme.textSecondary)
+                    .foregroundColor(theme.textSecondary)
             }
             .frame(width: 50)
 
@@ -592,7 +604,7 @@ struct TimelineEntryCard: View {
                     Text(entry.mood.name)
                         .font(.system(.body, design: .rounded))
                         .fontWeight(.semibold)
-                        .foregroundColor(Color.darkTheme.textPrimary)
+                        .foregroundColor(theme.textPrimary)
 
                     Spacer()
                 }
@@ -601,7 +613,7 @@ struct TimelineEntryCard: View {
                 if !entry.note.isEmpty {
                     Text(entry.note)
                         .font(.system(.subheadline, design: .rounded))
-                        .foregroundColor(Color.darkTheme.textSecondary)
+                        .foregroundColor(theme.textSecondary)
                         .lineSpacing(3)
                 }
 
@@ -614,7 +626,7 @@ struct TimelineEntryCard: View {
                             Text("Photo")
                                 .font(.system(.caption2, design: .rounded))
                         }
-                        .foregroundColor(Color.darkTheme.accent)
+                        .foregroundColor(theme.accent)
                     }
 
                     if entry.audioData != nil {
@@ -624,7 +636,7 @@ struct TimelineEntryCard: View {
                             Text("Voice")
                                 .font(.system(.caption2, design: .rounded))
                         }
-                        .foregroundColor(Color.darkTheme.accent)
+                        .foregroundColor(theme.accent)
                     }
                 }
             }

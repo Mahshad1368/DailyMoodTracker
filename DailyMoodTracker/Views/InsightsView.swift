@@ -10,6 +10,7 @@ import Charts
 
 struct InsightsView: View {
     @EnvironmentObject var dataManager: DataManager
+    @AppStorage("darkModeEnabled") private var isDarkMode: Bool = true
     @State private var timePeriod: TimePeriod = .week
 
     enum TimePeriod: String, CaseIterable {
@@ -18,10 +19,14 @@ struct InsightsView: View {
         case year = "Year"
     }
 
+    private var theme: ThemeColors {
+        isDarkMode ? Color.darkTheme : Color.lightTheme
+    }
+
     var body: some View {
         ZStack {
-            // Dark theme background
-            DarkThemeBackground()
+            // Dynamic theme background
+            DarkThemeBackground(isDark: isDarkMode)
 
             ScrollView(showsIndicators: false) {
                 VStack(spacing: 25) {
@@ -29,7 +34,7 @@ struct InsightsView: View {
                     Text("Insights")
                         .font(.system(.largeTitle, design: .rounded))
                         .fontWeight(.bold)
-                        .foregroundColor(Color.darkTheme.textPrimary)
+                        .foregroundColor(theme.textPrimary)
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .padding(.horizontal, 25)
                         .padding(.top, 20)
@@ -42,14 +47,16 @@ struct InsightsView: View {
                                 title: "Total Entries",
                                 value: "\(dataManager.entries.count)",
                                 icon: "calendar",
-                                subtitle: "all time"
+                                subtitle: "all time",
+                                isDark: isDarkMode
                             )
 
                             StatCard(
                                 title: "Current Streak",
                                 value: "\(getCurrentStreak())",
                                 icon: "flame.fill",
-                                subtitle: getCurrentStreak() == 1 ? "day" : "days"
+                                subtitle: getCurrentStreak() == 1 ? "day" : "days",
+                                isDark: isDarkMode
                             )
                         }
 
@@ -59,14 +66,16 @@ struct InsightsView: View {
                                 title: "Longest Streak",
                                 value: "\(getLongestStreak())",
                                 icon: "⭐",
-                                subtitle: getLongestStreak() == 1 ? "day" : "days"
+                                subtitle: getLongestStreak() == 1 ? "day" : "days",
+                                isDark: isDarkMode
                             )
 
                             StatCard(
                                 title: "This Week",
                                 value: "\(getThisWeekCount())",
                                 icon: "chart.bar.fill",
-                                subtitle: getThisWeekCount() == 1 ? "entry" : "entries"
+                                subtitle: getThisWeekCount() == 1 ? "entry" : "entries",
+                                isDark: isDarkMode
                             )
                         }
 
@@ -76,7 +85,8 @@ struct InsightsView: View {
                             value: getMostCommonMoodAllTime().emoji,
                             icon: "star.fill",
                             subtitle: getMostCommonMoodAllTime().name,
-                            isWide: true
+                            isWide: true,
+                            isDark: isDarkMode
                         )
                     }
                     .padding(.horizontal, 25)
@@ -88,39 +98,39 @@ struct InsightsView: View {
                                 Text(period.rawValue)
                                     .font(.system(.caption, design: .rounded))
                                     .fontWeight(timePeriod == period ? .semibold : .regular)
-                                    .foregroundColor(timePeriod == period ? Color.darkTheme.textPrimary : Color.darkTheme.textSecondary)
+                                    .foregroundColor(timePeriod == period ? theme.textPrimary : theme.textSecondary)
                                     .frame(maxWidth: .infinity)
                                     .padding(.vertical, 10)
                                     .background(
                                         timePeriod == period ?
-                                        Color.darkTheme.accent : Color.clear
+                                        theme.accent : Color.clear
                                     )
                                     .cornerRadius(10)
                             }
                         }
                     }
                     .padding(4)
-                    .background(Color.black.opacity(0.2))
+                    .background((isDarkMode ? Color.black : Color.gray).opacity(0.2))
                     .cornerRadius(12)
                     .padding(.horizontal, 25)
 
                     // Mood Distribution Section
-                    DarkThemeCard(padding: 20) {
+                    DarkThemeCard(padding: 20, isDark: isDarkMode) {
                         VStack(alignment: .leading, spacing: 20) {
                             Text("Mood Distribution")
                                 .font(.system(.title3, design: .rounded))
                                 .fontWeight(.semibold)
-                                .foregroundColor(Color.darkTheme.textPrimary)
+                                .foregroundColor(theme.textPrimary)
 
                             if getFilteredEntries().isEmpty {
                                 VStack(spacing: 10) {
                                     Image(systemName: "chart.pie")
                                         .font(.system(size: 40))
-                                        .foregroundColor(Color.darkTheme.textSecondary.opacity(0.5))
+                                        .foregroundColor(theme.textSecondary.opacity(0.5))
 
                                     Text("No data for this period")
                                         .font(.system(.subheadline, design: .rounded))
-                                        .foregroundColor(Color.darkTheme.textSecondary)
+                                        .foregroundColor(theme.textSecondary)
                                 }
                                 .frame(maxWidth: .infinity)
                                 .padding(.vertical, 30)
@@ -130,7 +140,8 @@ struct InsightsView: View {
                                         MoodDistributionBar(
                                             mood: mood,
                                             percentage: calculatePercentage(for: mood),
-                                            count: getMoodCount(for: mood)
+                                            count: getMoodCount(for: mood),
+                                            isDark: isDarkMode
                                         )
                                         .id("\(mood.rawValue)-\(timePeriod.rawValue)")
                                     }
@@ -142,12 +153,12 @@ struct InsightsView: View {
 
                     // Mood Patterns Chart
                     if #available(iOS 16.0, *) {
-                        DarkThemeCard(padding: 20) {
+                        DarkThemeCard(padding: 20, isDark: isDarkMode) {
                             VStack(alignment: .leading, spacing: 15) {
                                 Text("Mood Patterns")
                                     .font(.system(.title3, design: .rounded))
                                     .fontWeight(.semibold)
-                                    .foregroundColor(Color.darkTheme.textPrimary)
+                                    .foregroundColor(theme.textPrimary)
 
                                 MoodPatternsChart(entries: getFilteredEntries())
                                     .frame(height: 200)
@@ -168,7 +179,7 @@ struct InsightsView: View {
                     }
 
                     // Insight Card
-                    DarkThemeCard(padding: 20) {
+                    DarkThemeCard(padding: 20, isDark: isDarkMode) {
                         HStack(alignment: .top, spacing: 15) {
                             Text("💡")
                                 .font(.system(size: 40))
@@ -176,11 +187,11 @@ struct InsightsView: View {
                             VStack(alignment: .leading, spacing: 8) {
                                 Text("Insight of the \(timePeriod.rawValue)")
                                     .font(.system(.headline, design: .rounded))
-                                    .foregroundColor(Color.darkTheme.textPrimary)
+                                    .foregroundColor(theme.textPrimary)
 
                                 Text(generateInsight())
                                     .font(.system(.subheadline, design: .rounded))
-                                    .foregroundColor(Color.darkTheme.textSecondary)
+                                    .foregroundColor(theme.textSecondary)
                                     .lineSpacing(4)
                             }
                         }
@@ -356,9 +367,14 @@ struct StatCard: View {
     let icon: String
     var subtitle: String = ""
     var isWide: Bool = false
+    var isDark: Bool = true
+
+    private var theme: ThemeColors {
+        isDark ? Color.darkTheme : Color.lightTheme
+    }
 
     var body: some View {
-        DarkThemeCard(padding: 16) {
+        DarkThemeCard(padding: 16, isDark: isDark) {
             VStack(spacing: 10) {
                 // Check if icon is emoji or SF Symbol
                 if icon.count <= 2 {
@@ -369,23 +385,23 @@ struct StatCard: View {
                     // SF Symbol
                     Image(systemName: icon)
                         .font(.system(size: isWide ? 36 : 28))
-                        .foregroundColor(Color.darkTheme.accent)
+                        .foregroundColor(theme.accent)
                 }
 
                 Text(value)
                     .font(.system(isWide ? .title : .title2, design: .rounded))
                     .fontWeight(.bold)
-                    .foregroundColor(Color.darkTheme.textPrimary)
+                    .foregroundColor(theme.textPrimary)
 
                 Text(title)
                     .font(.system(.caption, design: .rounded))
-                    .foregroundColor(Color.darkTheme.textSecondary)
+                    .foregroundColor(theme.textSecondary)
                     .multilineTextAlignment(.center)
 
                 if !subtitle.isEmpty {
                     Text(subtitle)
                         .font(.system(.caption2, design: .rounded))
-                        .foregroundColor(Color.darkTheme.textSecondary.opacity(0.7))
+                        .foregroundColor(theme.textSecondary.opacity(0.7))
                 }
             }
             .frame(maxWidth: .infinity)
@@ -399,8 +415,13 @@ struct MoodDistributionBar: View {
     let mood: MoodType
     let percentage: Double
     let count: Int
+    var isDark: Bool = true
 
     @State private var animatedPercentage: Double = 0
+
+    private var theme: ThemeColors {
+        isDark ? Color.darkTheme : Color.lightTheme
+    }
 
     var body: some View {
         VStack(spacing: 8) {
@@ -411,19 +432,19 @@ struct MoodDistributionBar: View {
                 Text(mood.name)
                     .font(.system(.subheadline, design: .rounded))
                     .fontWeight(.medium)
-                    .foregroundColor(Color.darkTheme.textPrimary)
+                    .foregroundColor(theme.textPrimary)
                     .frame(width: 70, alignment: .leading)
 
                 Spacer()
 
                 Text("\(count)")
                     .font(.system(.caption, design: .rounded))
-                    .foregroundColor(Color.darkTheme.textSecondary)
+                    .foregroundColor(theme.textSecondary)
 
                 Text("\(Int(percentage * 100))%")
                     .font(.system(.subheadline, design: .rounded))
                     .fontWeight(.semibold)
-                    .foregroundColor(Color.darkTheme.textPrimary)
+                    .foregroundColor(theme.textPrimary)
                     .frame(width: 45, alignment: .trailing)
             }
 
@@ -431,7 +452,7 @@ struct MoodDistributionBar: View {
                 ZStack(alignment: .leading) {
                     // Background bar
                     RoundedRectangle(cornerRadius: 8)
-                        .fill(Color.white.opacity(0.1))
+                        .fill((isDark ? Color.white : Color.gray).opacity(0.1))
                         .frame(height: 12)
 
                     // Filled bar with gradient

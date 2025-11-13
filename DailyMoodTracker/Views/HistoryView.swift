@@ -18,6 +18,7 @@ extension Date: Identifiable {
 
 struct HistoryView: View {
     @EnvironmentObject var dataManager: DataManager
+    @AppStorage("darkModeEnabled") private var isDarkMode: Bool = true
     @State private var currentDate = Date()
     @State private var selectedDate: Date?
     @State private var viewMode: ViewMode = .calendar
@@ -30,17 +31,21 @@ struct HistoryView: View {
     private let calendar = Calendar.current
     private let daysOfWeek = ["S", "M", "T", "W", "T", "F", "S"]
 
+    private var theme: ThemeColors {
+        isDarkMode ? Color.darkTheme : Color.lightTheme
+    }
+
     var body: some View {
         ZStack {
-            // Dark theme gradient background
-            DarkThemeBackground()
+            // Dynamic theme gradient background
+            DarkThemeBackground(isDark: isDarkMode)
 
             VStack(spacing: 0) {
                 // Header
                 Text("Your Mood Journey")
                     .font(.system(.largeTitle, design: .rounded))
                     .fontWeight(.bold)
-                    .foregroundColor(Color.darkTheme.textPrimary)
+                    .foregroundColor(theme.textPrimary)
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(.horizontal, 25)
                     .padding(.top, 20)
@@ -51,7 +56,7 @@ struct HistoryView: View {
                     Button(action: previousMonth) {
                         Image(systemName: "chevron.left")
                             .font(.title3)
-                            .foregroundColor(Color.darkTheme.textPrimary)
+                            .foregroundColor(theme.textPrimary)
                     }
 
                     Spacer()
@@ -59,21 +64,21 @@ struct HistoryView: View {
                     Text(monthYearString(from: currentDate))
                         .font(.system(.title3, design: .rounded))
                         .fontWeight(.semibold)
-                        .foregroundColor(Color.darkTheme.textPrimary)
+                        .foregroundColor(theme.textPrimary)
 
                     Spacer()
 
                     Button(action: nextMonth) {
                         Image(systemName: "chevron.right")
                             .font(.title3)
-                            .foregroundColor(Color.darkTheme.textPrimary)
+                            .foregroundColor(theme.textPrimary)
                     }
                 }
                 .padding(.horizontal, 30)
                 .padding(.bottom, 20)
 
                 // Main Card with Toggle and Content
-                DarkThemeCard(padding: 20) {
+                DarkThemeCard(padding: 20, isDark: isDarkMode) {
                     VStack(spacing: 20) {
                         // Calendar/Heatmap Toggle
                         HStack(spacing: 0) {
@@ -82,12 +87,12 @@ struct HistoryView: View {
                                 Text("Calendar")
                                     .font(.system(.body, design: .rounded))
                                     .fontWeight(.medium)
-                                    .foregroundColor(viewMode == .calendar ? Color.darkTheme.bgDarker : Color.darkTheme.textSecondary)
+                                    .foregroundColor(viewMode == .calendar ? (isDarkMode ? Color.darkTheme.bgDarker : Color.lightTheme.bgLight) : theme.textSecondary)
                                     .frame(maxWidth: .infinity)
                                     .padding(.vertical, 12)
                                     .background(
                                         RoundedRectangle(cornerRadius: 12)
-                                            .fill(viewMode == .calendar ? Color.darkTheme.textPrimary : Color.clear)
+                                            .fill(viewMode == .calendar ? theme.textPrimary : Color.clear)
                                     )
                             }
 
@@ -96,19 +101,19 @@ struct HistoryView: View {
                                 Text("Heatmap")
                                     .font(.system(.body, design: .rounded))
                                     .fontWeight(.medium)
-                                    .foregroundColor(viewMode == .heatmap ? Color.darkTheme.bgDarker : Color.darkTheme.textSecondary)
+                                    .foregroundColor(viewMode == .heatmap ? (isDarkMode ? Color.darkTheme.bgDarker : Color.lightTheme.bgLight) : theme.textSecondary)
                                     .frame(maxWidth: .infinity)
                                     .padding(.vertical, 12)
                                     .background(
                                         RoundedRectangle(cornerRadius: 12)
-                                            .fill(viewMode == .heatmap ? Color.darkTheme.textPrimary : Color.clear)
+                                            .fill(viewMode == .heatmap ? theme.textPrimary : Color.clear)
                                     )
                             }
                         }
                         .padding(4)
                         .background(
                             RoundedRectangle(cornerRadius: 14)
-                                .fill(Color.black.opacity(0.3))
+                                .fill((isDarkMode ? Color.black : Color.gray).opacity(0.3))
                         )
 
                         // Content based on view mode
@@ -120,7 +125,7 @@ struct HistoryView: View {
                                         Text(day)
                                             .font(.system(.caption, design: .rounded))
                                             .fontWeight(.semibold)
-                                            .foregroundColor(Color.darkTheme.textSecondary)
+                                            .foregroundColor(theme.textSecondary)
                                             .frame(maxWidth: .infinity)
                                     }
                                 }
@@ -133,7 +138,8 @@ struct HistoryView: View {
                                                 date: date,
                                                 isCurrentMonth: calendar.isDate(date, equalTo: currentDate, toGranularity: .month),
                                                 entries: getEntries(for: date),
-                                                isToday: calendar.isDateInToday(date)
+                                                isToday: calendar.isDateInToday(date),
+                                                isDark: isDarkMode
                                             )
                                             .onTapGesture {
                                                 let entries = getEntries(for: date)
@@ -153,6 +159,7 @@ struct HistoryView: View {
                             MoodHeatmapView(
                                 currentDate: currentDate,
                                 entries: dataManager.entries,
+                                isDark: isDarkMode,
                                 onDateTap: { date in
                                     let entries = getEntries(for: date)
                                     if !entries.isEmpty {
@@ -171,6 +178,7 @@ struct HistoryView: View {
                 EnhancedDateDetailSheet(
                     date: date,
                     entries: getEntries(for: date),
+                    isDark: isDarkMode,
                     onDelete: { entry in
                         dataManager.deleteEntry(entry)
                     }
@@ -239,19 +247,24 @@ struct EnhancedCalendarDayView: View {
     let isCurrentMonth: Bool
     let entries: [MoodEntry]
     let isToday: Bool
+    let isDark: Bool
 
     private let calendar = Calendar.current
+
+    private var theme: ThemeColors {
+        isDark ? Color.darkTheme : Color.lightTheme
+    }
 
     var body: some View {
         VStack(spacing: 6) {
             Text("\(calendar.component(.day, from: date))")
                 .font(.system(size: 16, design: .rounded))
                 .fontWeight(isToday ? .bold : .medium)
-                .foregroundColor(isCurrentMonth ? Color.darkTheme.textPrimary : Color.darkTheme.textSecondary.opacity(0.3))
+                .foregroundColor(isCurrentMonth ? theme.textPrimary : theme.textSecondary.opacity(0.3))
                 .frame(width: 40, height: 40)
                 .background(
                     Circle()
-                        .fill(isToday ? Color.darkTheme.accent : Color.clear)
+                        .fill(isToday ? theme.accent : Color.clear)
                 )
 
             // Mood indicator dots (show multiple if multiple moods)
@@ -271,13 +284,18 @@ struct EnhancedCalendarDayView: View {
 struct EnhancedDateDetailSheet: View {
     let date: Date
     let entries: [MoodEntry]
+    let isDark: Bool
     let onDelete: (MoodEntry) -> Void
     @Environment(\.dismiss) var dismiss
 
+    private var theme: ThemeColors {
+        isDark ? Color.darkTheme : Color.lightTheme
+    }
+
     var body: some View {
         ZStack {
-            // Dark theme background
-            Color.darkTheme.bgDarker
+            // Dynamic theme background
+            (isDark ? Color.darkTheme.bgDarker : Color.lightTheme.bgLight)
                 .ignoresSafeArea()
 
             VStack(alignment: .leading, spacing: 0) {
@@ -287,11 +305,11 @@ struct EnhancedDateDetailSheet: View {
                         Text(formattedDate)
                             .font(.system(.title2, design: .rounded))
                             .fontWeight(.bold)
-                            .foregroundColor(Color.darkTheme.textPrimary)
+                            .foregroundColor(theme.textPrimary)
 
                         Text("\(entries.count) \(entries.count == 1 ? "entry" : "entries")")
                             .font(.system(.subheadline, design: .rounded))
-                            .foregroundColor(Color.darkTheme.textSecondary)
+                            .foregroundColor(theme.textSecondary)
                     }
 
                     Spacer()
@@ -299,7 +317,7 @@ struct EnhancedDateDetailSheet: View {
                     Button(action: { dismiss() }) {
                         Image(systemName: "xmark.circle.fill")
                             .font(.title2)
-                            .foregroundColor(Color.darkTheme.textSecondary)
+                            .foregroundColor(theme.textSecondary)
                     }
                 }
                 .padding(.horizontal, 25)
@@ -310,11 +328,11 @@ struct EnhancedDateDetailSheet: View {
                     VStack(spacing: 15) {
                         Image(systemName: "calendar.badge.exclamationmark")
                             .font(.system(size: 50))
-                            .foregroundColor(Color.darkTheme.textSecondary.opacity(0.5))
+                            .foregroundColor(theme.textSecondary.opacity(0.5))
 
                         Text("No entries for this day")
                             .font(.headline)
-                            .foregroundColor(Color.darkTheme.textSecondary)
+                            .foregroundColor(theme.textSecondary)
                     }
                     .frame(maxWidth: .infinity)
                     .padding(.top, 60)
@@ -324,7 +342,7 @@ struct EnhancedDateDetailSheet: View {
                     ScrollView {
                         VStack(spacing: 15) {
                             ForEach(entries) { entry in
-                                EnhancedEntryCard(entry: entry, onDelete: {
+                                EnhancedEntryCard(entry: entry, isDark: isDark, onDelete: {
                                     onDelete(entry)
                                 })
                             }
@@ -347,10 +365,15 @@ struct EnhancedDateDetailSheet: View {
 // MARK: - Enhanced Entry Card
 struct EnhancedEntryCard: View {
     let entry: MoodEntry
+    let isDark: Bool
     let onDelete: () -> Void
     @State private var showingDeleteAlert = false
     @State private var audioPlayer: AVAudioPlayer?
     @State private var isPlayingAudio = false
+
+    private var theme: ThemeColors {
+        isDark ? Color.darkTheme : Color.lightTheme
+    }
 
     var body: some View {
         HStack(alignment: .top, spacing: 15) {
@@ -362,7 +385,7 @@ struct EnhancedEntryCard: View {
                 Text(entry.formattedTime)
                     .font(.system(.caption, design: .rounded))
                     .fontWeight(.medium)
-                    .foregroundColor(Color.darkTheme.textSecondary)
+                    .foregroundColor(theme.textSecondary)
             }
             .frame(width: 65)
 
@@ -375,7 +398,7 @@ struct EnhancedEntryCard: View {
 
                     Text(entry.mood.name)
                         .font(.system(.headline, design: .rounded))
-                        .foregroundColor(Color.darkTheme.textPrimary)
+                        .foregroundColor(theme.textPrimary)
 
                     Spacer()
 
@@ -390,7 +413,7 @@ struct EnhancedEntryCard: View {
                 if !entry.note.isEmpty {
                     Text(entry.note)
                         .font(.system(.subheadline, design: .rounded))
-                        .foregroundColor(Color.darkTheme.textSecondary)
+                        .foregroundColor(theme.textSecondary)
                         .lineSpacing(4)
                 }
 
@@ -415,19 +438,19 @@ struct EnhancedEntryCard: View {
                         Button(action: toggleAudioPlayback) {
                             Image(systemName: isPlayingAudio ? "pause.circle.fill" : "play.circle.fill")
                                 .font(.system(size: 32))
-                                .foregroundColor(Color.darkTheme.accent)
+                                .foregroundColor(theme.accent)
                         }
 
                         VStack(alignment: .leading, spacing: 2) {
                             Text("Voice Note")
                                 .font(.system(.subheadline, design: .rounded))
                                 .fontWeight(.semibold)
-                                .foregroundColor(Color.darkTheme.textPrimary)
+                                .foregroundColor(theme.textPrimary)
 
                             if let duration = entry.audioDuration {
                                 Text(formatDuration(duration))
                                     .font(.system(.caption, design: .rounded))
-                                    .foregroundColor(Color.darkTheme.textSecondary)
+                                    .foregroundColor(theme.textSecondary)
                             }
                         }
 
@@ -435,12 +458,12 @@ struct EnhancedEntryCard: View {
 
                         Image(systemName: "waveform")
                             .font(.system(size: 20))
-                            .foregroundColor(Color.darkTheme.accent.opacity(0.5))
+                            .foregroundColor(theme.accent.opacity(0.5))
                     }
                     .padding(12)
                     .background(
                         RoundedRectangle(cornerRadius: 10)
-                            .fill(Color.darkTheme.accent.opacity(0.2))
+                            .fill(theme.accent.opacity(0.2))
                     )
                 }
             }
@@ -524,10 +547,15 @@ class AudioPlayerDelegate: NSObject, AVAudioPlayerDelegate {
 struct MoodHeatmapView: View {
     let currentDate: Date
     let entries: [MoodEntry]
+    let isDark: Bool
     let onDateTap: (Date) -> Void
 
     private let calendar = Calendar.current
     private let columns = Array(repeating: GridItem(.flexible(), spacing: 6), count: 7)
+
+    private var theme: ThemeColors {
+        isDark ? Color.darkTheme : Color.lightTheme
+    }
 
     var body: some View {
         VStack(spacing: 15) {
@@ -535,7 +563,7 @@ struct MoodHeatmapView: View {
             HStack {
                 Text("Activity over the last 12 weeks")
                     .font(.system(.caption, design: .rounded))
-                    .foregroundColor(Color.darkTheme.textSecondary)
+                    .foregroundColor(theme.textSecondary)
 
                 Spacer()
 
@@ -543,7 +571,7 @@ struct MoodHeatmapView: View {
                 HStack(spacing: 6) {
                     Text("Less")
                         .font(.system(.caption2, design: .rounded))
-                        .foregroundColor(Color.darkTheme.textSecondary)
+                        .foregroundColor(theme.textSecondary)
 
                     ForEach(0..<5) { intensity in
                         RoundedRectangle(cornerRadius: 3)
@@ -553,7 +581,7 @@ struct MoodHeatmapView: View {
 
                     Text("More")
                         .font(.system(.caption2, design: .rounded))
-                        .foregroundColor(Color.darkTheme.textSecondary)
+                        .foregroundColor(theme.textSecondary)
                 }
             }
 
@@ -562,7 +590,8 @@ struct MoodHeatmapView: View {
                 ForEach(Array(generateHeatmapDays().enumerated()), id: \.offset) { index, date in
                     HeatmapDayCell(
                         date: date,
-                        entries: getEntries(for: date)
+                        entries: getEntries(for: date),
+                        isDark: isDark
                     )
                     .onTapGesture {
                         onDateTap(date)
@@ -599,11 +628,11 @@ struct MoodHeatmapView: View {
 
     private func heatmapColor(for intensity: Int) -> Color {
         switch intensity {
-        case 0: return Color.white.opacity(0.1)
-        case 1: return Color.darkTheme.accent.opacity(0.3)
-        case 2: return Color.darkTheme.accent.opacity(0.5)
-        case 3: return Color.darkTheme.accent.opacity(0.7)
-        default: return Color.darkTheme.accent
+        case 0: return (isDark ? Color.white : Color.gray).opacity(0.1)
+        case 1: return theme.accent.opacity(0.3)
+        case 2: return theme.accent.opacity(0.5)
+        case 3: return theme.accent.opacity(0.7)
+        default: return theme.accent
         }
     }
 }
@@ -612,6 +641,11 @@ struct MoodHeatmapView: View {
 struct HeatmapDayCell: View {
     let date: Date
     let entries: [MoodEntry]
+    let isDark: Bool
+
+    private var theme: ThemeColors {
+        isDark ? Color.darkTheme : Color.lightTheme
+    }
 
     var body: some View {
         RoundedRectangle(cornerRadius: 4)
@@ -619,7 +653,7 @@ struct HeatmapDayCell: View {
             .frame(height: 35)
             .overlay(
                 RoundedRectangle(cornerRadius: 4)
-                    .stroke(Color.white.opacity(0.1), lineWidth: 0.5)
+                    .stroke((isDark ? Color.white : Color.gray).opacity(0.1), lineWidth: 0.5)
             )
     }
 
@@ -627,12 +661,12 @@ struct HeatmapDayCell: View {
         let count = entries.count
 
         guard count > 0 else {
-            return Color.white.opacity(0.05)
+            return (isDark ? Color.white : Color.gray).opacity(0.05)
         }
 
         // Get the most recent mood for this date
         guard let recentMood = entries.first?.mood else {
-            return Color.darkTheme.accent.opacity(0.3)
+            return theme.accent.opacity(0.3)
         }
 
         // Color intensity based on number of entries

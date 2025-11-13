@@ -12,6 +12,7 @@ import PhotosUI
 struct SettingsView: View {
     @EnvironmentObject var dataManager: DataManager
     @Environment(\.dismiss) var dismiss
+    @AppStorage("darkModeEnabled") private var isDarkMode: Bool = true
 
     // User preferences
     @State private var userName: String = UserDefaults.standard.string(forKey: "userName") ?? "User"
@@ -35,6 +36,10 @@ struct SettingsView: View {
         case dark = "Dark"
     }
 
+    private var theme: ThemeColors {
+        isDarkMode ? Color.darkTheme : Color.lightTheme
+    }
+
     // Profile picture
     @State private var profilePictureData: Data? = UserDefaults.standard.data(forKey: "profilePicture")
     @State private var selectedPhotoItem: PhotosPickerItem?
@@ -45,8 +50,8 @@ struct SettingsView: View {
 
     var body: some View {
         ZStack {
-            // Dark gradient background
-            DarkGradientBackground()
+            // Dynamic theme gradient background
+            DarkThemeBackground(isDark: isDarkMode)
 
             ScrollView {
                 VStack(spacing: 20) {
@@ -55,13 +60,13 @@ struct SettingsView: View {
                         Button(action: { dismiss() }) {
                             Image(systemName: "chevron.left")
                                 .font(.title3)
-                                .foregroundColor(.white)
+                                .foregroundColor(theme.textPrimary)
                         }
 
                         Text("Settings")
                             .font(.system(.largeTitle, design: .rounded))
                             .fontWeight(.bold)
-                            .foregroundColor(.white)
+                            .foregroundColor(theme.textPrimary)
 
                         Spacer()
                     }
@@ -69,7 +74,7 @@ struct SettingsView: View {
                     .padding(.top, 20)
 
                     // User Profile Section
-                    DarkGlassCard(padding: 20) {
+                    DarkThemeCard(padding: 20, isDark: isDarkMode) {
                         VStack(spacing: 20) {
                             // Profile Picture
                             PhotosPicker(selection: $selectedPhotoItem, matching: .images) {
@@ -83,11 +88,11 @@ struct SettingsView: View {
                                             .clipShape(Circle())
                                             .overlay(
                                                 Circle()
-                                                    .stroke(Color.white.opacity(0.3), lineWidth: 3)
+                                                    .stroke((isDarkMode ? Color.white : Color.gray).opacity(0.3), lineWidth: 3)
                                             )
                                     } else {
                                         Circle()
-                                            .fill(Color.white.opacity(0.1))
+                                            .fill((isDarkMode ? Color.white : Color.gray).opacity(0.1))
                                             .frame(width: 100, height: 100)
                                             .overlay(
                                                 Text("👤")
@@ -102,7 +107,7 @@ struct SettingsView: View {
                                             Spacer()
                                             Image(systemName: "camera.fill")
                                                 .font(.system(size: 16))
-                                                .foregroundColor(.white)
+                                                .foregroundColor(theme.textPrimary)
                                                 .padding(8)
                                                 .background(Circle().fill(Color(hex: "667EEA")))
                                         }
@@ -122,16 +127,16 @@ struct SettingsView: View {
                             VStack(spacing: 12) {
                                 Text("Your Name")
                                     .font(.system(.subheadline, design: .rounded))
-                                    .foregroundColor(.white.opacity(0.7))
+                                    .foregroundColor(theme.textSecondary)
 
                                 TextField("Enter your name", text: $userName)
                                     .textFieldStyle(.plain)
                                     .font(.system(.title3, design: .rounded))
                                     .fontWeight(.semibold)
-                                    .foregroundColor(.white)
+                                    .foregroundColor(theme.textPrimary)
                                     .multilineTextAlignment(.center)
                                     .padding()
-                                    .background(Color.white.opacity(0.1))
+                                    .background((isDarkMode ? Color.white : Color.gray).opacity(0.1))
                                     .cornerRadius(12)
                                     .onChange(of: userName) { newValue in
                                         UserDefaults.standard.set(newValue, forKey: "userName")
@@ -142,22 +147,22 @@ struct SettingsView: View {
                     .padding(.horizontal, 25)
 
                     // Notifications Section
-                    DarkGlassCard(padding: 20) {
+                    DarkThemeCard(padding: 20, isDark: isDarkMode) {
                         VStack(alignment: .leading, spacing: 20) {
                             Label("Notifications", systemImage: "bell.fill")
                                 .font(.system(.headline, design: .rounded))
-                                .foregroundColor(.white)
+                                .foregroundColor(theme.textPrimary)
 
                             // Daily Reminder Toggle
                             HStack {
                                 VStack(alignment: .leading, spacing: 4) {
                                     Text("Daily Reminder")
                                         .font(.system(.subheadline, design: .rounded))
-                                        .foregroundColor(.white)
+                                        .foregroundColor(theme.textPrimary)
 
                                     Text("Get reminded to log your mood")
                                         .font(.system(.caption, design: .rounded))
-                                        .foregroundColor(.white.opacity(0.6))
+                                        .foregroundColor(theme.textSecondary)
                                 }
 
                                 Spacer()
@@ -181,7 +186,7 @@ struct SettingsView: View {
                                 VStack(alignment: .leading, spacing: 8) {
                                     Text("Reminder Time")
                                         .font(.system(.subheadline, design: .rounded))
-                                        .foregroundColor(.white.opacity(0.8))
+                                        .foregroundColor(theme.textPrimary)
 
                                     DatePicker(
                                         "",
@@ -205,16 +210,16 @@ struct SettingsView: View {
                     .padding(.horizontal, 25)
 
                     // Appearance Section
-                    DarkGlassCard(padding: 20) {
+                    DarkThemeCard(padding: 20, isDark: isDarkMode) {
                         VStack(alignment: .leading, spacing: 20) {
                             Label("Appearance", systemImage: "paintbrush.fill")
                                 .font(.system(.headline, design: .rounded))
-                                .foregroundColor(.white)
+                                .foregroundColor(theme.textPrimary)
 
                             VStack(alignment: .leading, spacing: 8) {
                                 Text("Theme")
                                     .font(.system(.subheadline, design: .rounded))
-                                    .foregroundColor(.white.opacity(0.8))
+                                    .foregroundColor(theme.textPrimary)
 
                                 // Light and Dark Mode Options
                                 HStack(spacing: 12) {
@@ -222,22 +227,23 @@ struct SettingsView: View {
                                         Button(action: {
                                             appearanceMode = mode
                                             UserDefaults.standard.set(mode == .dark, forKey: "darkModeEnabled")
+                                            isDarkMode = (mode == .dark)
                                         }) {
                                             HStack(spacing: 8) {
                                                 Image(systemName: mode == .light ? "sun.max.fill" : "moon.fill")
                                                     .font(.system(size: 20))
-                                                    .foregroundColor(appearanceMode == mode ? .white : .white.opacity(0.5))
+                                                    .foregroundColor(appearanceMode == mode ? theme.textPrimary : theme.textSecondary)
 
                                                 Text(mode.rawValue)
                                                     .font(.system(.subheadline, design: .rounded))
                                                     .fontWeight(appearanceMode == mode ? .semibold : .regular)
-                                                    .foregroundColor(appearanceMode == mode ? .white : .white.opacity(0.5))
+                                                    .foregroundColor(appearanceMode == mode ? theme.textPrimary : theme.textSecondary)
                                             }
                                             .frame(maxWidth: .infinity)
                                             .padding(.vertical, 12)
                                             .background(
                                                 RoundedRectangle(cornerRadius: 10)
-                                                    .fill(appearanceMode == mode ? Color(hex: "667EEA") : Color.white.opacity(0.1))
+                                                    .fill(appearanceMode == mode ? theme.accent : (isDarkMode ? Color.white : Color.gray).opacity(0.1))
                                             )
                                         }
                                     }
@@ -248,11 +254,11 @@ struct SettingsView: View {
                     .padding(.horizontal, 25)
 
                     // Data Management Section
-                    DarkGlassCard(padding: 20) {
+                    DarkThemeCard(padding: 20, isDark: isDarkMode) {
                         VStack(alignment: .leading, spacing: 20) {
                             Label("Data Management", systemImage: "externaldrive.fill")
                                 .font(.system(.headline, design: .rounded))
-                                .foregroundColor(.white)
+                                .foregroundColor(theme.textPrimary)
 
                             // Export Data Button
                             Button(action: { showingExportSheet = true }) {
@@ -260,11 +266,11 @@ struct SettingsView: View {
                                     VStack(alignment: .leading, spacing: 4) {
                                         Text("Export Data")
                                             .font(.system(.subheadline, design: .rounded))
-                                            .foregroundColor(.white)
+                                            .foregroundColor(theme.textPrimary)
 
                                         Text("Save your mood history")
                                             .font(.system(.caption, design: .rounded))
-                                            .foregroundColor(.white.opacity(0.6))
+                                            .foregroundColor(theme.textSecondary)
                                     }
 
                                     Spacer()
@@ -275,7 +281,7 @@ struct SettingsView: View {
                             }
 
                             Divider()
-                                .background(Color.white.opacity(0.2))
+                                .background((isDarkMode ? Color.white : Color.gray).opacity(0.2))
 
                             // Delete All Data Button
                             Button(action: { showingDeleteAlert = true }) {
@@ -287,7 +293,7 @@ struct SettingsView: View {
 
                                         Text("Permanently remove all entries")
                                             .font(.system(.caption, design: .rounded))
-                                            .foregroundColor(.white.opacity(0.6))
+                                            .foregroundColor(theme.textSecondary)
                                     }
 
                                     Spacer()
@@ -299,7 +305,7 @@ struct SettingsView: View {
 
                             #if DEBUG
                             Divider()
-                                .background(Color.white.opacity(0.2))
+                                .background((isDarkMode ? Color.white : Color.gray).opacity(0.2))
 
                             // Insert Mock Data Button (Debug Only)
                             Button(action: insertMockData) {
@@ -311,7 +317,7 @@ struct SettingsView: View {
 
                                         Text("Add 3 months of test entries (debug)")
                                             .font(.system(.caption, design: .rounded))
-                                            .foregroundColor(.white.opacity(0.6))
+                                            .foregroundColor(theme.textSecondary)
                                     }
 
                                     Spacer()
@@ -326,27 +332,27 @@ struct SettingsView: View {
                     .padding(.horizontal, 25)
 
                     // About Section
-                    DarkGlassCard(padding: 20) {
+                    DarkThemeCard(padding: 20, isDark: isDarkMode) {
                         VStack(alignment: .leading, spacing: 20) {
                             Label("About", systemImage: "info.circle.fill")
                                 .font(.system(.headline, design: .rounded))
-                                .foregroundColor(.white)
+                                .foregroundColor(theme.textPrimary)
 
                             // Version
                             HStack {
                                 Text("Version")
                                     .font(.system(.subheadline, design: .rounded))
-                                    .foregroundColor(.white)
+                                    .foregroundColor(theme.textPrimary)
 
                                 Spacer()
 
                                 Text("1.0.0")
                                     .font(.system(.subheadline, design: .rounded))
-                                    .foregroundColor(.white.opacity(0.6))
+                                    .foregroundColor(theme.textSecondary)
                             }
 
                             Divider()
-                                .background(Color.white.opacity(0.2))
+                                .background((isDarkMode ? Color.white : Color.gray).opacity(0.2))
 
                             // Privacy Policy
                             Button(action: {
@@ -355,17 +361,17 @@ struct SettingsView: View {
                                 HStack {
                                     Text("Privacy Policy")
                                         .font(.system(.subheadline, design: .rounded))
-                                        .foregroundColor(.white)
+                                        .foregroundColor(theme.textPrimary)
 
                                     Spacer()
 
                                     Image(systemName: "chevron.right")
-                                        .foregroundColor(.white.opacity(0.5))
+                                        .foregroundColor(theme.textSecondary)
                                 }
                             }
 
                             Divider()
-                                .background(Color.white.opacity(0.2))
+                                .background((isDarkMode ? Color.white : Color.gray).opacity(0.2))
 
                             // Rate App
                             Button(action: {
@@ -374,7 +380,7 @@ struct SettingsView: View {
                                 HStack {
                                     Text("Rate This App")
                                         .font(.system(.subheadline, design: .rounded))
-                                        .foregroundColor(.white)
+                                        .foregroundColor(theme.textPrimary)
 
                                     Spacer()
 
@@ -544,11 +550,11 @@ struct ExportDataView: View {
                     Text("Export Your Data")
                         .font(.system(.title2, design: .rounded))
                         .fontWeight(.bold)
-                        .foregroundColor(.white)
+                        .foregroundColor(theme.textPrimary)
 
                     Text("Choose how you'd like to export your mood history")
                         .font(.system(.subheadline, design: .rounded))
-                        .foregroundColor(.white.opacity(0.7))
+                        .foregroundColor(theme.textSecondary)
                         .multilineTextAlignment(.center)
                         .padding(.horizontal)
 
@@ -561,9 +567,9 @@ struct ExportDataView: View {
                                     .font(.system(.headline, design: .rounded))
                                 Spacer()
                             }
-                            .foregroundColor(.white)
+                            .foregroundColor(theme.textPrimary)
                             .padding()
-                            .background(Color.white.opacity(0.1))
+                            .background((isDarkMode ? Color.white : Color.gray).opacity(0.1))
                             .cornerRadius(12)
                         }
 
@@ -575,9 +581,9 @@ struct ExportDataView: View {
                                     .font(.system(.headline, design: .rounded))
                                 Spacer()
                             }
-                            .foregroundColor(.white)
+                            .foregroundColor(theme.textPrimary)
                             .padding()
-                            .background(Color.white.opacity(0.1))
+                            .background((isDarkMode ? Color.white : Color.gray).opacity(0.1))
                             .cornerRadius(12)
                         }
                     }
@@ -590,7 +596,7 @@ struct ExportDataView: View {
                     Button("Done") {
                         dismiss()
                     }
-                    .foregroundColor(.white)
+                    .foregroundColor(theme.textPrimary)
                 }
             }
         }
