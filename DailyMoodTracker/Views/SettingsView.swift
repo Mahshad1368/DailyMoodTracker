@@ -25,19 +25,10 @@ struct SettingsView: View {
         return Calendar.current.date(from: components) ?? Date()
     }()
     @State private var darkModeEnabled: Bool = UserDefaults.standard.bool(forKey: "darkModeEnabled")
-    @State private var showNotesField: Bool = {
-        if UserDefaults.standard.object(forKey: "showNotesField") == nil {
-            UserDefaults.standard.set(true, forKey: "showNotesField")
-            return true
-        }
-        return UserDefaults.standard.bool(forKey: "showNotesField")
-    }()
-    @State private var requireNote: Bool = UserDefaults.standard.bool(forKey: "requireNote")
 
     // Alerts
     @State private var showingDeleteAlert = false
     @State private var showingExportSheet = false
-    @State private var showingIconPicker = false
 
     var body: some View {
         ZStack {
@@ -162,105 +153,29 @@ struct SettingsView: View {
                                 .font(.system(.headline, design: .rounded))
                                 .foregroundColor(.white)
 
-                            // App Icon Picker
-                            Button(action: { showingIconPicker = true }) {
-                                HStack {
-                                    VStack(alignment: .leading, spacing: 4) {
-                                        Text("App Icon")
-                                            .font(.system(.subheadline, design: .rounded))
-                                            .foregroundColor(.white)
-
-                                        Text("Choose your favorite icon")
-                                            .font(.system(.caption, design: .rounded))
-                                            .foregroundColor(.white.opacity(0.6))
-                                    }
-
-                                    Spacer()
-
-                                    Image(systemName: "chevron.right")
-                                        .foregroundColor(.white.opacity(0.5))
-                                }
-                            }
-
-                            Divider()
-                                .background(Color.white.opacity(0.2))
-
-                            // Dark Mode Toggle (placeholder - iOS handles this system-wide)
+                            // Dark & Light Mode Toggle
                             HStack {
                                 VStack(alignment: .leading, spacing: 4) {
-                                    Text("Time-based Gradients")
+                                    Text("Dark Mode")
                                         .font(.system(.subheadline, design: .rounded))
                                         .foregroundColor(.white)
 
-                                    Text("Home screen changes throughout the day")
+                                    Text("Switch between light and dark themes")
                                         .font(.system(.caption, design: .rounded))
                                         .foregroundColor(.white.opacity(0.6))
                                 }
 
                                 Spacer()
 
-                                Image(systemName: "checkmark.circle.fill")
-                                    .foregroundColor(Color(hex: "667EEA"))
-                            }
-                        }
-                    }
-                    .padding(.horizontal, 25)
-
-                    // Mood Logging Section
-                    DarkGlassCard(padding: 20) {
-                        VStack(alignment: .leading, spacing: 20) {
-                            Label("Mood Logging", systemImage: "pencil")
-                                .font(.system(.headline, design: .rounded))
-                                .foregroundColor(.white)
-
-                            // Show Notes Field Toggle
-                            HStack {
-                                VStack(alignment: .leading, spacing: 4) {
-                                    Text("Show Notes Field")
-                                        .font(.system(.subheadline, design: .rounded))
-                                        .foregroundColor(.white)
-
-                                    Text("Display note input when logging")
-                                        .font(.system(.caption, design: .rounded))
-                                        .foregroundColor(.white.opacity(0.6))
-                                }
-
-                                Spacer()
-
-                                Toggle("", isOn: $showNotesField)
+                                Toggle("", isOn: $darkModeEnabled)
                                     .labelsHidden()
                                     .tint(Color(hex: "667EEA"))
-                                    .onChange(of: showNotesField) { newValue in
-                                        UserDefaults.standard.set(newValue, forKey: "showNotesField")
+                                    .onChange(of: darkModeEnabled) { newValue in
+                                        UserDefaults.standard.set(newValue, forKey: "darkModeEnabled")
+                                        // Note: In production, you'd apply color scheme here
+                                        // For now, app uses dark theme by default
                                     }
                             }
-
-                            Divider()
-                                .background(Color.white.opacity(0.2))
-
-                            // Require Note Toggle
-                            HStack {
-                                VStack(alignment: .leading, spacing: 4) {
-                                    Text("Require Note")
-                                        .font(.system(.subheadline, design: .rounded))
-                                        .foregroundColor(.white)
-
-                                    Text("Make notes mandatory for each entry")
-                                        .font(.system(.caption, design: .rounded))
-                                        .foregroundColor(.white.opacity(0.6))
-                                }
-
-                                Spacer()
-
-                                Toggle("", isOn: $requireNote)
-                                    .labelsHidden()
-                                    .tint(Color(hex: "667EEA"))
-                                    .disabled(!showNotesField)
-                                    .onChange(of: requireNote) { newValue in
-                                        UserDefaults.standard.set(newValue, forKey: "requireNote")
-                                    }
-                            }
-                            .opacity(showNotesField ? 1.0 : 0.5)
                         }
                     }
                     .padding(.horizontal, 25)
@@ -314,6 +229,31 @@ struct SettingsView: View {
                                         .foregroundColor(.red.opacity(0.7))
                                 }
                             }
+
+                            #if DEBUG
+                            Divider()
+                                .background(Color.white.opacity(0.2))
+
+                            // Insert Mock Data Button (Debug Only)
+                            Button(action: insertMockData) {
+                                HStack {
+                                    VStack(alignment: .leading, spacing: 4) {
+                                        Text("Insert Mock Data")
+                                            .font(.system(.subheadline, design: .rounded))
+                                            .foregroundColor(Color(hex: "667EEA"))
+
+                                        Text("Add 3 months of test entries (debug)")
+                                            .font(.system(.caption, design: .rounded))
+                                            .foregroundColor(.white.opacity(0.6))
+                                    }
+
+                                    Spacer()
+
+                                    Image(systemName: "wand.and.stars")
+                                        .foregroundColor(Color(hex: "667EEA"))
+                                }
+                            }
+                            #endif
                         }
                     }
                     .padding(.horizontal, 25)
@@ -395,9 +335,6 @@ struct SettingsView: View {
         }
         .sheet(isPresented: $showingExportSheet) {
             ExportDataView(entries: dataManager.entries)
-        }
-        .sheet(isPresented: $showingIconPicker) {
-            AppIconPickerView()
         }
     }
 
@@ -546,118 +483,92 @@ struct ExportDataView: View {
             applicationActivities: nil
         )
 
+        // For iPad - set popover source
+        if let popoverController = activityVC.popoverPresentationController {
+            popoverController.sourceView = UIApplication.shared.windows.first
+            popoverController.sourceRect = CGRect(x: UIScreen.main.bounds.midX, y: UIScreen.main.bounds.midY, width: 0, height: 0)
+            popoverController.permittedArrowDirections = []
+        }
+
         if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
            let window = windowScene.windows.first,
            let rootVC = window.rootViewController {
-            rootVC.present(activityVC, animated: true)
-        }
-    }
-}
 
-// MARK: - App Icon Picker View
-struct AppIconPickerView: View {
-    @Environment(\.dismiss) var dismiss
-
-    let icons = [
-        ("Default", nil),
-        ("Happy", "AppIcon-Happy"),
-        ("Neutral", "AppIcon-Neutral"),
-        ("Sad", "AppIcon-Sad"),
-        ("Angry", "AppIcon-Angry"),
-        ("Sleepy", "AppIcon-Sleepy")
-    ]
-
-    @State private var selectedIcon: String? = UIApplication.shared.alternateIconName
-
-    var body: some View {
-        NavigationView {
-            ZStack {
-                Color(hex: "1A1A2E")
-                    .ignoresSafeArea()
-
-                ScrollView {
-                    VStack(spacing: 20) {
-                        Text("Choose Your App Icon")
-                            .font(.system(.title2, design: .rounded))
-                            .fontWeight(.bold)
-                            .foregroundColor(.white)
-                            .padding(.top, 20)
-
-                        LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 20) {
-                            ForEach(icons, id: \.1) { icon in
-                                AppIconOption(
-                                    name: icon.0,
-                                    iconName: icon.1,
-                                    isSelected: selectedIcon == icon.1
-                                ) {
-                                    setAppIcon(icon.1)
-                                }
-                            }
-                        }
-                        .padding(.horizontal, 25)
-                    }
-                }
+            // Find the topmost view controller
+            var topVC = rootVC
+            while let presented = topVC.presentedViewController {
+                topVC = presented
             }
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("Done") {
-                        dismiss()
-                    }
-                    .foregroundColor(.white)
-                }
-            }
+
+            topVC.present(activityVC, animated: true)
         }
     }
 
-    private func setAppIcon(_ iconName: String?) {
-        UIApplication.shared.setAlternateIconName(iconName) { error in
-            if let error = error {
-                print("Error setting icon: \(error.localizedDescription)")
-            } else {
-                selectedIcon = iconName
+    private func insertMockData() {
+        let calendar = Calendar.current
+        let today = Date()
+        let moods = MoodType.allCases
+        let notes = [
+            "Had a great day at work!",
+            "Feeling tired but content",
+            "Relaxing evening with friends",
+            "Productive morning session",
+            "Just finished a good workout",
+            "Enjoying some quiet time",
+            "Had an interesting conversation",
+            "Feeling grateful today",
+            "Just woke up feeling refreshed",
+            "End of day reflection",
+            ""
+        ]
+
+        // Generate entries for past 3 months (90 days)
+        for dayOffset in 0..<90 {
+            guard let date = calendar.date(byAdding: .day, value: -dayOffset, to: today) else { continue }
+
+            // Randomly generate 1-3 entries per day
+            let entriesPerDay = Int.random(in: 1...3)
+
+            for entryIndex in 0..<entriesPerDay {
+                // Random time throughout the day
+                let hour = (entryIndex == 0) ? Int.random(in: 8...11) :
+                          (entryIndex == 1) ? Int.random(in: 12...17) :
+                          Int.random(in: 18...22)
+
+                var components = calendar.dateComponents([.year, .month, .day], from: date)
+                components.hour = hour
+                components.minute = Int.random(in: 0...59)
+
+                guard let entryDate = calendar.date(from: components) else { continue }
+
+                // Random mood and note
+                let mood = moods.randomElement() ?? .neutral
+                let note = notes.randomElement() ?? ""
+
+                // Create entry
+                let entry = MoodEntry(
+                    id: UUID(),
+                    date: entryDate,
+                    mood: mood,
+                    note: note,
+                    photoData: nil,
+                    audioData: nil,
+                    audioDuration: nil
+                )
+
+                dataManager.entries.append(entry)
             }
         }
-    }
-}
 
-struct AppIconOption: View {
-    let name: String
-    let iconName: String?
-    let isSelected: Bool
-    let action: () -> Void
+        // Sort entries by date (newest first)
+        dataManager.entries.sort { $0.date > $1.date }
 
-    var body: some View {
-        Button(action: action) {
-            VStack(spacing: 12) {
-                // Icon preview
-                RoundedRectangle(cornerRadius: 16)
-                    .fill(Color.white.opacity(0.1))
-                    .frame(width: 80, height: 80)
-                    .overlay(
-                        Image(systemName: "app.fill")
-                            .font(.system(size: 40))
-                            .foregroundColor(.white.opacity(0.6))
-                    )
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 16)
-                            .stroke(isSelected ? Color(hex: "667EEA") : Color.clear, lineWidth: 3)
-                    )
-
-                Text(name)
-                    .font(.system(.subheadline, design: .rounded))
-                    .fontWeight(.medium)
-                    .foregroundColor(.white)
-
-                if isSelected {
-                    Image(systemName: "checkmark.circle.fill")
-                        .foregroundColor(Color(hex: "667EEA"))
-                }
-            }
-            .padding()
-            .background(Color.white.opacity(0.05))
-            .cornerRadius(16)
+        // Save to UserDefaults
+        if let data = try? JSONEncoder().encode(dataManager.entries) {
+            UserDefaults.standard.set(data, forKey: "moodEntries")
         }
+
+        print("✅ Inserted mock data: \(dataManager.entries.count) total entries")
     }
 }
 
