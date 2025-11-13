@@ -94,10 +94,23 @@ extension Color {
     }
 
     // MARK: - Dynamic Theme (switches based on setting)
-    static func theme(isDark: Bool) -> Any {
-        return isDark ? darkTheme : lightTheme
+    static func appTheme(isDark: Bool) -> ThemeColors {
+        return isDark ? DarkThemeColors() : LightThemeColors()
     }
 }
+
+// MARK: - Theme Colors Protocol
+protocol ThemeColors {
+    var backgroundGradient: LinearGradient { get }
+    var textPrimary: Color { get }
+    var textSecondary: Color { get }
+    var accent: Color { get }
+    var accentLight: Color { get }
+    var cardBg: Color { get }
+}
+
+extension Color.DarkThemeColors: ThemeColors {}
+extension Color.LightThemeColors: ThemeColors {}
 
 // MARK: - View Extension for Glassmorphism Effect
 extension View {

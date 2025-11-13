@@ -2,18 +2,20 @@
 //  DarkThemeCard.swift
 //  DailyMoodTracker
 //
-//  Frosted glass card component for dark theme
+//  Frosted glass card component supporting both light and dark themes
 //
 
 import SwiftUI
 
-/// Frosted glass card with dark theme styling
+/// Frosted glass card with theme-aware styling
 struct DarkThemeCard<Content: View>: View {
     let padding: CGFloat
     let content: Content
+    let isDark: Bool
 
-    init(padding: CGFloat = 20, @ViewBuilder content: () -> Content) {
+    init(padding: CGFloat = 20, isDark: Bool = true, @ViewBuilder content: () -> Content) {
         self.padding = padding
+        self.isDark = isDark
         self.content = content()
     }
 
@@ -25,17 +27,23 @@ struct DarkThemeCard<Content: View>: View {
                     .fill(.ultraThinMaterial.opacity(0.8))
                     .background(
                         RoundedRectangle(cornerRadius: 20)
-                            .fill(Color.black.opacity(0.3))
+                            .fill(isDark ? Color.black.opacity(0.3) : Color.white.opacity(0.5))
                     )
-                    .shadow(color: .black.opacity(0.3), radius: 20, x: 0, y: 4)
+                    .shadow(color: isDark ? .black.opacity(0.3) : .gray.opacity(0.2), radius: 20, x: 0, y: 4)
             )
     }
 }
 
-/// Dark theme gradient background
+/// Theme-aware gradient background
 struct DarkThemeBackground: View {
+    let isDark: Bool
+
+    init(isDark: Bool = true) {
+        self.isDark = isDark
+    }
+
     var body: some View {
-        Color.darkTheme.backgroundGradient
+        (isDark ? Color.darkTheme.backgroundGradient : Color.lightTheme.backgroundGradient)
             .ignoresSafeArea()
     }
 }
@@ -44,9 +52,11 @@ struct DarkThemeBackground: View {
 struct DarkThemeNestedCard<Content: View>: View {
     let padding: CGFloat
     let content: Content
+    let isDark: Bool
 
-    init(padding: CGFloat = 16, @ViewBuilder content: () -> Content) {
+    init(padding: CGFloat = 16, isDark: Bool = true, @ViewBuilder content: () -> Content) {
         self.padding = padding
+        self.isDark = isDark
         self.content = content()
     }
 
@@ -55,10 +65,10 @@ struct DarkThemeNestedCard<Content: View>: View {
             .padding(padding)
             .background(
                 RoundedRectangle(cornerRadius: 16)
-                    .fill(Color.black.opacity(0.2))
+                    .fill(isDark ? Color.black.opacity(0.2) : Color.white.opacity(0.3))
                     .overlay(
                         RoundedRectangle(cornerRadius: 16)
-                            .stroke(Color.white.opacity(0.1), lineWidth: 1)
+                            .stroke(isDark ? Color.white.opacity(0.1) : Color.gray.opacity(0.2), lineWidth: 1)
                     )
             )
     }
