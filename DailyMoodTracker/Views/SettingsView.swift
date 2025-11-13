@@ -393,6 +393,73 @@ struct SettingsView: View {
         UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: ["dailyMoodReminder"])
         print("🔕 Daily notification cancelled")
     }
+
+    private func insertMockData() {
+        let calendar = Calendar.current
+        let today = Date()
+        let moods = MoodType.allCases
+        let notes = [
+            "Had a great day at work!",
+            "Feeling tired but content",
+            "Relaxing evening with friends",
+            "Productive morning session",
+            "Just finished a good workout",
+            "Enjoying some quiet time",
+            "Had an interesting conversation",
+            "Feeling grateful today",
+            "Just woke up feeling refreshed",
+            "End of day reflection",
+            ""
+        ]
+
+        // Generate entries for past 3 months (90 days)
+        for dayOffset in 0..<90 {
+            guard let date = calendar.date(byAdding: .day, value: -dayOffset, to: today) else { continue }
+
+            // Randomly generate 1-3 entries per day
+            let entriesPerDay = Int.random(in: 1...3)
+
+            for entryIndex in 0..<entriesPerDay {
+                // Random time throughout the day
+                let hour = (entryIndex == 0) ? Int.random(in: 8...11) :
+                          (entryIndex == 1) ? Int.random(in: 12...17) :
+                          Int.random(in: 18...22)
+
+                var components = calendar.dateComponents([.year, .month, .day], from: date)
+                components.hour = hour
+                components.minute = Int.random(in: 0...59)
+
+                guard let entryDate = calendar.date(from: components) else { continue }
+
+                // Random mood and note
+                let mood = moods.randomElement() ?? .neutral
+                let note = notes.randomElement() ?? ""
+
+                // Create entry
+                let entry = MoodEntry(
+                    id: UUID(),
+                    date: entryDate,
+                    mood: mood,
+                    note: note,
+                    photoData: nil,
+                    audioData: nil,
+                    audioDuration: nil
+                )
+
+                dataManager.entries.append(entry)
+            }
+        }
+
+        // Sort entries by date (newest first)
+        dataManager.entries.sort { $0.date > $1.date }
+
+        // Save to UserDefaults
+        if let data = try? JSONEncoder().encode(dataManager.entries) {
+            UserDefaults.standard.set(data, forKey: "moodEntries")
+        }
+
+        print("✅ Inserted mock data: \(dataManager.entries.count) total entries")
+    }
 }
 
 // MARK: - Export Data View
@@ -502,73 +569,6 @@ struct ExportDataView: View {
 
             topVC.present(activityVC, animated: true)
         }
-    }
-
-    private func insertMockData() {
-        let calendar = Calendar.current
-        let today = Date()
-        let moods = MoodType.allCases
-        let notes = [
-            "Had a great day at work!",
-            "Feeling tired but content",
-            "Relaxing evening with friends",
-            "Productive morning session",
-            "Just finished a good workout",
-            "Enjoying some quiet time",
-            "Had an interesting conversation",
-            "Feeling grateful today",
-            "Just woke up feeling refreshed",
-            "End of day reflection",
-            ""
-        ]
-
-        // Generate entries for past 3 months (90 days)
-        for dayOffset in 0..<90 {
-            guard let date = calendar.date(byAdding: .day, value: -dayOffset, to: today) else { continue }
-
-            // Randomly generate 1-3 entries per day
-            let entriesPerDay = Int.random(in: 1...3)
-
-            for entryIndex in 0..<entriesPerDay {
-                // Random time throughout the day
-                let hour = (entryIndex == 0) ? Int.random(in: 8...11) :
-                          (entryIndex == 1) ? Int.random(in: 12...17) :
-                          Int.random(in: 18...22)
-
-                var components = calendar.dateComponents([.year, .month, .day], from: date)
-                components.hour = hour
-                components.minute = Int.random(in: 0...59)
-
-                guard let entryDate = calendar.date(from: components) else { continue }
-
-                // Random mood and note
-                let mood = moods.randomElement() ?? .neutral
-                let note = notes.randomElement() ?? ""
-
-                // Create entry
-                let entry = MoodEntry(
-                    id: UUID(),
-                    date: entryDate,
-                    mood: mood,
-                    note: note,
-                    photoData: nil,
-                    audioData: nil,
-                    audioDuration: nil
-                )
-
-                dataManager.entries.append(entry)
-            }
-        }
-
-        // Sort entries by date (newest first)
-        dataManager.entries.sort { $0.date > $1.date }
-
-        // Save to UserDefaults
-        if let data = try? JSONEncoder().encode(dataManager.entries) {
-            UserDefaults.standard.set(data, forKey: "moodEntries")
-        }
-
-        print("✅ Inserted mock data: \(dataManager.entries.count) total entries")
     }
 }
 
