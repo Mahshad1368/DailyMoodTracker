@@ -89,12 +89,13 @@ struct PhotoPickerView: UIViewControllerRepresentable {
 
             let newSize = CGSize(width: size.width / ratio, height: size.height / ratio)
 
-            UIGraphicsBeginImageContextWithOptions(newSize, false, 1.0)
-            image.draw(in: CGRect(origin: .zero, size: newSize))
-            let newImage = UIGraphicsGetImageFromCurrentImageContext()
-            UIGraphicsEndImageContext()
+            // Use UIGraphicsImageRenderer instead of deprecated UIGraphics APIs
+            let renderer = UIGraphicsImageRenderer(size: newSize)
+            let newImage = renderer.image { context in
+                image.draw(in: CGRect(origin: .zero, size: newSize))
+            }
 
-            return newImage ?? image
+            return newImage
         }
     }
 }
