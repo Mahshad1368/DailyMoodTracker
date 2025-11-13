@@ -24,7 +24,15 @@ struct SettingsView: View {
         components.minute = 0
         return Calendar.current.date(from: components) ?? Date()
     }()
-    @State private var darkModeEnabled: Bool = UserDefaults.standard.bool(forKey: "darkModeEnabled")
+    @State private var appearanceMode: AppearanceMode = {
+        let isDark = UserDefaults.standard.bool(forKey: "darkModeEnabled")
+        return isDark ? .dark : .light
+    }()
+
+    enum AppearanceMode: String, CaseIterable {
+        case light = "Light"
+        case dark = "Dark"
+    }
 
     // Alerts
     @State private var showingDeleteAlert = false
@@ -153,28 +161,37 @@ struct SettingsView: View {
                                 .font(.system(.headline, design: .rounded))
                                 .foregroundColor(.white)
 
-                            // Dark & Light Mode Toggle
-                            HStack {
-                                VStack(alignment: .leading, spacing: 4) {
-                                    Text("Dark Mode")
-                                        .font(.system(.subheadline, design: .rounded))
-                                        .foregroundColor(.white)
+                            VStack(alignment: .leading, spacing: 8) {
+                                Text("Theme")
+                                    .font(.system(.subheadline, design: .rounded))
+                                    .foregroundColor(.white.opacity(0.8))
 
-                                    Text("Switch between light and dark themes")
-                                        .font(.system(.caption, design: .rounded))
-                                        .foregroundColor(.white.opacity(0.6))
-                                }
+                                // Light and Dark Mode Options
+                                HStack(spacing: 12) {
+                                    ForEach(AppearanceMode.allCases, id: \.self) { mode in
+                                        Button(action: {
+                                            appearanceMode = mode
+                                            UserDefaults.standard.set(mode == .dark, forKey: "darkModeEnabled")
+                                        }) {
+                                            HStack(spacing: 8) {
+                                                Image(systemName: mode == .light ? "sun.max.fill" : "moon.fill")
+                                                    .font(.system(size: 20))
+                                                    .foregroundColor(appearanceMode == mode ? .white : .white.opacity(0.5))
 
-                                Spacer()
-
-                                Toggle("", isOn: $darkModeEnabled)
-                                    .labelsHidden()
-                                    .tint(Color(hex: "667EEA"))
-                                    .onChange(of: darkModeEnabled) { newValue in
-                                        UserDefaults.standard.set(newValue, forKey: "darkModeEnabled")
-                                        // Note: In production, you'd apply color scheme here
-                                        // For now, app uses dark theme by default
+                                                Text(mode.rawValue)
+                                                    .font(.system(.subheadline, design: .rounded))
+                                                    .fontWeight(appearanceMode == mode ? .semibold : .regular)
+                                                    .foregroundColor(appearanceMode == mode ? .white : .white.opacity(0.5))
+                                            }
+                                            .frame(maxWidth: .infinity)
+                                            .padding(.vertical, 12)
+                                            .background(
+                                                RoundedRectangle(cornerRadius: 10)
+                                                    .fill(appearanceMode == mode ? Color(hex: "667EEA") : Color.white.opacity(0.1))
+                                            )
+                                        }
                                     }
+                                }
                             }
                         }
                     }
