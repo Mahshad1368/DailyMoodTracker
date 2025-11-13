@@ -63,6 +63,40 @@ extension Color {
             )
         }
     }
+
+    // MARK: - Light Theme Colors
+    static let lightTheme = LightThemeColors()
+
+    struct LightThemeColors {
+        // Background gradients
+        let bgLight = Color(hex: "F5F0E8")          // Soft cream
+        let bgLighter = Color(hex: "FFFFFF")        // White
+
+        // Text colors
+        let textPrimary = Color(hex: "2A1F20")      // Dark brown
+        let textSecondary = Color(hex: "6B5B5C")    // Medium brown
+
+        // Accent colors
+        let accent = Color(hex: "8B6E9F")           // Purple highlight (same as dark)
+        let accentLight = Color(hex: "A88BB8")      // Lighter purple
+
+        // Card backgrounds
+        let cardBg = Color.white.opacity(0.8)       // Semi-transparent white
+
+        // Create gradient
+        var backgroundGradient: LinearGradient {
+            LinearGradient(
+                colors: [bgLight, bgLighter],
+                startPoint: .top,
+                endPoint: .bottom
+            )
+        }
+    }
+
+    // MARK: - Dynamic Theme (switches based on setting)
+    static func theme(isDark: Bool) -> Any {
+        return isDark ? darkTheme : lightTheme
+    }
 }
 
 // MARK: - View Extension for Glassmorphism Effect

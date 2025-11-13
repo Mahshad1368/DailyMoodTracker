@@ -7,6 +7,7 @@
 
 import SwiftUI
 import UserNotifications
+import PhotosUI
 
 struct SettingsView: View {
     @EnvironmentObject var dataManager: DataManager
@@ -33,6 +34,10 @@ struct SettingsView: View {
         case light = "Light"
         case dark = "Dark"
     }
+
+    // Profile picture
+    @State private var profilePictureData: Data? = UserDefaults.standard.data(forKey: "profilePicture")
+    @State private var selectedPhotoItem: PhotosPickerItem?
 
     // Alerts
     @State private var showingDeleteAlert = false
@@ -66,8 +71,53 @@ struct SettingsView: View {
                     // User Profile Section
                     DarkGlassCard(padding: 20) {
                         VStack(spacing: 20) {
-                            Text("👤")
-                                .font(.system(size: 60))
+                            // Profile Picture
+                            PhotosPicker(selection: $selectedPhotoItem, matching: .images) {
+                                ZStack {
+                                    if let profilePictureData = profilePictureData,
+                                       let uiImage = UIImage(data: profilePictureData) {
+                                        Image(uiImage: uiImage)
+                                            .resizable()
+                                            .scaledToFill()
+                                            .frame(width: 100, height: 100)
+                                            .clipShape(Circle())
+                                            .overlay(
+                                                Circle()
+                                                    .stroke(Color.white.opacity(0.3), lineWidth: 3)
+                                            )
+                                    } else {
+                                        Circle()
+                                            .fill(Color.white.opacity(0.1))
+                                            .frame(width: 100, height: 100)
+                                            .overlay(
+                                                Text("👤")
+                                                    .font(.system(size: 50))
+                                            )
+                                    }
+
+                                    // Camera icon overlay
+                                    VStack {
+                                        Spacer()
+                                        HStack {
+                                            Spacer()
+                                            Image(systemName: "camera.fill")
+                                                .font(.system(size: 16))
+                                                .foregroundColor(.white)
+                                                .padding(8)
+                                                .background(Circle().fill(Color(hex: "667EEA")))
+                                        }
+                                    }
+                                    .frame(width: 100, height: 100)
+                                }
+                            }
+                            .onChange(of: selectedPhotoItem) { newItem in
+                                Task {
+                                    if let data = try? await newItem?.loadTransferable(type: Data.self) {
+                                        profilePictureData = data
+                                        UserDefaults.standard.set(data, forKey: "profilePicture")
+                                    }
+                                }
+                            }
 
                             VStack(spacing: 12) {
                                 Text("Your Name")
