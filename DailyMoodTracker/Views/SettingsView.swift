@@ -407,7 +407,7 @@ struct SettingsView: View {
             Text("This will permanently delete all your mood entries. This action cannot be undone.")
         }
         .sheet(isPresented: $showingExportSheet) {
-            ExportDataView(entries: dataManager.entries)
+            ExportDataView(entries: dataManager.entries, isDark: isDarkMode)
         }
     }
 
@@ -538,12 +538,17 @@ struct SettingsView: View {
 // MARK: - Export Data View
 struct ExportDataView: View {
     let entries: [MoodEntry]
+    let isDark: Bool
     @Environment(\.dismiss) var dismiss
+
+    private var theme: ThemeColors {
+        isDark ? Color.darkTheme : Color.lightTheme
+    }
 
     var body: some View {
         NavigationView {
             ZStack {
-                Color(hex: "1A1A2E")
+                (isDark ? Color.darkTheme.bgDarker : Color.lightTheme.bgLight)
                     .ignoresSafeArea()
 
                 VStack(spacing: 20) {
@@ -569,7 +574,7 @@ struct ExportDataView: View {
                             }
                             .foregroundColor(theme.textPrimary)
                             .padding()
-                            .background((isDarkMode ? Color.white : Color.gray).opacity(0.1))
+                            .background((isDark ? Color.white : Color.gray).opacity(0.1))
                             .cornerRadius(12)
                         }
 
@@ -583,7 +588,7 @@ struct ExportDataView: View {
                             }
                             .foregroundColor(theme.textPrimary)
                             .padding()
-                            .background((isDarkMode ? Color.white : Color.gray).opacity(0.1))
+                            .background((isDark ? Color.white : Color.gray).opacity(0.1))
                             .cornerRadius(12)
                         }
                     }
