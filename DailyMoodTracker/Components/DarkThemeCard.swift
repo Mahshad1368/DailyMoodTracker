@@ -12,10 +12,12 @@ struct DarkThemeCard<Content: View>: View {
     let padding: CGFloat
     let content: Content
     let isDark: Bool
+    let cornerRadius: CGFloat
 
-    init(padding: CGFloat = 20, isDark: Bool = true, @ViewBuilder content: () -> Content) {
+    init(padding: CGFloat = 20, isDark: Bool = true, cornerRadius: CGFloat = 20, @ViewBuilder content: () -> Content) {
         self.padding = padding
         self.isDark = isDark
+        self.cornerRadius = cornerRadius
         self.content = content()
     }
 
@@ -23,10 +25,10 @@ struct DarkThemeCard<Content: View>: View {
         content
             .padding(padding)
             .background(
-                RoundedRectangle(cornerRadius: 20)
+                RoundedRectangle(cornerRadius: cornerRadius)
                     .fill(.ultraThinMaterial.opacity(0.8))
                     .background(
-                        RoundedRectangle(cornerRadius: 20)
+                        RoundedRectangle(cornerRadius: cornerRadius)
                             .fill(isDark ? Color.black.opacity(0.3) : Color.white.opacity(0.5))
                     )
                     .shadow(color: isDark ? .black.opacity(0.3) : .gray.opacity(0.2), radius: 20, x: 0, y: 4)

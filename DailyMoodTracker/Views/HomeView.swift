@@ -107,17 +107,20 @@ struct HomeView: View {
                     .padding(.bottom, 25)
 
                 ScrollView(showsIndicators: false) {
-                    VStack(spacing: 20) {
+                    VStack(spacing: 16) {
 
                         // Main Glass Card (Prominent - Centered)
-                        DarkThemeCard(padding: 28, isDark: isDarkMode) {
+                        DarkThemeCard(padding: 28, isDark: isDarkMode, cornerRadius: 24) {
                             VStack(spacing: 25) {
-                                // Question
+                                // Question - BOLD AND CENTERED
                                 Text("How are you feeling right now?")
-                                    .font(.system(.title3, design: .rounded))
-                                    .fontWeight(.semibold)
+                                    .font(.system(size: 26, design: .rounded))
+                                    .fontWeight(.bold)
                                     .foregroundColor(theme.textPrimary)
                                     .multilineTextAlignment(.center)
+                                    .frame(maxWidth: .infinity)
+                                    .padding(.top, 8)
+                                    .padding(.bottom, 4)
 
                                 // Mood Selection - 5 buttons in a row (flexible)
                                 HStack(spacing: 8) {
@@ -164,9 +167,9 @@ struct HomeView: View {
                                     TextField("Add a note...", text: $note, axis: .vertical)
                                         .textFieldStyle(.plain)
                                         .foregroundColor(theme.textPrimary)
-                                        .padding()
+                                        .padding(16)
                                         .background(
-                                            RoundedRectangle(cornerRadius: 12)
+                                            RoundedRectangle(cornerRadius: 16)
                                                 .fill((isDarkMode ? Color.black : Color.white).opacity(0.2))
                                         )
                                         .lineLimit(3...5)
@@ -222,13 +225,19 @@ struct HomeView: View {
                         }
                         .padding(.horizontal, 20)
 
-                        // Today's Timeline Section (Less prominent)
+                        // Today's Timeline Section - MOVED UP, MORE PROMINENT
                         if !todayEntries.isEmpty {
-                            VStack(alignment: .leading, spacing: 12) {
+                            VStack(alignment: .leading, spacing: 14) {
+                                // Subtle divider
+                                Divider()
+                                    .background(theme.textSecondary.opacity(0.3))
+                                    .padding(.horizontal, 20)
+                                    .padding(.vertical, 4)
+
                                 Text("Today's Timeline")
-                                    .font(.system(.headline, design: .rounded))
-                                    .fontWeight(.medium)
-                                    .foregroundColor(theme.textSecondary)
+                                    .font(.system(size: 22, design: .rounded))
+                                    .fontWeight(.bold)
+                                    .foregroundColor(theme.textPrimary)
                                     .padding(.horizontal, 25)
 
                                 VStack(spacing: 12) {
@@ -242,7 +251,7 @@ struct HomeView: View {
                                     }
                                 }
                             }
-                            .padding(.top, 5)
+                            .padding(.top, 0)
                         }
                     }
                     .padding(.bottom, 30)
@@ -321,7 +330,7 @@ struct HomeView: View {
                 .foregroundColor(selectedPhotoData != nil ? theme.accent : theme.textSecondary)
                 .frame(width: 50, height: 50)
                 .background(
-                    RoundedRectangle(cornerRadius: 12)
+                    RoundedRectangle(cornerRadius: 14)
                         .fill(selectedPhotoData != nil ? theme.accent.opacity(0.2) : (isDarkMode ? Color.black : Color.white).opacity(0.2))
                 )
         }
@@ -335,7 +344,7 @@ struct HomeView: View {
                     .foregroundColor(voiceMicColor)
                     .frame(width: 50, height: 50)
                     .background(
-                        RoundedRectangle(cornerRadius: 12)
+                        RoundedRectangle(cornerRadius: 14)
                             .fill(voiceButtonBackground)
                     )
 
@@ -631,7 +640,7 @@ struct TimelineEntryCard: View {
                 // Mood header
                 HStack(spacing: 10) {
                     Text(entry.mood.emoji)
-                        .font(.system(size: 28))
+                        .font(.system(size: 40))
 
                     Text(entry.mood.name)
                         .font(.system(.body, design: .rounded))
@@ -684,7 +693,7 @@ struct TimelineEntryCard: View {
                     Color.white.opacity(isHighlighted ? 0.15 : 0.08)
                 }
             )
-            .cornerRadius(12)
+            .cornerRadius(20)
             .shadow(
                 color: isHighlighted ? entry.mood.color.opacity(0.4) : Color.black.opacity(0.2),
                 radius: isHighlighted ? 12 : 8,
