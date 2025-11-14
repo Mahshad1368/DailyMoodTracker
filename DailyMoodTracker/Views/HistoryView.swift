@@ -627,12 +627,14 @@ struct MoodHeatmapView: View {
     }
 
     private func heatmapColor(for intensity: Int) -> Color {
+        // Stack Overflow style legend: purple shades from lightest to darkest
         switch intensity {
-        case 0: return (isDark ? Color.white : Color.gray).opacity(0.1)
-        case 1: return theme.accent.opacity(0.3)
-        case 2: return theme.accent.opacity(0.5)
-        case 3: return theme.accent.opacity(0.7)
-        default: return theme.accent
+        case 0: return (isDark ? Color.white : Color.gray).opacity(0.05)
+        case 1: return theme.accent.opacity(0.3)   // Lightest
+        case 2: return theme.accent.opacity(0.5)   // Lighter
+        case 3: return theme.accent.opacity(0.7)   // Light
+        case 4: return theme.accent.opacity(0.85)  // Dark
+        default: return theme.accent               // Darkest
         }
     }
 }
@@ -660,31 +662,23 @@ struct HeatmapDayCell: View {
     private var cellColor: Color {
         let count = entries.count
 
+        // Stack Overflow style: single color (purple) with varying intensity
         guard count > 0 else {
             return (isDark ? Color.white : Color.gray).opacity(0.05)
         }
 
-        // Get the most recent mood for this date
-        guard let recentMood = entries.first?.mood else {
-            return theme.accent.opacity(0.3)
-        }
-
-        // Color intensity based on number of entries
+        // Purple intensity based on number of entries (like Stack Overflow)
         switch count {
         case 1:
-            return recentMood.color.opacity(0.4)
+            return theme.accent.opacity(0.3)  // Lightest
         case 2:
-            return recentMood.color.opacity(0.6)
+            return theme.accent.opacity(0.5)  // Lighter
         case 3:
-            return recentMood.color.opacity(0.8)
+            return theme.accent.opacity(0.7)  // Light
+        case 4:
+            return theme.accent.opacity(0.85) // Dark
         default:
-            // Multiple entries - show dominant mood color
-            let moodCounts = Dictionary(grouping: entries, by: { $0.mood })
-            if let dominantMood = moodCounts.max(by: { $0.value.count < $1.value.count })?.key {
-                return dominantMood.color
-            } else {
-                return recentMood.color
-            }
+            return theme.accent               // Darkest (full opacity)
         }
     }
 }
