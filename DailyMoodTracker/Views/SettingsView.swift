@@ -77,50 +77,72 @@ struct SettingsView: View {
                     DarkThemeCard(padding: 20, isDark: isDarkMode) {
                         VStack(spacing: 20) {
                             // Profile Picture
-                            PhotosPicker(selection: $selectedPhotoItem, matching: .images) {
-                                ZStack {
-                                    if let profilePictureData = profilePictureData,
-                                       let uiImage = UIImage(data: profilePictureData) {
-                                        Image(uiImage: uiImage)
-                                            .resizable()
-                                            .scaledToFill()
-                                            .frame(width: 100, height: 100)
-                                            .clipShape(Circle())
-                                            .overlay(
-                                                Circle()
-                                                    .stroke((isDarkMode ? Color.white : Color.gray).opacity(0.3), lineWidth: 3)
-                                            )
-                                    } else {
-                                        Circle()
-                                            .fill((isDarkMode ? Color.white : Color.gray).opacity(0.1))
-                                            .frame(width: 100, height: 100)
-                                            .overlay(
-                                                Text("👤")
-                                                    .font(.system(size: 50))
-                                            )
-                                    }
+                            ZStack(alignment: .topTrailing) {
+                                PhotosPicker(selection: $selectedPhotoItem, matching: .images) {
+                                    ZStack {
+                                        if let profilePictureData = profilePictureData,
+                                           let uiImage = UIImage(data: profilePictureData) {
+                                            Image(uiImage: uiImage)
+                                                .resizable()
+                                                .scaledToFill()
+                                                .frame(width: 100, height: 100)
+                                                .clipShape(Circle())
+                                                .overlay(
+                                                    Circle()
+                                                        .stroke((isDarkMode ? Color.white : Color.gray).opacity(0.3), lineWidth: 3)
+                                                )
+                                        } else {
+                                            Circle()
+                                                .fill((isDarkMode ? Color.white : Color.gray).opacity(0.1))
+                                                .frame(width: 100, height: 100)
+                                                .overlay(
+                                                    Text("👤")
+                                                        .font(.system(size: 50))
+                                                )
+                                        }
 
-                                    // Camera icon overlay
-                                    VStack {
-                                        Spacer()
-                                        HStack {
+                                        // Camera icon overlay
+                                        VStack {
                                             Spacer()
-                                            Image(systemName: "camera.fill")
-                                                .font(.system(size: 16))
-                                                .foregroundColor(theme.textPrimary)
-                                                .padding(8)
-                                                .background(Circle().fill(Color(hex: "667EEA")))
+                                            HStack {
+                                                Spacer()
+                                                Image(systemName: "camera.fill")
+                                                    .font(.system(size: 16))
+                                                    .foregroundColor(theme.textPrimary)
+                                                    .padding(8)
+                                                    .background(Circle().fill(Color(hex: "667EEA")))
+                                            }
+                                        }
+                                        .frame(width: 100, height: 100)
+                                    }
+                                }
+                                .onChange(of: selectedPhotoItem) { newItem in
+                                    Task {
+                                        if let data = try? await newItem?.loadTransferable(type: Data.self) {
+                                            profilePictureData = data
+                                            UserDefaults.standard.set(data, forKey: "profilePicture")
                                         }
                                     }
-                                    .frame(width: 100, height: 100)
                                 }
-                            }
-                            .onChange(of: selectedPhotoItem) { newItem in
-                                Task {
-                                    if let data = try? await newItem?.loadTransferable(type: Data.self) {
-                                        profilePictureData = data
-                                        UserDefaults.standard.set(data, forKey: "profilePicture")
+
+                                // Delete button - only show when profile photo exists
+                                if profilePictureData != nil {
+                                    Button(action: {
+                                        // Remove profile photo
+                                        profilePictureData = nil
+                                        UserDefaults.standard.removeObject(forKey: "profilePicture")
+                                        selectedPhotoItem = nil
+                                    }) {
+                                        Image(systemName: "xmark.circle.fill")
+                                            .font(.system(size: 28))
+                                            .foregroundColor(.red)
+                                            .background(
+                                                Circle()
+                                                    .fill(Color.white)
+                                                    .frame(width: 20, height: 20)
+                                            )
                                     }
+                                    .offset(x: 8, y: -8)
                                 }
                             }
 

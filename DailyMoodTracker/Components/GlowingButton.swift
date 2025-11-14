@@ -79,22 +79,31 @@ struct EnhancedMoodButton: View {
             generator.impactOccurred()
             action()
         }) {
-            VStack(spacing: 8) {
-                Text(mood.emoji)
-                    .font(.system(size: 60))
-                    .scaleEffect(isSelected ? 1.2 : 1.0)
-                    .shadow(
-                        color: isSelected ? mood.color.opacity(0.5) : .clear,
-                        radius: isPulsing && isSelected ? 15 : 5,
-                        x: 0,
-                        y: 0
-                    )
+            GeometryReader { geometry in
+                VStack(spacing: 6) {
+                    Text(mood.emoji)
+                        .font(.system(size: min(geometry.size.width * 0.8, 60)))
+                        .minimumScaleFactor(0.5)
+                        .lineLimit(1)
+                        .scaleEffect(isSelected ? 1.15 : 1.0)
+                        .shadow(
+                            color: isSelected ? mood.color.opacity(0.5) : .clear,
+                            radius: isPulsing && isSelected ? 15 : 5,
+                            x: 0,
+                            y: 0
+                        )
+                        .frame(maxWidth: .infinity)
 
-                Text(mood.name)
-                    .font(.system(.caption, design: .rounded))
-                    .fontWeight(isSelected ? .semibold : .regular)
-                    .foregroundColor(isSelected ? mood.color : .primary)
+                    Text(mood.name)
+                        .font(.system(.caption2, design: .rounded))
+                        .fontWeight(isSelected ? .semibold : .regular)
+                        .foregroundColor(isSelected ? mood.color : .primary)
+                        .minimumScaleFactor(0.7)
+                        .lineLimit(1)
+                }
+                .frame(width: geometry.size.width, height: geometry.size.height)
             }
+            .aspectRatio(0.85, contentMode: .fit)
         }
         .buttonStyle(.plain)
         .animation(.spring(response: 0.3, dampingFraction: 0.6), value: isSelected)

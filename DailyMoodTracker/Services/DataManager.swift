@@ -171,9 +171,6 @@ class DataManager: ObservableObject {
         if let audioData = audioData {
             print("🎤 Entry includes audio (\(audioData.count) bytes, \(audioDuration ?? 0)s)")
         }
-
-        // Update app icon based on dominant mood
-        IconManager.shared.updateIconForDominantMood(entries: entries)
     }
 
     /// Get all entries for today
@@ -201,9 +198,6 @@ class DataManager: ObservableObject {
         saveEntries()
 
         print("🗑️ Deleted entry: \(entry.mood.name)")
-
-        // Update app icon based on remaining moods
-        IconManager.shared.updateIconForDominantMood(entries: entries)
     }
 }
 

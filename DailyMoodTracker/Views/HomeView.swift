@@ -61,49 +61,13 @@ struct HomeView: View {
                 DarkThemeBackground(isDark: isDarkMode)
 
                 VStack(spacing: 0) {
-                    // Top Navigation Bar - Settings only
-                    HStack {
-                        Spacer()
-
-                        // Settings Icon
-                        NavigationLink(destination: SettingsView()) {
-                            Image(systemName: "gearshape.fill")
-                                .font(.system(size: 28))
-                                .foregroundColor(theme.textPrimary.opacity(0.9))
-                        }
-                    }
-                    .padding(.horizontal, 25)
-                    .padding(.top, 10)
-                    .padding(.bottom, 20)
-
-                ScrollView(showsIndicators: false) {
-                    VStack(spacing: 25) {
-                        // Personalized Greeting with Profile Picture
-                        VStack(spacing: 12) {
-                            // Profile Picture (if available)
-                            if let profilePictureData = profilePictureData,
-                               let uiImage = UIImage(data: profilePictureData) {
-                                Image(uiImage: uiImage)
-                                    .resizable()
-                                    .scaledToFill()
-                                    .frame(width: 80, height: 80)
-                                    .clipShape(Circle())
-                                    .overlay(
-                                        Circle()
-                                            .stroke(theme.accent.opacity(0.5), lineWidth: 3)
-                                    )
-                                    .shadow(color: theme.accent.opacity(0.3), radius: 8, x: 0, y: 4)
-                            }
-
-                            // Greeting
-                            Text(currentDate.greeting)
+                    // Top Navigation Bar - Greeting + Smart Icon
+                    HStack(alignment: .top, spacing: 16) {
+                        // Personalized Greeting - Left side
+                        VStack(alignment: .leading, spacing: 4) {
+                            // Greeting with name
+                            Text("\(currentDate.greeting), \(userName)!")
                                 .font(.system(.title2, design: .rounded))
-                                .fontWeight(.semibold)
-                                .foregroundColor(theme.textSecondary)
-
-                            // User Name
-                            Text(userName)
-                                .font(.system(.largeTitle, design: .rounded))
                                 .fontWeight(.bold)
                                 .foregroundColor(theme.textPrimary)
 
@@ -112,11 +76,41 @@ struct HomeView: View {
                                 .font(.system(.subheadline, design: .rounded))
                                 .foregroundColor(theme.textSecondary)
                         }
-                        .padding(.top, 10)
-                        .padding(.bottom, 10)
 
-                        // Main Glass Card
-                        DarkThemeCard(padding: 25, isDark: isDarkMode) {
+                        Spacer()
+
+                        // Smart Icon: Settings gear OR Profile photo (top-right)
+                        NavigationLink(destination: SettingsView()) {
+                            if let profilePictureData = profilePictureData,
+                               let uiImage = UIImage(data: profilePictureData) {
+                                // User has profile photo - show it
+                                Image(uiImage: uiImage)
+                                    .resizable()
+                                    .scaledToFill()
+                                    .frame(width: 40, height: 40)
+                                    .clipShape(Circle())
+                                    .overlay(
+                                        Circle()
+                                            .stroke(theme.accent.opacity(0.5), lineWidth: 2)
+                                    )
+                                    .shadow(color: theme.accent.opacity(0.3), radius: 4, x: 0, y: 2)
+                            } else {
+                                // No profile photo - show settings gear
+                                Image(systemName: "gearshape.fill")
+                                    .font(.system(size: 24))
+                                    .foregroundColor(theme.textPrimary.opacity(0.9))
+                            }
+                        }
+                    }
+                    .padding(.horizontal, 25)
+                    .padding(.top, 15)
+                    .padding(.bottom, 25)
+
+                ScrollView(showsIndicators: false) {
+                    VStack(spacing: 20) {
+
+                        // Main Glass Card (Prominent - Centered)
+                        DarkThemeCard(padding: 28, isDark: isDarkMode) {
                             VStack(spacing: 25) {
                                 // Question
                                 Text("How are you feeling right now?")
@@ -125,8 +119,8 @@ struct HomeView: View {
                                     .foregroundColor(theme.textPrimary)
                                     .multilineTextAlignment(.center)
 
-                                // Mood Selection - 5 buttons in a row
-                                HStack(spacing: 10) {
+                                // Mood Selection - 5 buttons in a row (flexible)
+                                HStack(spacing: 8) {
                                     EnhancedMoodButton(
                                         mood: .happy,
                                         isSelected: selectedMood == .happy
@@ -163,6 +157,7 @@ struct HomeView: View {
                                     }
                                 }
                                 .frame(maxWidth: .infinity)
+                                .frame(height: 95)
 
                                 // Note Input Field
                                 VStack(spacing: 12) {
@@ -227,13 +222,13 @@ struct HomeView: View {
                         }
                         .padding(.horizontal, 20)
 
-                        // Today's Timeline Section
+                        // Today's Timeline Section (Less prominent)
                         if !todayEntries.isEmpty {
-                            VStack(alignment: .leading, spacing: 15) {
+                            VStack(alignment: .leading, spacing: 12) {
                                 Text("Today's Timeline")
-                                    .font(.system(.title2, design: .rounded))
-                                    .fontWeight(.bold)
-                                    .foregroundColor(theme.textPrimary)
+                                    .font(.system(.headline, design: .rounded))
+                                    .fontWeight(.medium)
+                                    .foregroundColor(theme.textSecondary)
                                     .padding(.horizontal, 25)
 
                                 VStack(spacing: 12) {
@@ -247,7 +242,7 @@ struct HomeView: View {
                                     }
                                 }
                             }
-                            .padding(.top, 10)
+                            .padding(.top, 5)
                         }
                     }
                     .padding(.bottom, 30)
@@ -321,41 +316,50 @@ struct HomeView: View {
         Button(action: {
             showingPhotoOptions = true
         }) {
-            HStack(spacing: 8) {
-                Image(systemName: selectedPhotoData != nil ? "photo.fill" : "photo")
-                    .font(.system(size: 20))
-                    .foregroundColor(selectedPhotoData != nil ? theme.accent : theme.textSecondary)
-
-                Text(selectedPhotoData != nil ? "Photo Added" : "Add Photo")
-                    .font(.system(.caption, design: .rounded))
-                    .foregroundColor(selectedPhotoData != nil ? theme.accent : theme.textSecondary)
-            }
-            .padding(.horizontal, 16)
-            .padding(.vertical, 10)
-            .background(
-                RoundedRectangle(cornerRadius: 10)
-                    .fill(selectedPhotoData != nil ? theme.accent.opacity(0.2) : (isDarkMode ? Color.black : Color.white).opacity(0.2))
-            )
+            Image(systemName: selectedPhotoData != nil ? "camera.fill" : "camera")
+                .font(.system(size: 22))
+                .foregroundColor(selectedPhotoData != nil ? theme.accent : theme.textSecondary)
+                .frame(width: 50, height: 50)
+                .background(
+                    RoundedRectangle(cornerRadius: 12)
+                        .fill(selectedPhotoData != nil ? theme.accent.opacity(0.2) : (isDarkMode ? Color.black : Color.white).opacity(0.2))
+                )
         }
     }
 
     private var voiceRecordingButton: some View {
         Button(action: toggleRecording) {
-            HStack(spacing: 8) {
+            ZStack {
                 Image(systemName: voiceMicIcon)
-                    .font(.system(size: 20))
+                    .font(.system(size: 22))
                     .foregroundColor(voiceMicColor)
+                    .frame(width: 50, height: 50)
+                    .background(
+                        RoundedRectangle(cornerRadius: 12)
+                            .fill(voiceButtonBackground)
+                    )
 
-                Text(voiceButtonText)
-                    .font(.system(.caption, design: .rounded).monospacedDigit())
-                    .foregroundColor(voiceTextColor)
+                // Show recording duration as overlay badge when recording
+                if isRecording {
+                    VStack {
+                        Spacer()
+                        HStack {
+                            Spacer()
+                            Text(formatDuration(audioDuration))
+                                .font(.system(size: 9, design: .rounded).monospacedDigit())
+                                .foregroundColor(.white)
+                                .padding(.horizontal, 4)
+                                .padding(.vertical, 2)
+                                .background(
+                                    Capsule()
+                                        .fill(Color.red)
+                                )
+                                .offset(x: 8, y: 8)
+                        }
+                    }
+                    .frame(width: 50, height: 50)
+                }
             }
-            .padding(.horizontal, 16)
-            .padding(.vertical, 10)
-            .background(
-                RoundedRectangle(cornerRadius: 10)
-                    .fill(voiceButtonBackground)
-            )
         }
     }
 

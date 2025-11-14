@@ -13,7 +13,6 @@
 		A1000005000000000000001 /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000005000000000000001 /* HomeView.swift */; };
 		A1000006000000000000001 /* HistoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000006000000000000001 /* HistoryView.swift */; };
 		A1000007000000000000001 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A2000007000000000000001 /* Assets.xcassets */; };
-		A1000008000000000000001 /* IconManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000008000000000000001 /* IconManager.swift */; };
 		A1000010000000000000001 /* AppIcon-Happy@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = A2000010000000000000001 /* AppIcon-Happy@2x.png */; };
 		A1000011000000000000001 /* AppIcon-Happy@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = A2000011000000000000001 /* AppIcon-Happy@3x.png */; };
 		A1000012000000000000001 /* AppIcon-Neutral@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = A2000012000000000000001 /* AppIcon-Neutral@2x.png */; };
@@ -78,7 +77,6 @@
 		A2000005000000000000001 /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
 		A2000006000000000000001 /* HistoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryView.swift; sourceTree = "<group>"; };
 		A2000007000000000000001 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-		A2000008000000000000001 /* IconManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IconManager.swift; sourceTree = "<group>"; };
 		A2000009000000000000001 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		A2000010000000000000001 /* AppIcon-Happy@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "AppIcon-Happy@2x.png"; sourceTree = "<group>"; };
 		A2000011000000000000001 /* AppIcon-Happy@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "AppIcon-Happy@3x.png"; sourceTree = "<group>"; };
@@ -203,7 +201,6 @@
 			isa = PBXGroup;
 			children = (
 				A2000004000000000000001 /* DataManager.swift */,
-				A2000008000000000000001 /* IconManager.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -373,7 +370,6 @@
 				A1000004000000000000001 /* DataManager.swift in Sources */,
 				A1000005000000000000001 /* HomeView.swift in Sources */,
 				A1000006000000000000001 /* HistoryView.swift in Sources */,
-				A1000008000000000000001 /* IconManager.swift in Sources */,
 				A1000020000000000000001 /* Extensions.swift in Sources */,
 				A1CAMERAVIEW0000001 /* CameraView.swift in Sources */,
 				A1PHOTOPICKER000001 /* PhotoPickerView.swift in Sources */,
