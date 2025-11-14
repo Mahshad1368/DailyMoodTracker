@@ -39,17 +39,17 @@ extension Color {
     static let darkTheme = DarkThemeColors()
 
     struct DarkThemeColors {
-        // Background gradients
-        let bgDark = Color(hex: "3D2C2E")           // Dark brown
-        let bgDarker = Color(hex: "2A1F20")         // Darker brown
+        // Background gradients - using darker palette colors
+        let bgDark = Color(hex: "595f78")           // Dark purple-grey
+        let bgDarker = Color(hex: "2f4858")         // Very dark blue-grey
 
-        // Text colors
-        let textPrimary = Color(hex: "F5E6D3")      // Cream/beige
-        let textSecondary = Color(hex: "D4B5A0")    // Light brown
+        // Text colors - using lighter palette colors
+        let textPrimary = Color(hex: "fdd1b6")      // Light peachy cream
+        let textSecondary = Color(hex: "e1adab")    // Soft pink/rose
 
-        // Accent colors
-        let accent = Color(hex: "8B6E9F")           // Purple highlight
-        let accentLight = Color(hex: "A88BB8")      // Lighter purple
+        // Accent colors - using mid-tone palette colors
+        let accent = Color(hex: "897691")           // Mauve purple (MAIN ACCENT)
+        let accentLight = Color(hex: "b98fa0")      // Lighter mauve/dusty rose
 
         // Card backgrounds
         let cardBg = Color.black.opacity(0.3)       // Semi-transparent dark
@@ -68,17 +68,17 @@ extension Color {
     static let lightTheme = LightThemeColors()
 
     struct LightThemeColors {
-        // Background gradients
-        let bgLight = Color(hex: "F5F0E8")          // Soft cream
+        // Background gradients - using lighter palette colors
+        let bgLight = Color(hex: "fdd1b6")          // Light peachy cream
         let bgLighter = Color(hex: "FFFFFF")        // White
 
-        // Text colors
-        let textPrimary = Color(hex: "2A1F20")      // Dark brown
-        let textSecondary = Color(hex: "6B5B5C")    // Medium brown
+        // Text colors - using darker palette colors
+        let textPrimary = Color(hex: "2f4858")      // Very dark blue-grey
+        let textSecondary = Color(hex: "595f78")    // Dark purple-grey
 
-        // Accent colors
-        let accent = Color(hex: "8B6E9F")           // Purple highlight (same as dark)
-        let accentLight = Color(hex: "A88BB8")      // Lighter purple
+        // Accent colors - same as dark mode for consistency
+        let accent = Color(hex: "897691")           // Mauve purple (MAIN ACCENT)
+        let accentLight = Color(hex: "b98fa0")      // Lighter mauve/dusty rose
 
         // Card backgrounds
         let cardBg = Color.white.opacity(0.8)       // Semi-transparent white
