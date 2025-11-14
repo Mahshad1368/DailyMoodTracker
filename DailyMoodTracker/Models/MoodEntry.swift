@@ -2,7 +2,7 @@
 //  MoodEntry.swift
 //  DailyMoodTracker
 //
-//  Represents a single mood entry with date, mood type, and optional note
+//  Represents a single mood entry with date, mood type, optional note, photo, and voice recording
 //
 
 import Foundation
@@ -12,12 +12,18 @@ struct MoodEntry: Identifiable, Codable {
     let date: Date
     let mood: MoodType
     let note: String
+    let photoData: Data?  // Store image as Data
+    let audioData: Data?  // Store audio as Data
+    let audioDuration: TimeInterval?  // Duration in seconds
 
-    init(id: UUID = UUID(), date: Date = Date(), mood: MoodType, note: String = "") {
+    init(id: UUID = UUID(), date: Date = Date(), mood: MoodType, note: String = "", photoData: Data? = nil, audioData: Data? = nil, audioDuration: TimeInterval? = nil) {
         self.id = id
         self.date = date
         self.mood = mood
         self.note = note
+        self.photoData = photoData
+        self.audioData = audioData
+        self.audioDuration = audioDuration
     }
 
     /// Returns the date formatted as a string (e.g., "Jan 15, 2025")
@@ -47,5 +53,10 @@ struct MoodEntry: Identifiable, Codable {
     /// Returns just the date portion (without time) for comparison
     var dateOnly: Date {
         Calendar.current.startOfDay(for: date)
+    }
+
+    /// Check if entry has attachments
+    var hasAttachments: Bool {
+        photoData != nil || audioData != nil
     }
 }
