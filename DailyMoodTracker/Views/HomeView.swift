@@ -18,6 +18,9 @@ struct HomeView: View {
     @State private var justSaved = false
     @FocusState private var isNoteFieldFocused: Bool
 
+    // Profile picture
+    @State private var profilePictureData: Data? = UserDefaults.standard.data(forKey: "profilePicture")
+
     // Photo picker - Action sheet with camera OR gallery
     @State private var showingPhotoOptions = false
     @State private var showingCamera = false
@@ -75,13 +78,36 @@ struct HomeView: View {
 
                 ScrollView(showsIndicators: false) {
                     VStack(spacing: 25) {
-                        // Personalized Greeting
-                        VStack(spacing: 6) {
-                            Text("\(currentDate.greeting), \(userName)!")
-                                .font(.system(.title, design: .rounded))
+                        // Personalized Greeting with Profile Picture
+                        VStack(spacing: 12) {
+                            // Profile Picture (if available)
+                            if let profilePictureData = profilePictureData,
+                               let uiImage = UIImage(data: profilePictureData) {
+                                Image(uiImage: uiImage)
+                                    .resizable()
+                                    .scaledToFill()
+                                    .frame(width: 80, height: 80)
+                                    .clipShape(Circle())
+                                    .overlay(
+                                        Circle()
+                                            .stroke(theme.accent.opacity(0.5), lineWidth: 3)
+                                    )
+                                    .shadow(color: theme.accent.opacity(0.3), radius: 8, x: 0, y: 4)
+                            }
+
+                            // Greeting
+                            Text(currentDate.greeting)
+                                .font(.system(.title2, design: .rounded))
+                                .fontWeight(.semibold)
+                                .foregroundColor(theme.textSecondary)
+
+                            // User Name
+                            Text(userName)
+                                .font(.system(.largeTitle, design: .rounded))
                                 .fontWeight(.bold)
                                 .foregroundColor(theme.textPrimary)
 
+                            // Date
                             Text(currentDate.friendlyDateString)
                                 .font(.system(.subheadline, design: .rounded))
                                 .foregroundColor(theme.textSecondary)
@@ -276,6 +302,8 @@ struct HomeView: View {
                 // Update current date when view appears
                 currentDate = Date()
                 setupAudioSession()
+                // Refresh profile picture in case it was updated in Settings
+                profilePictureData = UserDefaults.standard.data(forKey: "profilePicture")
             }
         }
     }
