@@ -6,19 +6,41 @@
 //
 
 import SwiftUI
+import UserNotifications
 
 @main
 struct DailyMoodTrackerApp: App {
     @StateObject private var dataManager = DataManager()
     @State private var hasCompletedOnboarding = UserDefaults.standard.bool(forKey: "hasCompletedOnboarding")
+    @Environment(\.scenePhase) private var scenePhase
 
     var body: some Scene {
         WindowGroup {
             if hasCompletedOnboarding {
                 MainTabView()
                     .environmentObject(dataManager)
+                    .onAppear {
+                        // Clear badge when app opens
+                        clearNotificationBadge()
+                    }
             } else {
                 OnboardingView(hasCompletedOnboarding: $hasCompletedOnboarding)
+            }
+        }
+        .onChange(of: scenePhase) { newPhase in
+            if newPhase == .active {
+                // Clear badge when app becomes active (opened from notification or foreground)
+                clearNotificationBadge()
+            }
+        }
+    }
+
+    private func clearNotificationBadge() {
+        UNUserNotificationCenter.current().setBadgeCount(0) { error in
+            if let error = error {
+                print("❌ Error clearing badge: \(error.localizedDescription)")
+            } else {
+                print("✅ Notification badge cleared")
             }
         }
     }
