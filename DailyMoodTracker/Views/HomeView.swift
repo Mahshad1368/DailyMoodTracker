@@ -212,6 +212,47 @@ struct HomeView: View {
                                                 .fill((isDarkMode ? Color.black : Color.white).opacity(0.2))
                                         )
                                     }
+
+                                    // Voice Recording Preview (if voice recorded)
+                                    if let audioData = recordedAudioData {
+                                        HStack(spacing: 12) {
+                                            Image(systemName: "mic.fill")
+                                                .font(.system(size: 32))
+                                                .foregroundColor(theme.accent)
+                                                .frame(width: 80, height: 80)
+                                                .background(
+                                                    RoundedRectangle(cornerRadius: 12)
+                                                        .fill(theme.accent.opacity(0.2))
+                                                )
+
+                                            VStack(alignment: .leading, spacing: 4) {
+                                                Text("Voice recorded")
+                                                    .font(.system(.subheadline, design: .rounded))
+                                                    .fontWeight(.medium)
+                                                    .foregroundColor(theme.textPrimary)
+
+                                                Text("\(formatDuration(audioDuration))")
+                                                    .font(.system(.caption, design: .rounded))
+                                                    .foregroundColor(theme.textSecondary)
+                                            }
+
+                                            Spacer()
+
+                                            Button(action: {
+                                                recordedAudioData = nil
+                                                audioDuration = 0
+                                            }) {
+                                                Image(systemName: "xmark.circle.fill")
+                                                    .font(.system(size: 24))
+                                                    .foregroundColor(theme.textSecondary)
+                                            }
+                                        }
+                                        .padding(12)
+                                        .background(
+                                            RoundedRectangle(cornerRadius: 12)
+                                                .fill((isDarkMode ? Color.black : Color.white).opacity(0.2))
+                                        )
+                                    }
                                 }
 
                                 // Save Mood Button
