@@ -44,6 +44,9 @@ struct HomeView: View {
     @State private var emojiOpacity: Double = 0
     @State private var newEntryID: UUID?
 
+    // Selected entry for detail view
+    @State private var selectedEntry: MoodEntry?
+
     // Computed property for today's entries
     private var todayEntries: [MoodEntry] {
         dataManager.getEntriesToday()
@@ -248,6 +251,9 @@ struct HomeView: View {
                                             isDark: isDarkMode
                                         )
                                         .padding(.horizontal, 20)
+                                        .onTapGesture {
+                                            selectedEntry = entry
+                                        }
                                     }
                                 }
                             }
@@ -279,6 +285,20 @@ struct HomeView: View {
                         isNoteFieldFocused = false
                     }
                 }
+            }
+            .sheet(item: $selectedEntry) { entry in
+                // Show entry detail sheet (same as calendar day view)
+                EntryDetailSheet(
+                    entry: entry,
+                    isDark: isDarkMode,
+                    onDelete: {
+                        dataManager.deleteEntry(entry)
+                        selectedEntry = nil
+                    }
+                )
+                .environmentObject(dataManager)
+                .presentationDetents([.medium, .large])
+                .presentationDragIndicator(.visible)
             }
             .toast(
                 isShowing: $showingToast,
@@ -721,6 +741,245 @@ struct TimelineEntryCard: View {
                 }
             }
         }
+    }
+}
+
+// MARK: - Entry Detail Sheet
+struct EntryDetailSheet: View {
+    let entry: MoodEntry
+    let isDark: Bool
+    let onDelete: () -> Void
+
+    @Environment(\.dismiss) var dismiss
+    @State private var showingDeleteAlert = false
+    @State private var audioPlayer: AVAudioPlayer?
+    @State private var isPlayingAudio = false
+    @State private var showingPhoto = false
+
+    private var theme: ThemeColors {
+        isDark ? Color.darkTheme : Color.lightTheme
+    }
+
+    var body: some View {
+        ZStack {
+            // Background
+            (isDark ? Color.darkTheme.bgDarker : Color.lightTheme.bgLight)
+                .ignoresSafeArea()
+
+            VStack(alignment: .leading, spacing: 0) {
+                // Header
+                HStack {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text(formattedDate)
+                            .font(.system(.title2, design: .rounded))
+                            .fontWeight(.bold)
+                            .foregroundColor(theme.textPrimary)
+
+                        Text(formattedTime)
+                            .font(.system(.subheadline, design: .rounded))
+                            .foregroundColor(theme.textSecondary)
+                    }
+
+                    Spacer()
+
+                    Button(action: { dismiss() }) {
+                        Image(systemName: "xmark.circle.fill")
+                            .font(.title2)
+                            .foregroundColor(theme.textSecondary)
+                    }
+                }
+                .padding(.horizontal, 25)
+                .padding(.top, 25)
+                .padding(.bottom, 20)
+
+                ScrollView {
+                    VStack(spacing: 20) {
+                        // Mood card
+                        HStack(spacing: 15) {
+                            Text(entry.mood.emoji)
+                                .font(.system(size: 60))
+
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text(entry.mood.name)
+                                    .font(.system(.title, design: .rounded))
+                                    .fontWeight(.bold)
+                                    .foregroundColor(theme.textPrimary)
+                            }
+
+                            Spacer()
+                        }
+                        .padding(20)
+                        .background(
+                            RoundedRectangle(cornerRadius: 20)
+                                .fill(entry.mood.color.opacity(0.15))
+                        )
+
+                        // Note
+                        if !entry.note.isEmpty {
+                            VStack(alignment: .leading, spacing: 10) {
+                                Text("Note")
+                                    .font(.system(.caption, design: .rounded))
+                                    .fontWeight(.semibold)
+                                    .foregroundColor(theme.textSecondary)
+                                    .textCase(.uppercase)
+
+                                Text(entry.note)
+                                    .font(.system(.body, design: .rounded))
+                                    .foregroundColor(theme.textPrimary)
+                            }
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .padding(20)
+                            .background(
+                                RoundedRectangle(cornerRadius: 20)
+                                    .fill((isDark ? Color.white : Color.black).opacity(0.05))
+                            )
+                        }
+
+                        // Photo
+                        if let photoData = entry.photoData, let uiImage = UIImage(data: photoData) {
+                            VStack(alignment: .leading, spacing: 10) {
+                                Text("Photo")
+                                    .font(.system(.caption, design: .rounded))
+                                    .fontWeight(.semibold)
+                                    .foregroundColor(theme.textSecondary)
+                                    .textCase(.uppercase)
+
+                                Button(action: { showingPhoto = true }) {
+                                    Image(uiImage: uiImage)
+                                        .resizable()
+                                        .scaledToFill()
+                                        .frame(height: 200)
+                                        .clipShape(RoundedRectangle(cornerRadius: 16))
+                                }
+                            }
+                        }
+
+                        // Voice recording
+                        if entry.audioData != nil {
+                            Button(action: toggleAudio) {
+                                HStack(spacing: 12) {
+                                    Image(systemName: isPlayingAudio ? "pause.circle.fill" : "play.circle.fill")
+                                        .font(.system(size: 32))
+                                        .foregroundColor(theme.accent)
+
+                                    VStack(alignment: .leading, spacing: 4) {
+                                        Text("Voice Recording")
+                                            .font(.system(.body, design: .rounded))
+                                            .fontWeight(.semibold)
+                                            .foregroundColor(theme.textPrimary)
+
+                                        if let duration = entry.audioDuration {
+                                            Text(formatDuration(duration))
+                                                .font(.system(.caption, design: .rounded))
+                                                .foregroundColor(theme.textSecondary)
+                                        }
+                                    }
+
+                                    Spacer()
+                                }
+                                .padding(16)
+                                .background(
+                                    RoundedRectangle(cornerRadius: 16)
+                                        .fill(theme.accent.opacity(0.1))
+                                )
+                            }
+                        }
+
+                        // Delete button
+                        Button(action: { showingDeleteAlert = true }) {
+                            HStack {
+                                Image(systemName: "trash")
+                                Text("Delete Entry")
+                            }
+                            .font(.system(.body, design: .rounded))
+                            .fontWeight(.semibold)
+                            .foregroundColor(.red)
+                            .frame(maxWidth: .infinity)
+                            .padding()
+                            .background(
+                                RoundedRectangle(cornerRadius: 16)
+                                    .fill(Color.red.opacity(0.1))
+                            )
+                        }
+                    }
+                    .padding(.horizontal, 25)
+                    .padding(.bottom, 30)
+                }
+            }
+        }
+        .sheet(isPresented: $showingPhoto) {
+            if let photoData = entry.photoData, let uiImage = UIImage(data: photoData) {
+                ZStack {
+                    Color.black.ignoresSafeArea()
+
+                    VStack {
+                        HStack {
+                            Spacer()
+                            Button(action: { showingPhoto = false }) {
+                                Image(systemName: "xmark.circle.fill")
+                                    .font(.title)
+                                    .foregroundColor(.white)
+                            }
+                            .padding()
+                        }
+
+                        Image(uiImage: uiImage)
+                            .resizable()
+                            .scaledToFit()
+
+                        Spacer()
+                    }
+                }
+            }
+        }
+        .alert("Delete Entry", isPresented: $showingDeleteAlert) {
+            Button("Cancel", role: .cancel) {}
+            Button("Delete", role: .destructive) {
+                onDelete()
+            }
+        } message: {
+            Text("Are you sure you want to delete this mood entry?")
+        }
+    }
+
+    private var formattedDate: String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "EEEE, MMMM d, yyyy"
+        return formatter.string(from: entry.date)
+    }
+
+    private var formattedTime: String {
+        let formatter = DateFormatter()
+        formatter.timeStyle = .short
+        return formatter.string(from: entry.date)
+    }
+
+    private func toggleAudio() {
+        guard let audioData = entry.audioData else { return }
+
+        if isPlayingAudio {
+            audioPlayer?.stop()
+            audioPlayer = nil
+            isPlayingAudio = false
+        } else {
+            do {
+                audioPlayer = try AVAudioPlayer(data: audioData)
+                audioPlayer?.play()
+                isPlayingAudio = true
+
+                DispatchQueue.main.asyncAfter(deadline: .now() + (entry.audioDuration ?? 0)) {
+                    isPlayingAudio = false
+                }
+            } catch {
+                print("Error playing audio: \(error)")
+            }
+        }
+    }
+
+    private func formatDuration(_ duration: TimeInterval) -> String {
+        let minutes = Int(duration) / 60
+        let seconds = Int(duration) % 60
+        return String(format: "%d:%02d", minutes, seconds)
     }
 }
 
