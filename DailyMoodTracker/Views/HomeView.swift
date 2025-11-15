@@ -676,20 +676,20 @@ struct TimelineEntryCard: View {
                         .font(.system(.subheadline, design: .rounded))
                         .foregroundColor(theme.textSecondary)
                         .lineSpacing(3)
+                        .lineLimit(2)
                 }
 
-                // Attachments indicator
-                HStack(spacing: 12) {
-                    if entry.photoData != nil {
-                        HStack(spacing: 4) {
-                            Image(systemName: "photo.fill")
-                                .font(.system(size: 12))
-                            Text("Photo")
-                                .font(.system(.caption2, design: .rounded))
-                        }
-                        .foregroundColor(theme.accent)
-                    }
+                // Photo thumbnail (if available)
+                if let photoData = entry.photoData, let uiImage = UIImage(data: photoData) {
+                    Image(uiImage: uiImage)
+                        .resizable()
+                        .scaledToFill()
+                        .frame(height: 120)
+                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                }
 
+                // Attachments indicator (voice only, photo is shown above)
+                HStack(spacing: 12) {
                     if entry.audioData != nil {
                         HStack(spacing: 4) {
                             Image(systemName: "mic.fill")
