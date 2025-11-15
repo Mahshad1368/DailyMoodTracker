@@ -219,7 +219,7 @@ struct HomeView: View {
                                     title: justSaved ? "✓ Saved!" : "Save Mood",
                                     action: logMood,
                                     isEnabled: selectedMood != nil,
-                                    colors: [Color(hex: "FFD93D"), Color(hex: "FFA500")]
+                                    colors: [Color(hex: "b98fa0"), Color(hex: "897691")]
                                 )
                             }
                         }

@@ -11,7 +11,7 @@ struct GlowingButton: View {
     let title: String
     let action: () -> Void
     var isEnabled: Bool = true
-    var colors: [Color] = [Color(hex: "FFD93D"), Color(hex: "FFA500")]
+    var colors: [Color] = [Color(hex: "b98fa0"), Color(hex: "897691")] // New palette: mauve gradient
 
     @State private var isPressed = false
 
