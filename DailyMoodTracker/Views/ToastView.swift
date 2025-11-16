@@ -29,7 +29,13 @@ struct ToastView: View {
                 .padding(.vertical, 14)
                 .background(
                     Capsule()
-                        .fill(Color.green.gradient)
+                        .fill(
+                            LinearGradient(
+                                colors: [Color(hex: "b98fa0"), Color(hex: "897691")],
+                                startPoint: .leading,
+                                endPoint: .trailing
+                            )
+                        )
                         .shadow(color: .black.opacity(0.15), radius: 10, x: 0, y: 5)
                 )
                 .transition(.move(edge: .top).combined(with: .opacity))
