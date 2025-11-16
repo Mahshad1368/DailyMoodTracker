@@ -593,7 +593,8 @@ struct HomeView: View {
     private func setupAudioSession() {
         let audioSession = AVAudioSession.sharedInstance()
         do {
-            try audioSession.setCategory(.playAndRecord, mode: .default)
+            // Use .defaultToSpeaker to play from loud speaker instead of earpiece
+            try audioSession.setCategory(.playAndRecord, mode: .default, options: [.defaultToSpeaker])
             try audioSession.setActive(true)
         } catch {
             print("Failed to set up audio session: \(error)")
@@ -626,11 +627,10 @@ struct HomeView: View {
 
         let settings = [
             AVFormatIDKey: Int(kAudioFormatMPEG4AAC),
-            AVSampleRateKey: 44100,  // High quality sample rate (CD quality)
-            AVNumberOfChannelsKey: 2,  // Stereo for better sound
-            AVEncoderAudioQualityKey: AVAudioQuality.max.rawValue,  // Maximum quality
-            AVEncoderBitRateKey: 128000,  // 128 kbps bit rate for clear audio
-            AVLinearPCMBitDepthKey: 16  // 16-bit depth for better dynamic range
+            AVSampleRateKey: 16000,  // Good quality, smaller file size
+            AVNumberOfChannelsKey: 1,  // Mono to reduce file size
+            AVEncoderAudioQualityKey: AVAudioQuality.medium.rawValue,
+            AVEncoderBitRateKey: 32000  // 32 kbps - good for voice, small files
         ]
 
         do {
