@@ -35,6 +35,11 @@ struct HistoryView: View {
         isDarkMode ? Color.darkTheme : Color.lightTheme
     }
 
+    // Check if currently viewing the current month
+    private var isCurrentMonth: Bool {
+        calendar.isDate(currentDate, equalTo: Date(), toGranularity: .month)
+    }
+
     var body: some View {
         ZStack {
             // Dynamic theme gradient background
@@ -61,10 +66,28 @@ struct HistoryView: View {
 
                     Spacer()
 
-                    Text(monthYearString(from: currentDate))
-                        .font(.system(.title3, design: .rounded))
-                        .fontWeight(.semibold)
-                        .foregroundColor(theme.textPrimary)
+                    HStack(spacing: 12) {
+                        Text(monthYearString(from: currentDate))
+                            .font(.system(.title3, design: .rounded))
+                            .fontWeight(.semibold)
+                            .foregroundColor(theme.textPrimary)
+
+                        // Today button - shows when not viewing current month
+                        if !isCurrentMonth {
+                            Button(action: jumpToToday) {
+                                Text("Today")
+                                    .font(.system(.caption, design: .rounded))
+                                    .fontWeight(.semibold)
+                                    .foregroundColor(theme.accent)
+                                    .padding(.horizontal, 10)
+                                    .padding(.vertical, 5)
+                                    .background(
+                                        RoundedRectangle(cornerRadius: 8)
+                                            .fill(theme.accent.opacity(0.15))
+                                    )
+                            }
+                        }
+                    }
 
                     Spacer()
 
@@ -208,6 +231,10 @@ struct HistoryView: View {
         if let newDate = calendar.date(byAdding: .month, value: 1, to: currentDate) {
             currentDate = newDate
         }
+    }
+
+    private func jumpToToday() {
+        currentDate = Date()
     }
 
     private func generateCalendarDays() -> [Date?] {
