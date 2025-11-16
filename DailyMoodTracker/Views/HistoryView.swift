@@ -77,13 +77,13 @@ struct HistoryView: View {
                             Button(action: jumpToToday) {
                                 Text("Today")
                                     .font(.system(.caption, design: .rounded))
-                                    .fontWeight(.semibold)
-                                    .foregroundColor(theme.accent)
-                                    .padding(.horizontal, 10)
-                                    .padding(.vertical, 5)
+                                    .fontWeight(.bold)
+                                    .foregroundColor(.white)
+                                    .padding(.horizontal, 12)
+                                    .padding(.vertical, 6)
                                     .background(
                                         RoundedRectangle(cornerRadius: 8)
-                                            .fill(theme.accent.opacity(0.15))
+                                            .fill(theme.accent)
                                     )
                             }
                         }
