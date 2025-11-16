@@ -626,9 +626,11 @@ struct HomeView: View {
 
         let settings = [
             AVFormatIDKey: Int(kAudioFormatMPEG4AAC),
-            AVSampleRateKey: 12000,
-            AVNumberOfChannelsKey: 1,
-            AVEncoderAudioQualityKey: AVAudioQuality.high.rawValue
+            AVSampleRateKey: 44100,  // High quality sample rate (CD quality)
+            AVNumberOfChannelsKey: 2,  // Stereo for better sound
+            AVEncoderAudioQualityKey: AVAudioQuality.max.rawValue,  // Maximum quality
+            AVEncoderBitRateKey: 128000,  // 128 kbps bit rate for clear audio
+            AVLinearPCMBitDepthKey: 16  // 16-bit depth for better dynamic range
         ]
 
         do {
