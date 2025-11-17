@@ -634,8 +634,9 @@ struct MoodHeatmapView: View {
         let weeksToShow = 12
         let totalDays = weeksToShow * 7
 
-        // Start from 12 weeks ago
-        guard let startDate = calendar.date(byAdding: .day, value: -totalDays, to: currentDate) else {
+        // Always start from 12 weeks ago from TODAY (not currentDate which is the viewed month)
+        let today = Date()
+        guard let startDate = calendar.date(byAdding: .day, value: -totalDays, to: today) else {
             return days
         }
 
