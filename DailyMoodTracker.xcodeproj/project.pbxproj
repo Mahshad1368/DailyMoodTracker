@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		49E6FF742ECC8E72007C2417 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A2WIDGET00000000000004 /* WidgetKit.framework */; };
+		49E6FF752ECC8E72007C2417 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A2WIDGET00000000000005 /* SwiftUI.framework */; };
+		49E6FF842ECC8E73007C2417 /* MoodFlexWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 49E6FF732ECC8E72007C2417 /* MoodFlexWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		A1000001000000000000001 /* DailyMoodTrackerApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000001000000000000001 /* DailyMoodTrackerApp.swift */; };
 		A1000003000000000000001 /* MoodEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000003000000000000001 /* MoodEntry.swift */; };
 		A1000004000000000000001 /* DataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000004000000000000001 /* DataManager.swift */; };
@@ -24,33 +27,26 @@
 		A1000018000000000000001 /* AppIcon-Sleepy@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = A2000018000000000000001 /* AppIcon-Sleepy@2x.png */; };
 		A1000019000000000000001 /* AppIcon-Sleepy@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = A2000019000000000000001 /* AppIcon-Sleepy@3x.png */; };
 		A1000020000000000000001 /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000020000000000000001 /* Extensions.swift */; };
-		A1CAMERAVIEW0000001 /* CameraView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2CAMERAVIEW0000001 /* CameraView.swift */; };
-		A1PHOTOPICKER000001 /* PhotoPickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2PHOTOPICKER000001 /* PhotoPickerView.swift */; };
 		A1000021000000000000001 /* GradientBackground.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000021000000000000001 /* GradientBackground.swift */; };
 		A1000022000000000000001 /* GlassCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000022000000000000001 /* GlassCard.swift */; };
 		A1000023000000000000001 /* GlowingButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000023000000000000001 /* GlowingButton.swift */; };
-		A1DARKTHEMECARD00001 /* DarkThemeCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2DARKTHEMECARD00001 /* DarkThemeCard.swift */; };
 		A1000024000000000000001 /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000024000000000000001 /* OnboardingView.swift */; };
 		A1000025000000000000001 /* InsightsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000025000000000000001 /* InsightsView.swift */; };
+		A1CAMERAVIEW0000001 /* CameraView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2CAMERAVIEW0000001 /* CameraView.swift */; };
+		A1DARKTHEMECARD00001 /* DarkThemeCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2DARKTHEMECARD00001 /* DarkThemeCard.swift */; };
+		A1MAINSHARED000001 /* SharedModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2WIDGET00000000000002 /* SharedModels.swift */; };
+		A1PHOTOPICKER000001 /* PhotoPickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2PHOTOPICKER000001 /* PhotoPickerView.swift */; };
 		A1SETTINGSVIEW000001 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2SETTINGSVIEW000001 /* SettingsView.swift */; };
 		A1TOASTVIEW000000001 /* ToastView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2TOASTVIEW000000001 /* ToastView.swift */; };
-		A1MAINSHARED000001 /* SharedModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2WIDGET00000000000002 /* SharedModels.swift */; };
-		A1WIDGET00000000000001 /* MoodTrackerWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2WIDGET00000000000001 /* MoodTrackerWidget.swift */; };
-		A1WIDGET00000000000002 /* SharedModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2WIDGET00000000000002 /* SharedModels.swift */; };
-		A1WIDGET00000000000003 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A2WIDGET00000000000003 /* Assets.xcassets */; };
-		A1WIDGET00000000000004 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A2WIDGET00000000000004 /* WidgetKit.framework */; };
-		A1WIDGET00000000000005 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A2WIDGET00000000000005 /* SwiftUI.framework */; };
-		A1WIDGET00000000000006 /* MoodTrackerWidget.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = A3WIDGET00000000000001 /* MoodTrackerWidget.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
-		A1WIDGETEXTENSIONS /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000020000000000000001 /* Extensions.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
-		C1WIDGET00000000000001 /* PBXContainerItemProxy */ = {
+		49E6FF822ECC8E73007C2417 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = A0000001000000000000001 /* Project object */;
 			proxyType = 1;
-			remoteGlobalIDString = A6WIDGET00000000000001;
-			remoteInfo = MoodTrackerWidget;
+			remoteGlobalIDString = 49E6FF722ECC8E72007C2417;
+			remoteInfo = MoodFlexWidgetExtension;
 		};
 /* End PBXContainerItemProxy section */
 
@@ -61,7 +57,7 @@
 			dstPath = "";
 			dstSubfolderSpec = 13;
 			files = (
-				A1WIDGET00000000000006 /* MoodTrackerWidget.appex in Embed Foundation Extensions */,
+				49E6FF842ECC8E73007C2417 /* MoodFlexWidgetExtension.appex in Embed Foundation Extensions */,
 			);
 			name = "Embed Foundation Extensions";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -69,9 +65,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		A3000001000000000000001 /* DailyMoodTracker.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = DailyMoodTracker.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		49E6FF732ECC8E72007C2417 /* MoodFlexWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = MoodFlexWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		A2000001000000000000001 /* DailyMoodTrackerApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DailyMoodTrackerApp.swift; sourceTree = "<group>"; };
-		A2000002000000000000001 /* MoodType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoodType.swift; sourceTree = "<group>"; };
 		A2000003000000000000001 /* MoodEntry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoodEntry.swift; sourceTree = "<group>"; };
 		A2000004000000000000001 /* DataManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataManager.swift; sourceTree = "<group>"; };
 		A2000005000000000000001 /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
@@ -89,18 +84,17 @@
 		A2000018000000000000001 /* AppIcon-Sleepy@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "AppIcon-Sleepy@2x.png"; sourceTree = "<group>"; };
 		A2000019000000000000001 /* AppIcon-Sleepy@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "AppIcon-Sleepy@3x.png"; sourceTree = "<group>"; };
 		A2000020000000000000001 /* Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
-		A2CAMERAVIEW0000001 /* CameraView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraView.swift; sourceTree = "<group>"; };
-		A2PHOTOPICKER000001 /* PhotoPickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoPickerView.swift; sourceTree = "<group>"; };
 		A2000021000000000000001 /* GradientBackground.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GradientBackground.swift; sourceTree = "<group>"; };
 		A2000022000000000000001 /* GlassCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlassCard.swift; sourceTree = "<group>"; };
 		A2000023000000000000001 /* GlowingButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlowingButton.swift; sourceTree = "<group>"; };
-		A2DARKTHEMECARD00001 /* DarkThemeCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DarkThemeCard.swift; sourceTree = "<group>"; };
 		A2000024000000000000001 /* OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingView.swift; sourceTree = "<group>"; };
 		A2000025000000000000001 /* InsightsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InsightsView.swift; sourceTree = "<group>"; };
+		A2000026000000000000001 /* DailyMoodTracker.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = DailyMoodTracker.entitlements; sourceTree = "<group>"; };
+		A2CAMERAVIEW0000001 /* CameraView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraView.swift; sourceTree = "<group>"; };
+		A2DARKTHEMECARD00001 /* DarkThemeCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DarkThemeCard.swift; sourceTree = "<group>"; };
+		A2PHOTOPICKER000001 /* PhotoPickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoPickerView.swift; sourceTree = "<group>"; };
 		A2SETTINGSVIEW000001 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		A2TOASTVIEW000000001 /* ToastView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToastView.swift; sourceTree = "<group>"; };
-		A2000026000000000000001 /* DailyMoodTracker.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = DailyMoodTracker.entitlements; sourceTree = "<group>"; };
-		A3WIDGET00000000000001 /* MoodTrackerWidget.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = MoodTrackerWidget.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		A2WIDGET00000000000001 /* MoodTrackerWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoodTrackerWidget.swift; sourceTree = "<group>"; };
 		A2WIDGET00000000000002 /* SharedModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedModels.swift; sourceTree = "<group>"; };
 		A2WIDGET00000000000003 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -108,22 +102,37 @@
 		A2WIDGET00000000000005 /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
 		A2WIDGET00000000000006 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		A2WIDGET00000000000007 /* MoodTrackerWidget.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = MoodTrackerWidget.entitlements; sourceTree = "<group>"; };
+		A3000001000000000000001 /* DailyMoodTracker.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = DailyMoodTracker.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		49E6FF852ECC8E73007C2417 /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 49E6FF722ECC8E72007C2417 /* MoodFlexWidgetExtension */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		49E6FF762ECC8E72007C2417 /* MoodFlexWidget */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (49E6FF852ECC8E73007C2417 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = MoodFlexWidget; sourceTree = "<group>"; };
+/* End PBXFileSystemSynchronizedRootGroup section */
+
 /* Begin PBXFrameworksBuildPhase section */
+		49E6FF702ECC8E72007C2417 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				49E6FF752ECC8E72007C2417 /* SwiftUI.framework in Frameworks */,
+				49E6FF742ECC8E72007C2417 /* WidgetKit.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		A4000001000000000000001 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		A4WIDGET00000000000001 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				A1WIDGET00000000000004 /* WidgetKit.framework in Frameworks */,
-				A1WIDGET00000000000005 /* SwiftUI.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -135,6 +144,7 @@
 			children = (
 				A5000002000000000000001 /* DailyMoodTracker */,
 				A5WIDGET00000000000001 /* MoodTrackerWidget */,
+				49E6FF762ECC8E72007C2417 /* MoodFlexWidget */,
 				A5WIDGET00000000000005 /* Frameworks */,
 				A5000003000000000000001 /* Products */,
 			);
@@ -170,7 +180,7 @@
 			isa = PBXGroup;
 			children = (
 				A3000001000000000000001 /* DailyMoodTracker.app */,
-				A3WIDGET00000000000001 /* MoodTrackerWidget.appex */,
+				49E6FF732ECC8E72007C2417 /* MoodFlexWidgetExtension.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -179,7 +189,6 @@
 			isa = PBXGroup;
 			children = (
 				A2000003000000000000001 /* MoodEntry.swift */,
-				A2WIDGET00000000000002 /* SharedModels.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -258,6 +267,28 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		49E6FF722ECC8E72007C2417 /* MoodFlexWidgetExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 49E6FF862ECC8E73007C2417 /* Build configuration list for PBXNativeTarget "MoodFlexWidgetExtension" */;
+			buildPhases = (
+				49E6FF6F2ECC8E72007C2417 /* Sources */,
+				49E6FF702ECC8E72007C2417 /* Frameworks */,
+				49E6FF712ECC8E72007C2417 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				49E6FF762ECC8E72007C2417 /* MoodFlexWidget */,
+			);
+			name = MoodFlexWidgetExtension;
+			packageProductDependencies = (
+			);
+			productName = MoodFlexWidgetExtension;
+			productReference = 49E6FF732ECC8E72007C2417 /* MoodFlexWidgetExtension.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
 		A6000001000000000000001 /* DailyMoodTracker */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = A7000001000000000000001 /* Build configuration list for PBXNativeTarget "DailyMoodTracker" */;
@@ -270,29 +301,12 @@
 			buildRules = (
 			);
 			dependencies = (
-				C3WIDGET00000000000001 /* PBXTargetDependency */,
+				49E6FF832ECC8E73007C2417 /* PBXTargetDependency */,
 			);
 			name = DailyMoodTracker;
 			productName = DailyMoodTracker;
 			productReference = A3000001000000000000001 /* DailyMoodTracker.app */;
 			productType = "com.apple.product-type.application";
-		};
-		A6WIDGET00000000000001 /* MoodTrackerWidget */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = A7WIDGET00000000000001 /* Build configuration list for PBXNativeTarget "MoodTrackerWidget" */;
-			buildPhases = (
-				A8WIDGET00000000000001 /* Sources */,
-				A4WIDGET00000000000001 /* Frameworks */,
-				A9WIDGET00000000000001 /* Resources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-			);
-			name = MoodTrackerWidget;
-			productName = MoodTrackerWidget;
-			productReference = A3WIDGET00000000000001 /* MoodTrackerWidget.appex */;
-			productType = "com.apple.product-type.app-extension";
 		};
 /* End PBXNativeTarget section */
 
@@ -301,13 +315,13 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
-				LastSwiftUpdateCheck = 1500;
+				LastSwiftUpdateCheck = 2610;
 				LastUpgradeCheck = 1500;
 				TargetAttributes = {
+					49E6FF722ECC8E72007C2417 = {
+						CreatedOnToolsVersion = 26.1;
+					};
 					A6000001000000000000001 = {
-					CreatedOnToolsVersion = 15.0;
-				};
-				A6WIDGET00000000000001 = {
 						CreatedOnToolsVersion = 15.0;
 					};
 				};
@@ -326,12 +340,19 @@
 			projectRoot = "";
 			targets = (
 				A6000001000000000000001 /* DailyMoodTracker */,
-			A6WIDGET00000000000001 /* MoodTrackerWidget */,
+				49E6FF722ECC8E72007C2417 /* MoodFlexWidgetExtension */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		49E6FF712ECC8E72007C2417 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		A9000001000000000000001 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -350,17 +371,16 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		A9WIDGET00000000000001 /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				A1WIDGET00000000000003 /* Assets.xcassets in Resources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		49E6FF6F2ECC8E72007C2417 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		A8000001000000000000001 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -385,27 +405,79 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		A8WIDGET00000000000001 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				A1WIDGET00000000000001 /* MoodTrackerWidget.swift in Sources */,
-				A1WIDGET00000000000002 /* SharedModels.swift in Sources */,
-				A1WIDGETEXTENSIONS /* Extensions.swift in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
-		C3WIDGET00000000000001 /* PBXTargetDependency */ = {
+		49E6FF832ECC8E73007C2417 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = A6WIDGET00000000000001 /* MoodTrackerWidget */;
-			targetProxy = C1WIDGET00000000000001 /* PBXContainerItemProxy */;
+			target = 49E6FF722ECC8E72007C2417 /* MoodFlexWidgetExtension */;
+			targetProxy = 49E6FF822ECC8E73007C2417 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
+		49E6FF872ECC8E73007C2417 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 5UAB2YDZ59;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = MoodFlexWidget/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = MoodFlexWidget;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 26.1;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.dailymoodtracker.app.MoodFlexWidget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		49E6FF882ECC8E73007C2417 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 5UAB2YDZ59;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = MoodFlexWidget/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = MoodFlexWidget;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 26.1;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.dailymoodtracker.app.MoodFlexWidget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
 		B1000001000000000000001 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -589,71 +661,18 @@
 			};
 			name = Release;
 		};
-		B1WIDGET00000000000001 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
-				CODE_SIGN_ENTITLEMENTS = MoodTrackerWidget/MoodTrackerWidget.entitlements;
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 5UAB2YDZ59;
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = MoodTrackerWidget/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = MoodTrackerWidget;
-				INFOPLIST_KEY_NSHumanReadableCopyright = "";
-				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@executable_path/../../Frameworks",
-				);
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.dailymoodtracker.app.MoodTrackerWidget;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SKIP_INSTALL = YES;
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
-				SUPPORTS_MACCATALYST = NO;
-				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-			};
-			name = Debug;
-		};
-		B1WIDGET00000000000002 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
-				CODE_SIGN_ENTITLEMENTS = MoodTrackerWidget/MoodTrackerWidget.entitlements;
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 5UAB2YDZ59;
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = MoodTrackerWidget/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = MoodTrackerWidget;
-				INFOPLIST_KEY_NSHumanReadableCopyright = "";
-				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@executable_path/../../Frameworks",
-				);
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.dailymoodtracker.app.MoodTrackerWidget;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SKIP_INSTALL = YES;
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
-				SUPPORTS_MACCATALYST = NO;
-				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-			};
-			name = Release;
-		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		49E6FF862ECC8E73007C2417 /* Build configuration list for PBXNativeTarget "MoodFlexWidgetExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				49E6FF872ECC8E73007C2417 /* Debug */,
+				49E6FF882ECC8E73007C2417 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		A7000001000000000000001 /* Build configuration list for PBXNativeTarget "DailyMoodTracker" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
@@ -668,15 +687,6 @@
 			buildConfigurations = (
 				B1000001000000000000001 /* Debug */,
 				B1000002000000000000001 /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		A7WIDGET00000000000001 /* Build configuration list for PBXNativeTarget "MoodTrackerWidget" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				B1WIDGET00000000000001 /* Debug */,
-				B1WIDGET00000000000002 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
