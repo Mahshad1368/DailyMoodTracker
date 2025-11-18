@@ -88,19 +88,24 @@ struct SmallWidgetView: View {
 
     var body: some View {
         ZStack {
-            // Background gradient
-            LinearGradient(
-                colors: entry.dominantMood.widgetGradient,
-                startPoint: .topLeading,
-                endPoint: .bottomTrailing
-            )
+            // Background - use happy55 image for happy mood, gradient for others
+            if entry.dominantMood == .happy {
+                Image("happy55")
+                    .resizable()
+                    .scaledToFill()
+                    .overlay(Color.black.opacity(0.3)) // Darken for text readability
+            } else {
+                LinearGradient(
+                    colors: entry.dominantMood.widgetGradient,
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
+            }
 
             VStack(spacing: 12) {
                 // Mood emoji
-                Image(entry.dominantMood.imageName)
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 60, height: 60)
+                Text(entry.dominantMood.emoji)
+                    .font(.system(size: 60))
 
                 // Mood name
                 Text(entry.dominantMood.name)
@@ -130,20 +135,25 @@ struct MediumWidgetView: View {
 
     var body: some View {
         ZStack {
-            // Background gradient
-            LinearGradient(
-                colors: entry.dominantMood.widgetGradient,
-                startPoint: .topLeading,
-                endPoint: .bottomTrailing
-            )
+            // Background - use happy55 image for happy mood, gradient for others
+            if entry.dominantMood == .happy {
+                Image("happy55")
+                    .resizable()
+                    .scaledToFill()
+                    .overlay(Color.black.opacity(0.3)) // Darken for text readability
+            } else {
+                LinearGradient(
+                    colors: entry.dominantMood.widgetGradient,
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
+            }
 
             HStack(spacing: 20) {
                 // Left: Dominant mood
                 VStack(spacing: 8) {
-                    Image(entry.dominantMood.imageName)
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 50, height: 50)
+                    Text(entry.dominantMood.emoji)
+                        .font(.system(size: 50))
 
                     Text(entry.dominantMood.name)
                         .font(.system(.subheadline, design: .rounded))
@@ -180,10 +190,8 @@ struct MediumWidgetView: View {
 
                         ForEach(entry.entries.prefix(3)) { moodEntry in
                             HStack(spacing: 8) {
-                                Image(moodEntry.mood.imageName)
-                                    .resizable()
-                                    .scaledToFit()
-                                    .frame(width: 24, height: 24)
+                                Text(moodEntry.mood.emoji)
+                                    .font(.system(size: 24))
 
                                 VStack(alignment: .leading, spacing: 2) {
                                     Text(moodEntry.mood.name)
@@ -214,12 +222,19 @@ struct LargeWidgetView: View {
 
     var body: some View {
         ZStack {
-            // Background gradient
-            LinearGradient(
-                colors: entry.dominantMood.widgetGradient,
-                startPoint: .topLeading,
-                endPoint: .bottomTrailing
-            )
+            // Background - use happy55 image for happy mood, gradient for others
+            if entry.dominantMood == .happy {
+                Image("happy55")
+                    .resizable()
+                    .scaledToFill()
+                    .overlay(Color.black.opacity(0.3)) // Darken for text readability
+            } else {
+                LinearGradient(
+                    colors: entry.dominantMood.widgetGradient,
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
+            }
 
             VStack(spacing: 15) {
                 // Header
@@ -239,10 +254,8 @@ struct LargeWidgetView: View {
 
                     // Dominant mood indicator
                     VStack(spacing: 4) {
-                        Image(entry.dominantMood.imageName)
-                            .resizable()
-                            .scaledToFit()
-                            .frame(width: 40, height: 40)
+                        Text(entry.dominantMood.emoji)
+                            .font(.system(size: 40))
 
                         Text(entry.dominantMood.name)
                             .font(.system(.caption2, design: .rounded))
@@ -283,10 +296,8 @@ struct LargeWidgetView: View {
                                         .frame(width: 50, alignment: .leading)
 
                                     // Mood emoji
-                                    Image(moodEntry.mood.imageName)
-                                        .resizable()
-                                        .scaledToFit()
-                                        .frame(width: 28, height: 28)
+                                    Text(moodEntry.mood.emoji)
+                                        .font(.system(size: 28))
 
                                     // Mood details
                                     VStack(alignment: .leading, spacing: 4) {
@@ -331,10 +342,8 @@ struct CircularLockScreenView: View {
             AccessoryWidgetBackground()
 
             VStack(spacing: 2) {
-                Image(entry.dominantMood.imageName)
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 32, height: 32)
+                Text(entry.dominantMood.emoji)
+                    .font(.system(size: 32))
 
                 Text("\(entry.entryCount)")
                     .font(.system(.caption2, design: .rounded))
@@ -351,10 +360,8 @@ struct RectangularLockScreenView: View {
 
     var body: some View {
         HStack(spacing: 8) {
-            Image(entry.dominantMood.imageName)
-                .resizable()
-                .scaledToFit()
-                .frame(width: 28, height: 28)
+            Text(entry.dominantMood.emoji)
+                .font(.system(size: 28))
 
             VStack(alignment: .leading, spacing: 2) {
                 Text(entry.dominantMood.name)
@@ -380,10 +387,8 @@ struct InlineLockScreenView: View {
 
     var body: some View {
         HStack(spacing: 4) {
-            Image(entry.dominantMood.imageName)
-                .resizable()
-                .scaledToFit()
-                .frame(width: 16, height: 16)
+            Text(entry.dominantMood.emoji)
+                .font(.system(size: 16))
 
             Text(entry.dominantMood.name)
                 .font(.system(.caption, design: .rounded))
