@@ -348,6 +348,29 @@ struct SettingsView: View {
                                         .foregroundColor(Color(hex: "667EEA"))
                                 }
                             }
+
+                            Divider()
+                                .background((isDarkMode ? Color.white : Color.gray).opacity(0.2))
+
+                            // Reset Onboarding Button (Debug Only)
+                            Button(action: resetOnboarding) {
+                                HStack {
+                                    VStack(alignment: .leading, spacing: 4) {
+                                        Text("Reset Onboarding")
+                                            .font(.system(.subheadline, design: .rounded))
+                                            .foregroundColor(Color(hex: "667EEA"))
+
+                                        Text("View onboarding pages again (debug)")
+                                            .font(.system(.caption, design: .rounded))
+                                            .foregroundColor(theme.textSecondary)
+                                    }
+
+                                    Spacer()
+
+                                    Image(systemName: "arrow.counterclockwise")
+                                        .foregroundColor(Color(hex: "667EEA"))
+                                }
+                            }
                             #endif
                         }
                     }
@@ -554,6 +577,11 @@ struct SettingsView: View {
         }
 
         print("✅ Inserted mock data: \(dataManager.entries.count) total entries")
+    }
+
+    private func resetOnboarding() {
+        UserDefaults.standard.set(false, forKey: "hasCompletedOnboarding")
+        print("✅ Onboarding reset - restart app to view onboarding pages")
     }
 }
 
