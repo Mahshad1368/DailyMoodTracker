@@ -104,45 +104,51 @@ class DataManager: ObservableObject {
     }
 
     /// Save all mood entries to shared UserDefaults and update widgets
+    /// Performs heavy I/O on background thread to avoid blocking UI
     private func saveEntries() {
         guard let sharedDefaults = sharedDefaults else {
             print("❌ Cannot save: Shared UserDefaults not available")
             return
         }
 
-        print("💾 Saving \(entries.count) entries to shared UserDefaults...")
+        // Capture entries on main thread
+        let entriesToSave = entries
+        let entriesCount = entriesToSave.count
 
-        do {
-            let encoder = JSONEncoder()
+        print("💾 Saving \(entriesCount) entries to shared UserDefaults...")
 
-            // Save full entries to main app storage (for photo/audio data)
-            let fullData = try encoder.encode(entries)
-            sharedDefaults.set(fullData, forKey: "fullMoodEntries")
+        // Perform heavy I/O on background thread
+        DispatchQueue.global(qos: .userInitiated).async {
+            do {
+                let encoder = JSONEncoder()
 
-            // Convert to SharedMoodEntry format for widget (without photo/audio)
-            let sharedEntries = entries.map { entry in
-                SharedMoodEntry(
-                    id: entry.id,
-                    date: entry.date,
-                    mood: entry.mood,
-                    note: entry.note
-                )
-            }
+                // Save full entries to main app storage (for photo/audio data)
+                let fullData = try encoder.encode(entriesToSave)
+                sharedDefaults.set(fullData, forKey: "fullMoodEntries")
 
-            // Save widget-compatible data
-            let widgetData = try encoder.encode(sharedEntries)
-            sharedDefaults.set(widgetData, forKey: entriesKey)
+                // Convert to SharedMoodEntry format for widget (without photo/audio)
+                let sharedEntries = entriesToSave.map { entry in
+                    SharedMoodEntry(
+                        id: entry.id,
+                        date: entry.date,
+                        mood: entry.mood,
+                        note: entry.note
+                    )
+                }
 
-            // Force synchronize to ensure data is written immediately
-            let success = sharedDefaults.synchronize()
+                // Save widget-compatible data
+                let widgetData = try encoder.encode(sharedEntries)
+                sharedDefaults.set(widgetData, forKey: self.entriesKey)
 
-            if success {
-                print("✅ Successfully saved \(entries.count) entries")
+                // Note: synchronize() is deprecated and unnecessary in modern iOS
+                // UserDefaults automatically persists changes asynchronously
+
+                print("✅ Successfully saved \(entriesCount) entries")
                 print("  - Full data: \(fullData.count) bytes")
                 print("  - Widget data: \(widgetData.count) bytes")
 
-                // Immediate verification - read back to confirm
-                if let verifyData = sharedDefaults.data(forKey: entriesKey) {
+                // Verification (optional, in background)
+                if let verifyData = sharedDefaults.data(forKey: self.entriesKey) {
                     print("🔍 Verification: Widget data found (\(verifyData.count) bytes)")
 
                     do {
@@ -156,22 +162,29 @@ class DataManager: ObservableObject {
                     print("❌ Verification failed: No data found after save!")
                 }
 
-                // CRITICAL: Reload all widget timelines after saving
-                print("🔄 Reloading all widget timelines...")
-                WidgetCenter.shared.reloadAllTimelines()
-                print("✅ Widget timelines reloaded")
-            } else {
-                print("⚠️ synchronize() returned false")
+                // Reload widgets on main thread (WidgetCenter requires main thread)
+                DispatchQueue.main.async {
+                    print("🔄 Reloading all widget timelines...")
+                    WidgetCenter.shared.reloadAllTimelines()
+                    print("✅ Widget timelines reloaded")
+                }
+            } catch {
+                print("❌ Error saving entries: \(error)")
             }
-        } catch {
-            print("❌ Error saving entries: \(error)")
         }
     }
 
     /// Add a new mood entry (allows multiple entries per day)
     func addEntry(mood: MoodType, note: String, photoData: Data? = nil, audioData: Data? = nil, audioDuration: TimeInterval? = nil) {
         let newEntry = MoodEntry(mood: mood, note: note, photoData: photoData, audioData: audioData, audioDuration: audioDuration)
-        entries.insert(newEntry, at: 0) // Add to beginning (newest first)
+
+        // Update @Published property on main thread for SwiftUI
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self else { return }
+            self.entries.insert(newEntry, at: 0) // Add to beginning (newest first)
+        }
+
+        // Save to disk on background thread (handled internally by saveEntries)
         saveEntries()
 
         print("➕ Added new entry: \(mood.name)")
@@ -204,7 +217,13 @@ class DataManager: ObservableObject {
 
     /// Delete an entry
     func deleteEntry(_ entry: MoodEntry) {
-        entries.removeAll { $0.id == entry.id }
+        // Update @Published property on main thread for SwiftUI
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self else { return }
+            self.entries.removeAll { $0.id == entry.id }
+        }
+
+        // Save to disk on background thread (handled internally by saveEntries)
         saveEntries()
 
         print("🗑️ Deleted entry: \(entry.mood.name)")
