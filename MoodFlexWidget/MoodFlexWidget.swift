@@ -8,55 +8,219 @@
 import WidgetKit
 import SwiftUI
 
+// MARK: - App Group Configuration
+private let appGroupID = "group.com.dailymoodtracker.app"
+
+// MARK: - Timeline Provider
 struct Provider: TimelineProvider {
-    func placeholder(in context: Context) -> SimpleEntry {
-        SimpleEntry(date: Date(), emoji: "😀")
+    func placeholder(in context: Context) -> MoodEntry {
+        MoodEntry(date: Date(), mood: .happy, note: "Feeling great!")
     }
 
-    func getSnapshot(in context: Context, completion: @escaping (SimpleEntry) -> ()) {
-        let entry = SimpleEntry(date: Date(), emoji: "😀")
+    func getSnapshot(in context: Context, completion: @escaping (MoodEntry) -> ()) {
+        let entry = loadLatestMood() ?? MoodEntry(date: Date(), mood: .happy, note: "Add your first mood!")
         completion(entry)
     }
 
     func getTimeline(in context: Context, completion: @escaping (Timeline<Entry>) -> ()) {
-        var entries: [SimpleEntry] = []
+        // Load the latest mood entry
+        let currentEntry = loadLatestMood() ?? MoodEntry(date: Date(), mood: .happy, note: "Add your first mood!")
 
-        // Generate a timeline consisting of five entries an hour apart, starting from the current date.
-        let currentDate = Date()
-        for hourOffset in 0 ..< 5 {
-            let entryDate = Calendar.current.date(byAdding: .hour, value: hourOffset, to: currentDate)!
-            let entry = SimpleEntry(date: entryDate, emoji: "😀")
-            entries.append(entry)
-        }
-
-        let timeline = Timeline(entries: entries, policy: .atEnd)
+        // Create timeline with current entry
+        // The widget will be refreshed when the app calls WidgetCenter.shared.reloadAllTimelines()
+        let nextUpdate = Calendar.current.date(byAdding: .minute, value: 15, to: Date())!
+        let timeline = Timeline(entries: [currentEntry], policy: .after(nextUpdate))
         completion(timeline)
     }
 
-//    func relevances() async -> WidgetRelevances<Void> {
-//        // Generate a list containing the contexts this widget is relevant in.
-//    }
-}
+    /// Load the latest mood entry from shared UserDefaults
+    private func loadLatestMood() -> MoodEntry? {
+        guard let sharedDefaults = UserDefaults(suiteName: appGroupID) else {
+            print("❌ Widget: Could not access shared UserDefaults")
+            return nil
+        }
 
-struct SimpleEntry: TimelineEntry {
-    let date: Date
-    let emoji: String
-}
+        guard let data = sharedDefaults.data(forKey: "moodEntries") else {
+            print("❌ Widget: No mood data found")
+            return nil
+        }
 
-struct MoodFlexWidgetEntryView : View {
-    var entry: Provider.Entry
+        do {
+            let decoder = JSONDecoder()
+            let entries = try decoder.decode([SharedMoodEntry].self, from: data)
 
-    var body: some View {
-        VStack {
-            Text("Time:")
-            Text(entry.date, style: .time)
+            print("✅ Widget: Loaded \(entries.count) mood entries")
 
-            Text("Emoji:")
-            Text(entry.emoji)
+            // Get the most recent entry
+            guard let latestEntry = entries.first else {
+                print("❌ Widget: No entries in array")
+                return nil
+            }
+
+            print("✅ Widget: Latest mood is \(latestEntry.mood.emoji) at \(latestEntry.formattedTime)")
+
+            return MoodEntry(
+                date: latestEntry.date,
+                mood: latestEntry.mood,
+                note: latestEntry.note
+            )
+        } catch {
+            print("❌ Widget: Error decoding mood entries: \(error)")
+            return nil
         }
     }
 }
 
+// MARK: - Timeline Entry
+struct MoodEntry: TimelineEntry {
+    let date: Date
+    let mood: MoodType
+    let note: String
+}
+
+// MARK: - Widget View
+struct MoodFlexWidgetEntryView : View {
+    var entry: Provider.Entry
+    @Environment(\.widgetFamily) var family
+
+    var body: some View {
+        switch family {
+        case .systemSmall:
+            SmallWidgetView(entry: entry)
+        case .systemMedium:
+            MediumWidgetView(entry: entry)
+        case .systemLarge:
+            LargeWidgetView(entry: entry)
+        default:
+            SmallWidgetView(entry: entry)
+        }
+    }
+}
+
+// MARK: - Small Widget View
+struct SmallWidgetView: View {
+    let entry: MoodEntry
+
+    var body: some View {
+        ZStack {
+            // Gradient background based on mood
+            LinearGradient(
+                colors: entry.mood.widgetGradient,
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+
+            VStack(spacing: 8) {
+                // Large emoji
+                Text(entry.mood.emoji)
+                    .font(.system(size: 60))
+
+                // Mood name
+                Text(entry.mood.name)
+                    .font(.headline)
+                    .foregroundColor(.white)
+
+                // Time
+                Text(entry.date, style: .time)
+                    .font(.caption)
+                    .foregroundColor(.white.opacity(0.8))
+            }
+            .padding()
+        }
+    }
+}
+
+// MARK: - Medium Widget View
+struct MediumWidgetView: View {
+    let entry: MoodEntry
+
+    var body: some View {
+        ZStack {
+            // Gradient background based on mood
+            LinearGradient(
+                colors: entry.mood.widgetGradient,
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+
+            HStack(spacing: 16) {
+                // Left side: Large emoji
+                Text(entry.mood.emoji)
+                    .font(.system(size: 70))
+
+                // Right side: Mood info
+                VStack(alignment: .leading, spacing: 8) {
+                    Text(entry.mood.name)
+                        .font(.title2)
+                        .fontWeight(.bold)
+                        .foregroundColor(.white)
+
+                    Text(entry.date, style: .time)
+                        .font(.subheadline)
+                        .foregroundColor(.white.opacity(0.8))
+
+                    if !entry.note.isEmpty {
+                        Text(entry.note)
+                            .font(.caption)
+                            .foregroundColor(.white.opacity(0.9))
+                            .lineLimit(2)
+                    }
+                }
+
+                Spacer()
+            }
+            .padding()
+        }
+    }
+}
+
+// MARK: - Large Widget View
+struct LargeWidgetView: View {
+    let entry: MoodEntry
+
+    var body: some View {
+        ZStack {
+            // Gradient background based on mood
+            LinearGradient(
+                colors: entry.mood.widgetGradient,
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+
+            VStack(spacing: 16) {
+                // Top: Large emoji
+                Text(entry.mood.emoji)
+                    .font(.system(size: 100))
+
+                // Middle: Mood name
+                Text(entry.mood.name)
+                    .font(.title)
+                    .fontWeight(.bold)
+                    .foregroundColor(.white)
+
+                // Time
+                Text(entry.date, style: .time)
+                    .font(.headline)
+                    .foregroundColor(.white.opacity(0.8))
+
+                // Note (if available)
+                if !entry.note.isEmpty {
+                    Text(entry.note)
+                        .font(.body)
+                        .foregroundColor(.white.opacity(0.9))
+                        .multilineTextAlignment(.center)
+                        .lineLimit(4)
+                        .padding(.horizontal)
+                }
+
+                Spacer()
+            }
+            .padding()
+        }
+    }
+}
+
+// MARK: - Widget Configuration
 struct MoodFlexWidget: Widget {
     let kind: String = "MoodFlexWidget"
 
@@ -71,14 +235,16 @@ struct MoodFlexWidget: Widget {
                     .background()
             }
         }
-        .configurationDisplayName("My Widget")
-        .description("This is an example widget.")
+        .configurationDisplayName("Mood Tracker")
+        .description("Shows your latest mood")
+        .supportedFamilies([.systemSmall, .systemMedium, .systemLarge])
     }
 }
 
+// MARK: - Preview
 #Preview(as: .systemSmall) {
     MoodFlexWidget()
 } timeline: {
-    SimpleEntry(date: .now, emoji: "😀")
-    SimpleEntry(date: .now, emoji: "🤩")
+    MoodEntry(date: .now, mood: .happy, note: "Feeling great!")
+    MoodEntry(date: .now, mood: .sad, note: "Feeling down")
 }
