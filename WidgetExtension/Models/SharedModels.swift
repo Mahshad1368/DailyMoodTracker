@@ -49,7 +49,7 @@ enum MoodType: String, Codable, CaseIterable {
     // Image name for Assets.xcassets
     var imageName: String {
         switch self {
-        case .happy: return "HappyEmoji"
+        case .happy: return "happy55"
         case .neutral: return "NeutralEmoji"
         case .sad: return "SadEmoji"
         case .angry: return "AngryEmoji"
