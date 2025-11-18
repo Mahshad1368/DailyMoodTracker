@@ -45,38 +45,30 @@ class DataManager: ObservableObject {
             return
         }
 
-        guard let data = sharedDefaults.data(forKey: entriesKey) else {
-            print("⚠️ No data found in shared UserDefaults")
+        // Try to load from full data storage (includes photo/audio)
+        if let fullData = sharedDefaults.data(forKey: "fullMoodEntries") {
+            print("📦 Found full data: \(fullData.count) bytes")
 
-            // Try to migrate from old UserDefaults if exists
-            migrateFromOldUserDefaults()
-            return
-        }
+            do {
+                let decoder = JSONDecoder()
+                entries = try decoder.decode([MoodEntry].self, from: fullData)
+                // Sort by date, newest first
+                entries.sort { $0.date > $1.date }
+                print("✅ Successfully loaded \(entries.count) full entries")
 
-        print("📦 Found data: \(data.count) bytes")
-
-        do {
-            let decoder = JSONDecoder()
-            entries = try decoder.decode([MoodEntry].self, from: data)
-            // Sort by date, newest first
-            entries.sort { $0.date > $1.date }
-            print("✅ Successfully loaded \(entries.count) entries")
-
-            // Debug: Print loaded entries
-            for (index, entry) in entries.prefix(3).enumerated() {
-                print("  Entry \(index + 1): \(entry.mood.name) at \(entry.formattedTime)")
+                // Debug: Print loaded entries
+                for (index, entry) in entries.prefix(3).enumerated() {
+                    print("  Entry \(index + 1): \(entry.mood.name) at \(entry.formattedTime)")
+                }
+                return
+            } catch {
+                print("❌ Error loading full entries: \(error)")
             }
-        } catch {
-            print("❌ Error loading entries: \(error)")
-            print("🧹 Clearing corrupted data from shared UserDefaults...")
-
-            // Clear the corrupted data to start fresh
-            sharedDefaults.removeObject(forKey: entriesKey)
-            sharedDefaults.synchronize()
-
-            entries = []
-            print("✅ Shared UserDefaults cleared. Ready for fresh data.")
         }
+
+        // Fallback: Try to load from old location or migrate
+        print("⚠️ No full data found, checking for legacy data...")
+        migrateFromOldUserDefaults()
     }
 
     /// Migrate data from old UserDefaults to App Group UserDefaults
@@ -122,23 +114,41 @@ class DataManager: ObservableObject {
 
         do {
             let encoder = JSONEncoder()
-            let data = try encoder.encode(entries)
-            sharedDefaults.set(data, forKey: entriesKey)
+
+            // Save full entries to main app storage (for photo/audio data)
+            let fullData = try encoder.encode(entries)
+            sharedDefaults.set(fullData, forKey: "fullMoodEntries")
+
+            // Convert to SharedMoodEntry format for widget (without photo/audio)
+            let sharedEntries = entries.map { entry in
+                SharedMoodEntry(
+                    id: entry.id,
+                    date: entry.date,
+                    mood: entry.mood,
+                    note: entry.note
+                )
+            }
+
+            // Save widget-compatible data
+            let widgetData = try encoder.encode(sharedEntries)
+            sharedDefaults.set(widgetData, forKey: entriesKey)
 
             // Force synchronize to ensure data is written immediately
             let success = sharedDefaults.synchronize()
 
             if success {
-                print("✅ Successfully saved \(entries.count) entries (\(data.count) bytes)")
+                print("✅ Successfully saved \(entries.count) entries")
+                print("  - Full data: \(fullData.count) bytes")
+                print("  - Widget data: \(widgetData.count) bytes")
 
                 // Immediate verification - read back to confirm
                 if let verifyData = sharedDefaults.data(forKey: entriesKey) {
-                    print("🔍 Verification: Data found in shared UserDefaults (\(verifyData.count) bytes)")
+                    print("🔍 Verification: Widget data found (\(verifyData.count) bytes)")
 
                     do {
                         let decoder = JSONDecoder()
-                        let verifyEntries = try decoder.decode([MoodEntry].self, from: verifyData)
-                        print("✅ Verification: Successfully decoded \(verifyEntries.count) entries")
+                        let verifyEntries = try decoder.decode([SharedMoodEntry].self, from: verifyData)
+                        print("✅ Verification: Successfully decoded \(verifyEntries.count) shared entries")
                     } catch {
                         print("❌ Verification failed: \(error)")
                     }
