@@ -10,7 +10,7 @@ import WidgetKit
 import SwiftUI
 
 // MARK: - App Group Configuration
-let appGroupID = "group.com.dailymoodtracker.app"
+let appGroupID = "group.com.aibymm.modflex"
 
 // MARK: - Widget Timeline Provider
 struct MoodProvider: TimelineProvider {

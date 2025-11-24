@@ -13,7 +13,7 @@ import Foundation
 import WidgetKit
 
 // MARK: - App Group Configuration
-private let appGroupID = "group.com.dailymoodtracker.app"
+private let appGroupID = "group.com.aibymm.modflex"
 
 class DataManager: ObservableObject {
     private let entriesKey = "moodEntries"
