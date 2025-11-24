@@ -401,7 +401,9 @@ struct SettingsView: View {
 
                             // Privacy Policy
                             Button(action: {
-                                // Open privacy policy
+                                if let url = URL(string: "https://mahshad1368.github.io/DailyMoodTracker/privacy-policy.html") {
+                                    UIApplication.shared.open(url)
+                                }
                             }) {
                                 HStack {
                                     Text("Privacy Policy")
