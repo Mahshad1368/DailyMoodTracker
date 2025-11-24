@@ -12,7 +12,7 @@ import WidgetKit
 struct MoodFlexWidgetControl: ControlWidget {
     var body: some ControlWidgetConfiguration {
         StaticControlConfiguration(
-            kind: "com.aibymm.modflex.MoodFlexWidget",
+            kind: "com.aibymm.moodflex.MoodFlexWidget",
             provider: Provider()
         ) { value in
             ControlWidgetToggle(

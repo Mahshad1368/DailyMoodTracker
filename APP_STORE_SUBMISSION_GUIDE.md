@@ -7,7 +7,7 @@
 
 ## Current App Info
 - **App Name**: MoodFlex
-- **Bundle ID**: com.aibymm.modflex
+- **Bundle ID**: com.aibymm.moodflex
 - **Version**: 1.0 (Build 1)
 - **Category**: Health & Fitness / Lifestyle
 
@@ -59,7 +59,7 @@ xcrun altool --upload-app \
    - **Platforms**: iOS
    - **Name**: MoodFlex (or choose another name)
    - **Primary Language**: English
-   - **Bundle ID**: com.aibymm.modflex
+   - **Bundle ID**: com.aibymm.moodflex
    - **SKU**: moodflex-2024 (any unique identifier)
    - **User Access**: Full Access
 
