@@ -201,6 +201,9 @@ struct InsightsView: View {
                 .padding(.bottom, 30)
             }
         }
+        .onAppear {
+            timePeriod = .week
+        }
     }
 
     // MARK: - Streak Calculations
