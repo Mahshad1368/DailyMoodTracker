@@ -210,6 +210,9 @@ struct HistoryView: View {
                 .presentationDetents([.medium, .large])
                 .presentationDragIndicator(.visible)
             }
+            .onAppear {
+                viewMode = .calendar
+            }
         }
     }
 
