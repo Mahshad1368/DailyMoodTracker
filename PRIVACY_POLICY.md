@@ -1,88 +1,49 @@
-# Privacy Policy for MoodFlex
+# Privacy Policy
 
-**Last Updated: November 2024**
+**MoodFlex - Daily Mood Tracker**
 
-## Introduction
+This privacy policy applies to the MoodFlex app (hereby referred to as "Application") for mobile devices that was created by Mahshad Jafari (hereby referred to as "Service Provider") as a Free service. This service is intended for use "AS IS".
 
-MoodFlex ("we", "our", or "the app") is committed to protecting your privacy. This Privacy Policy explains how we handle your information when you use our mood tracking application.
+## What information does the Application obtain and how is it used?
 
-## Data Collection and Storage
+The Application does not obtain any information when you download and use it. Registration is not required to use the Application.
 
-### What Data We Collect
-MoodFlex may collect the following information that you provide:
-- Mood entries (mood type, date, time)
-- Optional text notes
-- Optional photos from your device
-- Optional voice recordings
+## Does the Application collect precise real time location information of the device?
 
-### How We Store Your Data
-**All data is stored locally on your device only.** We do not:
-- Upload your data to any servers
-- Share your data with third parties
-- Create user accounts or profiles
-- Track your usage or behavior
-- Collect any personal information
+This Application does not collect precise information about the location of your mobile device.
 
-### Data You Control
-You have complete control over your data:
-- All mood entries, photos, and voice notes are stored only on your device
-- You can delete any entry at any time
-- If you delete the app, all data is permanently removed from your device
-- No data is recoverable after deletion
+## Do third parties see and/or have access to information obtained by the Application?
 
-## Permissions
+Since the Application does not collect any information, no data is shared with third parties.
 
-MoodFlex requests the following permissions only when you choose to use these features:
+## What are my opt-out rights?
 
-- **Camera**: To take photos for mood entries (optional)
-- **Photo Library**: To select existing photos for mood entries (optional)
-- **Microphone**: To record voice notes for mood entries (optional)
+You can stop all collection of information by the Application easily by uninstalling it. You may use the standard uninstall processes as may be available as part of your mobile device or via the mobile application marketplace or network.
 
-These permissions are only used when you explicitly choose to add photos or voice recordings to your mood entries. You can deny these permissions and still use the core mood tracking features.
+## Children
 
-## Widget
+The Application is not used to knowingly solicit data from or market to children under the age of 13.
 
-The home screen widget displays your most recent mood entry. This data is shared between the main app and the widget using Apple's secure App Group technology, which keeps your data on your device only.
+The Service Provider does not knowingly collect personally identifiable information from children. The Service Provider encourages all children to never submit any personally identifiable information through the Application and/or Services. The Service Provider encourage parents and legal guardians to monitor their children's Internet usage and to help enforce this Policy by instructing their children never to provide personally identifiable information through the Application and/or Services without their permission. If you have reason to believe that a child has provided personally identifiable information to the Service Provider through the Application and/or Services, please contact the Service Provider (support@aibymm.com) so that they will be able to take the necessary actions. You must also be at least 16 years of age to consent to the processing of your personally identifiable information in your country (in some countries we may allow your parent or guardian to do so on your behalf).
 
-## Third-Party Services
+## Security
 
-MoodFlex does not use any third-party analytics, tracking, or advertising services. We do not integrate with any external services or APIs.
+The Service Provider is concerned about safeguarding the confidentiality of your information. However, since the Application does not collect any information, there is no risk of your data being accessed by unauthorized individuals.
 
-## Data Sharing
+## Changes
 
-We do not share, sell, or transmit your data to anyone. All data remains on your device.
+This Privacy Policy may be updated from time to time for any reason. The Service Provider will notify you of any changes to their Privacy Policy by updating this page with the new Privacy Policy. You are advised to consult this Privacy Policy regularly for any changes, as continued use is deemed approval of all changes.
 
-## Children's Privacy
+**This privacy policy is effective as of 2025-11-24**
 
-MoodFlex does not knowingly collect information from children under 13. The app does not require any personal information to function.
+## Your Consent
 
-## Changes to This Policy
-
-We may update this Privacy Policy from time to time. We will notify you of any changes by posting the new Privacy Policy on this page and updating the "Last Updated" date.
+By using the Application, you are consenting to the processing of your information as set forth in this Privacy Policy now and as amended by the Service Provider.
 
 ## Contact Us
 
-If you have questions about this Privacy Policy, please contact us at:
-**[YOUR EMAIL ADDRESS]**
+If you have any questions regarding privacy while using the Application, or have questions about the practices, please contact the Service Provider via email at **support@aibymm.com**
 
 ---
 
-## Your Rights
-
-Depending on your location, you may have certain rights regarding your data:
-- **Right to Access**: You can view all your data within the app
-- **Right to Delete**: You can delete all data by deleting the app
-- **Right to Export**: Currently, there is no data export feature (all data is local)
-
-## Compliance
-
-This app complies with:
-- Apple's App Store Review Guidelines
-- General Data Protection Regulation (GDPR) for EU users
-- California Consumer Privacy Act (CCPA) for California users
-
-Since all data is stored locally on your device and we do not collect or transmit any data, your privacy is inherently protected.
-
----
-
-**Summary**: MoodFlex is a privacy-first app. We don't collect, store, or share your data. Everything stays on your device, under your control.
+*This privacy policy page was generated by [App Privacy Policy Generator](https://app-privacy-policy-generator.nisrulz.com/)*
