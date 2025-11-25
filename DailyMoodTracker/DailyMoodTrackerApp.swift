@@ -16,8 +16,8 @@ struct DailyMoodTrackerApp: App {
     @Environment(\.scenePhase) private var scenePhase
 
     init() {
-        // Set up notification delegate and connect to DataManager
-        setupNotifications()
+        // Set up notification delegate (DataManager will be connected in onAppear)
+        setupNotificationDelegate()
     }
 
     var body: some Scene {
@@ -27,11 +27,21 @@ struct DailyMoodTrackerApp: App {
                     .environmentObject(dataManager)
                     .environmentObject(notificationManager)
                     .onAppear {
+                        // CRITICAL: Connect the SAME DataManager instance to NotificationManager
+                        // This ensures moods logged from notifications appear in the app
+                        notificationManager.setDataManager(dataManager)
+
                         // Clear badge when app opens
                         clearNotificationBadge()
+
+                        print("✅ NotificationManager connected to DataManager")
                     }
             } else {
                 OnboardingView(hasCompletedOnboarding: $hasCompletedOnboarding)
+                    .onAppear {
+                        // Also connect DataManager during onboarding
+                        notificationManager.setDataManager(dataManager)
+                    }
             }
         }
         .onChange(of: scenePhase) { newPhase in
@@ -43,13 +53,9 @@ struct DailyMoodTrackerApp: App {
     }
 
     /// Set up notification center delegate
-    private func setupNotifications() {
+    private func setupNotificationDelegate() {
         // Set NotificationManager as the delegate for handling notification actions
         UNUserNotificationCenter.current().delegate = NotificationManager.shared
-
-        // Connect NotificationManager to DataManager for saving entries
-        NotificationManager.shared.setDataManager(DataManager())
-
         print("✅ Notification delegate configured")
     }
 
