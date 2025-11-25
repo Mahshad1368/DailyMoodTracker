@@ -208,7 +208,7 @@ extension NotificationManager: UNUserNotificationCenterDelegate {
                 print("✅ Logging mood from notification: \(mood.name)")
 
                 // Save the mood entry
-                dataManager?.addEntry(mood: mood, note: "Logged from notification")
+                dataManager?.addEntry(mood: mood, note: "Logged from Apple Watch")
 
                 // Clear the badge
                 center.setBadgeCount(0) { _ in }

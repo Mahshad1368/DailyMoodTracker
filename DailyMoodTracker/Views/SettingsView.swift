@@ -228,7 +228,8 @@ struct SettingsView: View {
                                 }
                                 .padding(.top, 8)
 
-                                // Test Notification Button
+                                #if DEBUG
+                                // Test Notification Button (Debug Only)
                                 Button(action: {
                                     notificationManager.sendTestNotification()
                                 }) {
@@ -250,6 +251,7 @@ struct SettingsView: View {
                                 }
                                 .buttonStyle(.plain)
                                 .padding(.top, 8)
+                                #endif
                             }
                         }
                     }
