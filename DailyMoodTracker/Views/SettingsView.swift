@@ -11,6 +11,7 @@ import PhotosUI
 
 struct SettingsView: View {
     @EnvironmentObject var dataManager: DataManager
+    @EnvironmentObject var notificationManager: NotificationManager
     @Environment(\.dismiss) var dismiss
     @AppStorage("darkModeEnabled") private var isDarkMode: Bool = true
 
@@ -473,45 +474,13 @@ struct SettingsView: View {
     }
 
     private func scheduleDailyNotification(at time: Date) {
-        // Cancel existing notification first
-        cancelDailyNotification()
-
-        let center = UNUserNotificationCenter.current()
-
-        // Create notification content
-        let content = UNMutableNotificationContent()
-        content.title = "Time to Log Your Mood 😊"
-        content.body = "How are you feeling today? Take a moment to reflect."
-        content.sound = .default
-        content.badge = 1
-
-        // Extract hour and minute from selected time
-        let calendar = Calendar.current
-        let components = calendar.dateComponents([.hour, .minute], from: time)
-
-        // Create trigger that repeats daily at specified time
-        let trigger = UNCalendarNotificationTrigger(dateMatching: components, repeats: true)
-
-        // Create request with unique identifier
-        let request = UNNotificationRequest(
-            identifier: "dailyMoodReminder",
-            content: content,
-            trigger: trigger
-        )
-
-        // Schedule notification
-        center.add(request) { error in
-            if let error = error {
-                print("❌ Error scheduling notification: \(error.localizedDescription)")
-            } else {
-                print("✅ Daily notification scheduled for \(components.hour ?? 0):\(String(format: "%02d", components.minute ?? 0))")
-            }
-        }
+        // Use NotificationManager to schedule with actionable buttons
+        notificationManager.scheduleDailyReminder(at: time)
     }
 
     private func cancelDailyNotification() {
-        UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: ["dailyMoodReminder"])
-        print("🔕 Daily notification cancelled")
+        // Use NotificationManager to cancel
+        notificationManager.cancelDailyReminder()
     }
 
     private func insertMockData() {

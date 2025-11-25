@@ -11,14 +11,21 @@ import UserNotifications
 @main
 struct DailyMoodTrackerApp: App {
     @StateObject private var dataManager = DataManager()
+    @StateObject private var notificationManager = NotificationManager.shared
     @State private var hasCompletedOnboarding = UserDefaults.standard.bool(forKey: "hasCompletedOnboarding")
     @Environment(\.scenePhase) private var scenePhase
+
+    init() {
+        // Set up notification delegate and connect to DataManager
+        setupNotifications()
+    }
 
     var body: some Scene {
         WindowGroup {
             if hasCompletedOnboarding {
                 MainTabView()
                     .environmentObject(dataManager)
+                    .environmentObject(notificationManager)
                     .onAppear {
                         // Clear badge when app opens
                         clearNotificationBadge()
@@ -33,6 +40,17 @@ struct DailyMoodTrackerApp: App {
                 clearNotificationBadge()
             }
         }
+    }
+
+    /// Set up notification center delegate
+    private func setupNotifications() {
+        // Set NotificationManager as the delegate for handling notification actions
+        UNUserNotificationCenter.current().delegate = NotificationManager.shared
+
+        // Connect NotificationManager to DataManager for saving entries
+        NotificationManager.shared.setDataManager(DataManager())
+
+        print("✅ Notification delegate configured")
     }
 
     private func clearNotificationBadge() {

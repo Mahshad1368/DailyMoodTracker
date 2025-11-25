@@ -13,6 +13,7 @@
 		A1000001000000000000001 /* DailyMoodTrackerApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000001000000000000001 /* DailyMoodTrackerApp.swift */; };
 		A1000003000000000000001 /* MoodEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000003000000000000001 /* MoodEntry.swift */; };
 		A1000004000000000000001 /* DataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000004000000000000001 /* DataManager.swift */; };
+		A1NOTIFMGR0000000000001 /* NotificationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2NOTIFMGR0000000000001 /* NotificationManager.swift */; };
 		A1000005000000000000001 /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000005000000000000001 /* HomeView.swift */; };
 		A1000006000000000000001 /* HistoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000006000000000000001 /* HistoryView.swift */; };
 		A1000007000000000000001 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A2000007000000000000001 /* Assets.xcassets */; };
@@ -69,6 +70,7 @@
 		A2000001000000000000001 /* DailyMoodTrackerApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DailyMoodTrackerApp.swift; sourceTree = "<group>"; };
 		A2000003000000000000001 /* MoodEntry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoodEntry.swift; sourceTree = "<group>"; };
 		A2000004000000000000001 /* DataManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataManager.swift; sourceTree = "<group>"; };
+		A2NOTIFMGR0000000000001 /* NotificationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationManager.swift; sourceTree = "<group>"; };
 		A2000005000000000000001 /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
 		A2000006000000000000001 /* HistoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryView.swift; sourceTree = "<group>"; };
 		A2000007000000000000001 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -210,6 +212,7 @@
 			isa = PBXGroup;
 			children = (
 				A2000004000000000000001 /* DataManager.swift */,
+				A2NOTIFMGR0000000000001 /* NotificationManager.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -388,6 +391,7 @@
 				A1000001000000000000001 /* DailyMoodTrackerApp.swift in Sources */,
 				A1000003000000000000001 /* MoodEntry.swift in Sources */,
 				A1000004000000000000001 /* DataManager.swift in Sources */,
+				A1NOTIFMGR0000000000001 /* NotificationManager.swift in Sources */,
 				A1000005000000000000001 /* HomeView.swift in Sources */,
 				A1000006000000000000001 /* HistoryView.swift in Sources */,
 				A1000020000000000000001 /* Extensions.swift in Sources */,
