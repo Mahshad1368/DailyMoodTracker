@@ -51,34 +51,36 @@ class NotificationManager: NSObject, ObservableObject {
     /// Register notification categories with action buttons
     private func registerNotificationCategories() {
         // Create actions for each mood type
+        // Note: Using empty options [] allows actions to work on Apple Watch
+        // .foreground would require opening the app, which doesn't work well on Watch
         let happyAction = UNNotificationAction(
             identifier: ActionIdentifier.logHappy.rawValue,
             title: "😊 Happy",
-            options: [.foreground]
+            options: []
         )
 
         let neutralAction = UNNotificationAction(
             identifier: ActionIdentifier.logNeutral.rawValue,
             title: "😐 Neutral",
-            options: [.foreground]
+            options: []
         )
 
         let sadAction = UNNotificationAction(
             identifier: ActionIdentifier.logSad.rawValue,
             title: "😢 Sad",
-            options: [.foreground]
+            options: []
         )
 
         let angryAction = UNNotificationAction(
             identifier: ActionIdentifier.logAngry.rawValue,
             title: "😠 Angry",
-            options: [.foreground]
+            options: []
         )
 
         let sleepyAction = UNNotificationAction(
             identifier: ActionIdentifier.logSleepy.rawValue,
             title: "😴 Sleepy",
-            options: [.foreground]
+            options: []
         )
 
         // Create category with all mood actions
@@ -141,6 +143,34 @@ class NotificationManager: NSObject, ObservableObject {
             withIdentifiers: [Self.dailyReminderIdentifier]
         )
         print("✅ Daily reminder cancelled")
+    }
+
+    /// Send a test notification immediately (5 seconds delay)
+    func sendTestNotification() {
+        let content = UNMutableNotificationContent()
+        content.title = "Test: How are you feeling?"
+        content.body = "Tap a mood button to test the feature"
+        content.sound = .default
+        content.badge = 1
+        content.categoryIdentifier = Self.categoryIdentifier // Enable action buttons
+
+        // Trigger in 5 seconds
+        let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 5, repeats: false)
+
+        let request = UNNotificationRequest(
+            identifier: "testNotification",
+            content: content,
+            trigger: trigger
+        )
+
+        UNUserNotificationCenter.current().add(request) { error in
+            if let error = error {
+                print("❌ Error sending test notification: \(error.localizedDescription)")
+            } else {
+                print("✅ Test notification will appear in 5 seconds")
+                print("   Check your Apple Watch and iPhone")
+            }
+        }
     }
 }
 

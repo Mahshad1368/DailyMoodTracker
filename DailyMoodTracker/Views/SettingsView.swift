@@ -227,6 +227,29 @@ struct SettingsView: View {
                                     }
                                 }
                                 .padding(.top, 8)
+
+                                // Test Notification Button
+                                Button(action: {
+                                    notificationManager.sendTestNotification()
+                                }) {
+                                    HStack {
+                                        Image(systemName: "bell.badge")
+                                            .foregroundColor(Color(hex: "667EEA"))
+                                        Text("Send Test Notification")
+                                            .font(.system(.subheadline, design: .rounded))
+                                            .foregroundColor(theme.textPrimary)
+                                        Spacer()
+                                        Text("5s")
+                                            .font(.caption)
+                                            .foregroundColor(theme.textSecondary)
+                                    }
+                                    .padding(.vertical, 12)
+                                    .padding(.horizontal, 16)
+                                    .background(Color(hex: "667EEA").opacity(0.1))
+                                    .cornerRadius(12)
+                                }
+                                .buttonStyle(.plain)
+                                .padding(.top, 8)
                             }
                         }
                     }
