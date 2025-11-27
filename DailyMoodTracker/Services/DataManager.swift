@@ -10,7 +10,6 @@
 //
 
 import Foundation
-import WidgetKit
 
 // MARK: - App Group Configuration
 private let appGroupID = "group.com.aibymm.moodflex"
@@ -146,10 +145,8 @@ class DataManager: ObservableObject {
                     print("❌ Verification failed: No data found after save!")
                 }
 
-                // CRITICAL: Reload all widget timelines after saving
-                print("🔄 Reloading all widget timelines...")
-                WidgetCenter.shared.reloadAllTimelines()
-                print("✅ Widget timelines reloaded")
+                // Widget support removed - no need to reload timelines
+                print("✅ Entries saved successfully")
             } else {
                 print("⚠️ synchronize() returned false")
             }
