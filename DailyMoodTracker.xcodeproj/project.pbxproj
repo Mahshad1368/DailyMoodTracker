@@ -93,7 +93,6 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		49E6FF762ECC8E72007C2417 /* MoodFlexWidget */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = MoodFlexWidget; sourceTree = "<group>"; };
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -112,7 +111,6 @@
 			children = (
 				A5000002000000000000001 /* DailyMoodTracker */,
 				A5WIDGET00000000000001 /* MoodTrackerWidget */,
-				49E6FF762ECC8E72007C2417 /* MoodFlexWidget */,
 				A5WIDGET00000000000005 /* Frameworks */,
 				A5000003000000000000001 /* Products */,
 			);
